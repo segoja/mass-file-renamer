@@ -1,5 +1,5 @@
 <template>
-    <v-layout full-height>
+    <v-layout full-height full-width>
       <v-app-bar prominent
         v-draggable
       >
@@ -33,9 +33,7 @@
         </v-list>
       </v-navigation-drawer>
       <v-main>
-        <v-container :fluid=true>
-          <RouterView />
-        </v-container>
+        <RouterView />
       </v-main>
     </v-layout>
 </template>
@@ -94,5 +92,7 @@
     min-width: 100%;
     min-height: 100%;
     padding: 0 2rem!important;
+    display: block!important;
   }
+  main, .v-layout { width: 100%!important; min-width: 100%!important; }
 </style>
