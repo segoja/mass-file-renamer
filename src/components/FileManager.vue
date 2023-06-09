@@ -1,73 +1,146 @@
 <template>
-  <v-file-input 
-    label="Select files to rename..." 
-    variant="outlined"
-    multiple
-    prepend-icon="mdi-file"
-    clearable
-    @update:modelValue="(files) => this.selectedFiles = files"
-  ></v-file-input>
-  
-  <ul v-if="this.selectedFiles">
-    <li v-for="file in this.selectedFiles">
-      <span>{{ file.name }}</span>
-    </li>
-  </ul>
-  <v-list v-if="this.selectedFiles">
-    <v-list-item 
-      v-for="file in this.selectedFiles"
-      :key="file.name"
-      :title="file.name"
-    >
-    </v-list-item>
-  </v-list>
+    <v-btn append-icon="mdi-file" @click="openFolder">
+      Select files
+    </v-btn>
+    <v-row no-gutters>
+      <v-col class="pt-3 my-0">
+        <strong>Date</strong>
+        <hr>
+      </v-col>
+      <v-col class="pt-3 my-0">
+        <strong class="px-3">File name</strong>
+        <hr>
+      </v-col>
+    </v-row>  
+    <v-row no-gutters>
+      <v-col class="py-0 my-0" cols="4">
+        <v-row no-gutters v-for="file in filteredFiles">
+          <v-col class="py-0 my-0">
+            <pre>{{file.date}}</pre>
+          </v-col>          
+        </v-row>
+      </v-col>
+      <v-col class="py-0 my-0">
+        <pre class="px-3" ref="textRef" @keyup="getText" contenteditable >{{text.selectedText}}</pre>
+      </v-col>
+      <v-col class="py-0 my-0" cols="1">
+        <v-row no-gutters v-for="file in filteredFiles">
+          <v-col class="py-0 my-0 text-end">
+            <pre class="prebuttons"><v-btn v-on:click="delFile(file)" density="compact" icon="mdi-delete-outline"></v-btn></pre>
+          </v-col>
+        </v-row>
+      </v-col>
+    </v-row>
+    <p>Final file names:</p>
+    <v-row>
+      <v-col>
+        <v-textarea auto-grow v-model="text.selectedText" />        
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col>
+        <v-textarea auto-grow v-model="text.selectedText" />
+      </v-col>
+    </v-row>
 </template>
 
-<style scoped>
-
+<style>
+  article { width: 100%; min-width: 100%; }
+  pre { line-height: 2em; padding: 0px; margin: 0px; }
+  [contenteditable] { outline: 0px solid transparent; border-color: black!important; border-width: 0px!important; }
+  .prebuttons { max-height: 2em!important; }
 </style>
 
-<script setup>
+<script setup> 
+  import { dialog, invoke } from '@tauri-apps/api';
+  import { readDir, renameFile } from '@tauri-apps/api/fs';
+  import { useDate } from 'vuetify/labs/date'
+  import { ref, computed, reactive, onMounted, onUpdated, watch, isProxy, toRaw  } from 'vue'
 
-import { dialog, invoke } from "@tauri-apps/api";
-import { readDir, renameFile } from '@tauri-apps/api/fs';
+  // Equivalent to tracked properties:
+  
+  const state = reactive({selectedFiles: []});
+  const text = reactive({selectedText: ''});
+  
+  const textRef = ref('');
+  
+  watch(state, (newValue, oldValue) => {
+    let list = toRaw(state.selectedFiles);
+    console.log(list.length);
+    let newText = '';
+    if(list.length > 0){
+      list.forEach((file)=>{
+        if(file.extension){
+          newText += file.name+'.'+file.extension+' \n';
+        } else {
+          newText += file.name+' \n';
+        }
+      });        
+    }
+    text.selectedText = newText;
+  });  
 
-defineProps({
+  watch(text, (newValue, oldValue) => {
 
-  // The equivalent to ember beforeModel;
-  setup() {
-    return {
-      { selectedFiles }
-    }
-  },
+  }); 
   
-  // The equivalent of model
-  data() {
-    return {
-      selectedFiles:  {},
+  // Equivalent to Ember computed / tracked+getters:
+
+  const filteredFiles = computed(() => {
+    if(state.selectedFiles.length > 0){
+      return state.selectedFiles;
     }
-  },
-  
-  // The equivalent to ember actions
-  methods: {
-    increment() {
-      // update component state
+    return '';
+  })
+
+  const nrFiles = computed(() => {
+    if(filteredFiles.length > 0){
+      return filteredFiles.length;
     }
-  },
-  
-  // The equivalent to ember afterModel;
-  mounted(){
-    this.selectedFiles = {};
-  },
-  // Computed properties/getters like in ember
-  computed: {
-    filteredFiles() {
-      console.log(this.selectedFiles);
-      if(this.selectedFiles.length > 0){
-        return this.selectedFiles;
-      }
-      return '';
-    }
+    return 1;
+  })
+
+  // Equivalent to Ember actions:
+
+  function getText() {
+    text.selectedText = textRef.value.innerText.trim()
   }
-})
+  
+  function openFolder() {
+    let filter = [{name: "Mp4 video file", extensions: ['mp4']}]; 
+    dialog.open({ directory: false, multiple: true, title: 'Select files to rename'/*, filters: filter */ }).then(async(files) => {
+      // console.debug(files);
+      if(files){
+        if(files.length > 0){
+          let filesList = [];
+          console.log(files);
+          files.forEach(async(file)=>{
+            let modified = await invoke('modified_time',{filePath: file});
+            modified = modified.secs_since_epoch * 1000;
+            let filedata = file.split('\\');
+            let fullfilename = filedata.pop().toString(); 
+            let filepath = file.replace(fullfilename,'');
+            let extension = '';
+            if(file.includes('.')){
+              extension = fullfilename.split('.').slice(-1).toString();
+            }
+            let filename = fullfilename.replace('.'+extension, '');
+            
+            //if(filename && extension.toLowerCase() === 'mp4'){
+            let newFile = { name: filename, extension: extension, path: filepath, date: modified };
+            // console.debug(newFile);
+            state.selectedFiles.push(await newFile);
+            //}
+          });
+          state.selectedFiles = await filesList;
+        }
+      }
+    });
+  }
+  
+  function delFile(removed){
+    console.log(removed.name);
+    state.selectedFiles = state.selectedFiles.filter((file) => file !== removed)
+  }
+  
 </script>
