@@ -3,7 +3,7 @@
       Select files
     </v-btn>
     <v-row no-gutters>
-      <v-col class="pt-3 my-0">
+      <v-col class="pt-3 my-0" cols="4">
         <strong>Date</strong>
         <hr>
       </v-col>
@@ -29,17 +29,6 @@
             <pre class="prebuttons"><v-btn v-on:click="delFile(file)" density="compact" icon="mdi-delete-outline"></v-btn></pre>
           </v-col>
         </v-row>
-      </v-col>
-    </v-row>
-    <p>Final file names:</p>
-    <v-row>
-      <v-col>
-        <v-textarea auto-grow v-model="text.selectedText" />        
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col>
-        <v-textarea auto-grow v-model="text.selectedText" />
       </v-col>
     </v-row>
 </template>
@@ -113,7 +102,7 @@
       if(files){
         if(files.length > 0){
           let filesList = [];
-          console.log(files);
+          // console.log(files);
           files.forEach(async(file)=>{
             let modified = await invoke('modified_time',{filePath: file});
             modified = modified.secs_since_epoch * 1000;
@@ -139,8 +128,43 @@
   }
   
   function delFile(removed){
-    console.log(removed.name);
-    state.selectedFiles = state.selectedFiles.filter((file) => file !== removed)
+    let prevText = textRef.value.innerText.trim()    
+    prevText = prevText.split(/\r?\n/);
+    let updatedText = '';
+    let removedText = '';
+    if(removed.extension){
+      removedText = removed.name+'.'+removed.extension+' \n';
+    } else {
+      removedText = removed.name+' \n';
+    }
+    
+    let selectedFiles = state.selectedFiles
+    let i = 0;
+    do {
+      let current = selectedFiles[i];
+      let selFileText = '';
+      if(current.extension){
+        selFileText = current.name+'.'+current.extension+' \n';
+      } else {
+        selFileText = current.name+' \n';
+      }
+      
+      let modified = prevText[i];
+      if(modified != selFileText){
+        let extension = '';
+        let name = modified
+        if(modified.includes('.')){
+          extension = modified.split('.').slice(-1).toString();
+          name = modified.split('.')[0].toString();
+        }
+        selectedFiles[i].name = name;
+        selectedFiles[i].extension = extension;
+      }
+      
+      i = i + 1;
+    } while (i < selectedFiles.length);
+
+    state.selectedFiles = selectedFiles.filter((file) => file !== removed)
   }
   
 </script>
