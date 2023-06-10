@@ -13,18 +13,18 @@
       </v-col>
     </v-row>  
     <v-row no-gutters>
-      <v-col class="py-0 my-0" cols="4">
-        <v-row no-gutters v-for="file in filteredFiles">
+      <v-col class="py-0 my-0" cols="2">
+        <v-row no-gutters v-for="file in state.selectedFiles">
           <v-col class="py-0 my-0">
-            <pre>{{file.date}}</pre>
-          </v-col>          
+            <pre>{{niceDate(file.date)}}</pre>
+          </v-col>            
         </v-row>
       </v-col>
       <v-col class="py-0 my-0">
         <pre class="px-3" ref="textRef" @keyup="getText" contenteditable >{{text.selectedText}}</pre>
       </v-col>
       <v-col class="py-0 my-0" cols="1">
-        <v-row no-gutters v-for="file in filteredFiles">
+        <v-row no-gutters v-for="file in state.selectedFiles">
           <v-col class="py-0 my-0 text-end">
             <pre class="prebuttons"><v-btn v-on:click="delFile(file)" density="compact" icon="mdi-delete-outline"></v-btn></pre>
           </v-col>
@@ -38,6 +38,7 @@
   pre { line-height: 2em; padding: 0px; margin: 0px; }
   [contenteditable] { outline: 0px solid transparent; border-color: black!important; border-width: 0px!important; }
   .prebuttons { max-height: 2em!important; }
+  pre.selectable{ pointer-events: revert-layer; }
 </style>
 
 <script setup> 
@@ -45,24 +46,25 @@
   import { readDir, renameFile } from '@tauri-apps/api/fs';
   import { useDate } from 'vuetify/labs/date'
   import { ref, computed, reactive, onMounted, onUpdated, watch, isProxy, toRaw  } from 'vue'
+  import dayjs from 'dayjs'
 
   // Equivalent to tracked properties:
   
-  const state = reactive({selectedFiles: []});
+  const state = reactive({selectedFiles: [], modifiedFiles: []});
   const text = reactive({selectedText: ''});
   
   const textRef = ref('');
   
   watch(state, (newValue, oldValue) => {
     let list = toRaw(state.selectedFiles);
-    console.log(list.length);
+    // console.log(list.length);
     let newText = '';
     if(list.length > 0){
       list.forEach((file)=>{
         if(file.extension){
-          newText += file.name+'.'+file.extension+' \n';
+          newText += file.name+'.'+file.extension+'\n';
         } else {
-          newText += file.name+' \n';
+          newText += file.name+'\n';
         }
       });        
     }
@@ -72,7 +74,10 @@
   watch(text, (newValue, oldValue) => {
 
   }); 
-  
+  onUpdated(() => {
+    // text content should be the same as current `count.value`
+    console.log(document.getElementById('count').textContent)
+  })
   // Equivalent to Ember computed / tracked+getters:
 
   const filteredFiles = computed(() => {
@@ -91,8 +96,38 @@
 
   // Equivalent to Ember actions:
 
+  function niceDate(date) {
+    if(date){
+      return dayjs(date).format('YYYY/MM/DD, HH:mm:ss');
+    } else {
+      return 'No date';
+    }
+  }
+
   function getText() {
-    text.selectedText = textRef.value.innerText.trim()
+    // text.selectedText = textRef.value.innerText.trim().split(/\r?\n/)
+    let textLines = textRef.value.innerText.trim().split(/\r?\n/);
+    let i = 0;
+    let restore = false;
+    let selectedLines = state.selectedFiles.length;
+    if(textLines < selectedLines){
+      alert('WTF BRO!');
+    }
+    do {
+      if(!textLines[i]){
+        restore = true;
+        if(state.selectedFiles[i].extension){
+          textLines[i] = state.selectedFiles[i].name+'.'+state.selectedFiles[i].extension;
+        } else {
+          textLines[i] = state.selectedFiles[i].name;
+        }
+      }
+      i = i + 1;
+    } while (i < state.selectedFiles.length);
+    
+    if(restore){
+      text.selectedText = textLines.join('\n');
+    }
   }
   
   function openFolder() {
@@ -103,6 +138,7 @@
         if(files.length > 0){
           let filesList = [];
           // console.log(files);
+          let filecounter = 0; 
           files.forEach(async(file)=>{
             let modified = await invoke('modified_time',{filePath: file});
             modified = modified.secs_since_epoch * 1000;
@@ -116,12 +152,14 @@
             let filename = fullfilename.replace('.'+extension, '');
             
             //if(filename && extension.toLowerCase() === 'mp4'){
-            let newFile = { name: filename, extension: extension, path: filepath, date: modified };
+            let newFile = { id: 'file'+filecounter, name: filename, extension: extension, path: filepath, date: modified, fullname: fullfilename };
             // console.debug(newFile);
             state.selectedFiles.push(await newFile);
             //}
+            filecounter += 1;
           });
-          state.selectedFiles = await filesList;
+          state.selectedFiles = await filesList;          
+          state.modifiedFiles = await filesList;
         }
       }
     });
@@ -133,9 +171,9 @@
     let updatedText = '';
     let removedText = '';
     if(removed.extension){
-      removedText = removed.name+'.'+removed.extension+' \n';
+      removedText = removed.name+'.'+removed.extension+'\n';
     } else {
-      removedText = removed.name+' \n';
+      removedText = removed.name+'\n';
     }
     
     let selectedFiles = state.selectedFiles
@@ -144,27 +182,28 @@
       let current = selectedFiles[i];
       let selFileText = '';
       if(current.extension){
-        selFileText = current.name+'.'+current.extension+' \n';
+        selFileText = current.name+'.'+current.extension+'\n';
       } else {
-        selFileText = current.name+' \n';
+        selFileText = current.name+'\n';
       }
       
       let modified = prevText[i];
-      if(modified != selFileText){
+      if(modified != selFileText && modified){
         let extension = '';
-        let name = modified
+        let name = modified ? modified : 'unnamed('+i+')';
         if(modified.includes('.')){
           extension = modified.split('.').slice(-1).toString();
           name = modified.split('.')[0].toString();
         }
         selectedFiles[i].name = name;
         selectedFiles[i].extension = extension;
+        selectedFiles[i].fullname = name+'.'+extension;
       }
       
       i = i + 1;
     } while (i < selectedFiles.length);
 
-    state.selectedFiles = selectedFiles.filter((file) => file !== removed)
+    state.selectedFiles = selectedFiles.filter((file) => file.id !== removed.id)
   }
   
 </script>
