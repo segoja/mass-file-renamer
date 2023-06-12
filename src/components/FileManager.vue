@@ -70,7 +70,7 @@
     // console.log(list.length);
     let newText = '';
     if(list.length > 0){
-      let textLines = list.map(item => item.fullname);
+      let textLines = list.map(item => item.newfullname);
       newText = textLines.join('\n');    
     }
     text.selectedText = newText;
@@ -108,6 +108,15 @@
   })
 
   // Equivalent to Ember actions:
+  
+  function sortById( a, b ){
+    let aID = a.id;
+    let bID = b.id;
+
+    if( aID > bID ) { return 1; }
+    if( aID == bID ){ return 0; }
+    if( aID < bID ) { return -1; }
+  }
 
   function niceDate(date) {
     if(date){
@@ -131,8 +140,8 @@
       if(prevLines == textLines){
         text.prevText = textRef.value.innerText;
       }
-      text.isKeydown = true;
     }
+    text.isKeydown = true;
   }
   
   // keyup checks:
@@ -146,7 +155,7 @@
     let i = 0;
     let restore = false;
         
-    if(textLines.length < backupLines){
+    if(textLines.length < backupLines || textLines.length > backupLines){
       //console.log('You deleted the wrong thing!');
       textRef.value.textContent = text.prevText;
       
@@ -161,11 +170,7 @@
       do {
         if(!textLines[i]){
           restore = true;
-          if(selected.extension){
-            textLines[i] = selected[i].name+'.'+selected[i].extension;
-          } else {
-            textLines[i] = selected[i].name;
-          }
+          textLines[i] = selected[i].newfullname;
         }
         i = i + 1;
       } while (i < selected.length);
@@ -183,9 +188,9 @@
       // console.debug(files);
       if(files){
         if(files.length > 0){
-          let filesList = [];
           // console.log(files);
           let filecounter = 0; 
+          state.selectedFiles = [];
           files.forEach(async(file)=>{
             let modified = await invoke('modified_time',{filePath: file});
             modified = modified.secs_since_epoch * 1000;
@@ -198,21 +203,28 @@
             }
             let filename = fullfilename.replace('.'+extension, '');
             let newId = 'file'+filecounter;
-            //if(filename && extension.toLowerCase() === 'mp4'){
-            let newFile = { id: newId, name: filename, extension: extension, path: filepath, date: modified, fullname: fullfilename, saved: false };
-            // console.debug(newFile);
+            
+            let newFile = { 
+              id: newId, 
+              name: filename, 
+              extension: extension, 
+              path: filepath, 
+              date: modified,
+              fullname: fullfilename,
+              newfullname: fullfilename,
+              saved: false,
+            };
+            
             state.selectedFiles.push(newFile);
             //}
             filecounter += 1;
           });
-          state.selectedFiles = await filesList;          
-          state.modifiedFiles = await filesList;
         }
       }
     });
   }
   
-  function saveFiles(){
+  async function saveFiles(){
 
     // We need to save the status of each file: if it has been saved or not, and update it after saving it.
 
@@ -221,70 +233,78 @@
     
     var selected = toRaw(state.selectedFiles);
     var modified = textRef.value.innerText.trim().split(/\n/);
-    
+    let haveDuplicates = modified.filter((item, index) => modified.indexOf(item) !== index);    
+    let tooLong = modified.length > state.selectedFiles.length;
     let targetLength = Number(selected.length);
-    console.log('Selected: ', targetLength);
-    console.log('Input text: ', modified.length);
-    // console.log('Selected: ', selected);
-    // console.log('Input text: ', modified);
     
-    if(targetLength == modified.length){
-      let i = 0;
-      state.selectedFiles = [];
-      do {
-        //if(selected[i].id == 'file'+i){
-          let newFullName = modified[i];
-          let newExtension = newFullName.split('.').slice(-1).toString();
-          let newName = newFullName.replace('.'+newExtension, '');
-          // if(selected[i].fullname != modified[i]){
+    console.log('Too much text?: ', tooLong);
+    console.log('Duplicates: ', haveDuplicates);
+    
+    if(haveDuplicates.length == 0 && !tooLong){     
+      if(targetLength == modified.length){
+        let i = 0;
+        state.selectedFiles = [];
+        do {
+          //if(selected[i].id == 'file'+i){
+            let newFullName = modified[i];
+            let newExtension = newFullName.split('.').slice(-1).toString();
+            let newName = newFullName.replace('.'+newExtension, '');
             let initialPath = selected[i].path+selected[i].fullname;
             let newPath = selected[i].path+modified[i];
             let updating = selected[i];
             
-            updating.fullname = newFullName;
-            updating.name = newName;
-            updating.extension = newExtension;
-            updating.saved = false;
+            updating.newfullname = newFullName;
             
-            console.log('Initial: ', initialPath);
-            console.log('Newpath: ', newPath);
-            updated = true;
-                        
-            renameFile(initialPath, newPath).then(
-              (success)=>{
-                updating.saved = true;
-                state.selectedFiles.push(updating)
-                console.log('File renamed successfully');
-              },
-              (error) => { 
-                updating.saved = false;
-                state.selectedFiles.push(updating)
-                state.renameErrors.push(error); 
-                console.log(error);
-              }
-            )
-          //} else {
-          //  console.log('New name: '+modified[i]);
-          //  console.log('Old name: '+selected[i].fullname);
-          //}
-        //} else {
-          //console.log('No changes for file'+i);
-        //}
-        i++
-      } while (i < targetLength);
-    }
-    
-    if(state.renameErrors.length > 0){
-      console.log(state.renameErrors);
-    } else {
-      if(updated){
-        console.log('Updating files array');
-        // state.selectedFiles = selected;
+            if(updating.newfullname != updating.fullname){
+              await renameFile(initialPath, newPath).then(
+                (success)=>{
+                  updated = true;
+                  console.log('Initial: ', initialPath);
+                  console.log('Newpath: ', newPath);
+                  updating.fullname = newFullName;
+                  updating.name = newName;
+                  updating.extension = newExtension;
+                  updating.saved = true;
+                  state.selectedFiles.push(updating)
+                  console.log('File renamed successfully');
+                },
+                (error) => { 
+                  console.log('Initial: ', initialPath);
+                  console.log('Newpath: ', newPath);
+                  updating.saved = false;
+                  state.selectedFiles.push(updating)
+                  state.renameErrors.push(error); 
+                  console.log(error);
+                }
+              )
+            } else {
+              updating.saved = false;
+              state.selectedFiles.push(updating);
+            }
+          i++
+        } while (i < targetLength);
+        state.selectedFiles = state.selectedFiles.sort(function sortById( a, b ){
+          let aID = a.id;
+          let bID = b.id;
+
+          if( aID > bID ) { return 1; }
+          if( aID == bID ){ return 0; }
+          if( aID < bID ) { return -1; }
+        });
+      }
+      
+      if(state.renameErrors.length > 0){
+        console.log(state.renameErrors);
+      } else {
+        if(updated){
+          console.log('Updating files array');
+          // state.selectedFiles = selected;
+        }
       }
     }
   }
   
-  function delFile(removed){
+  async function delFile(removed){
     let prevText = textRef.value.innerText.trim()    
     prevText = prevText.split(/\r?\n/);
     let updatedText = '';
@@ -314,16 +334,22 @@
           extension = modified.split('.').slice(-1).toString();
           name = modified.split('.')[0].toString();
         }
+        selectedFiles[i].newfullname = name+'.'+extension;
         selectedFiles[i].saved = false;
-        selectedFiles[i].name = name;
-        selectedFiles[i].extension = extension;
-        selectedFiles[i].fullname = name+'.'+extension;
       }
       
       i = i + 1;
     } while (i < selectedFiles.length);
+    
+    selectedFiles = await selectedFiles.sort(function sortById( a, b ){
+      let aID = a.id;
+      let bID = b.id;
 
-    state.selectedFiles = toRaw(selectedFiles.filter(file => file.id != removed.id));
+      if( aID > bID ) { return 1; }
+      if( aID == bID ){ return 0; }
+      if( aID < bID ) { return -1; }
+    });
+    state.selectedFiles = toRaw(await selectedFiles.filter(file => file.id != removed.id));
   }
   
 </script>
