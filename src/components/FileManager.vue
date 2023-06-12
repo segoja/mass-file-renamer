@@ -1,9 +1,16 @@
 <template>
-    <v-btn append-icon="mdi-file" @click="openFolder">
-      Select files
-    </v-btn>
+    <v-row>
+      <v-col>
+        <v-btn append-icon="mdi-file" @click="openFolder">
+          Select files
+        </v-btn>
+        <v-btn append-icon="mdi-content-save" @click="saveFiles" class="float-right" :disabled="isDisabled">
+          Apply
+        </v-btn>
+      </v-col>
+    </v-row>    
     <v-row no-gutters>
-      <v-col class="pt-3 my-0" cols="4">
+      <v-col class="pt-3 my-0" cols="3">
         <strong>Date</strong>
         <hr>
       </v-col>
@@ -13,15 +20,18 @@
       </v-col>
     </v-row>  
     <v-row no-gutters>
-      <v-col class="py-0 my-0" cols="2">
+      <v-col class="py-0 my-0" cols="3">
         <v-row no-gutters v-for="file in state.selectedFiles">
           <v-col class="py-0 my-0">
             <pre>{{niceDate(file.date)}}</pre>
-          </v-col>            
+          </v-col> 
+          <!-- <v-col class="py-0 my-0">
+            <pre contenteditable @paste="massPaste" @drag="massCopy" class="selectable">{{file.name}}</pre>
+          </v-col> -->           
         </v-row>
       </v-col>
       <v-col class="py-0 my-0">
-        <pre class="px-3" ref="textRef" @keyup="getText" contenteditable >{{text.selectedText}}</pre>
+        <pre class="px-3" ref="textRef" @keydown="backupText"  @keyup="getText" contenteditable >{{text.selectedText}}</pre>
       </v-col>
       <v-col class="py-0 my-0" cols="1">
         <v-row no-gutters v-for="file in state.selectedFiles">
@@ -38,7 +48,7 @@
   pre { line-height: 2em; padding: 0px; margin: 0px; }
   [contenteditable] { outline: 0px solid transparent; border-color: black!important; border-width: 0px!important; }
   .prebuttons { max-height: 2em!important; }
-  pre.selectable{ pointer-events: revert-layer; }
+  pre.selectable{ pointer-events: stroke; }
 </style>
 
 <script setup> 
@@ -50,8 +60,8 @@
 
   // Equivalent to tracked properties:
   
-  const state = reactive({selectedFiles: [], modifiedFiles: []});
-  const text = reactive({selectedText: ''});
+  const state = reactive({selectedFiles: [], renameErrors: []});
+  const text = reactive({selectedText: '', prevText: '', lastCursor: '', isKeydown: false });
   
   const textRef = ref('');
   
@@ -60,15 +70,11 @@
     // console.log(list.length);
     let newText = '';
     if(list.length > 0){
-      list.forEach((file)=>{
-        if(file.extension){
-          newText += file.name+'.'+file.extension+'\n';
-        } else {
-          newText += file.name+'\n';
-        }
-      });        
+      let textLines = list.map(item => item.fullname);
+      newText = textLines.join('\n');    
     }
     text.selectedText = newText;
+    text.prevText = newText;
   });  
 
   watch(text, (newValue, oldValue) => {
@@ -76,7 +82,7 @@
   }); 
   onUpdated(() => {
     // text content should be the same as current `count.value`
-    console.log(document.getElementById('count').textContent)
+    console.log('Content got updated')
   })
   // Equivalent to Ember computed / tracked+getters:
 
@@ -85,6 +91,13 @@
       return state.selectedFiles;
     }
     return '';
+  })
+
+  const isDisabled = computed(() => {
+    if(state.selectedFiles.length > 0){
+      return false;
+    }
+    return true;
   })
 
   const nrFiles = computed(() => {
@@ -103,30 +116,64 @@
       return 'No date';
     }
   }
-
+  
+  // Keydown checks:
+  function backupText(event){
+    if(!text.isKeydown){
+      // console.log(event);
+      let textLines = textRef.value.innerText.trim().split(/\n/).length;
+            
+      let prevLines = text.prevText.split(/\n/).length;
+      
+      let selection = document.getSelection();
+      text.lastCursor = selection.anchorOffset;
+      
+      if(prevLines == textLines){
+        text.prevText = textRef.value.innerText;
+      }
+      text.isKeydown = true;
+    }
+  }
+  
+  // keyup checks:
   function getText() {
+    text.isKeydown = false;
     // text.selectedText = textRef.value.innerText.trim().split(/\r?\n/)
-    let textLines = textRef.value.innerText.trim().split(/\r?\n/);
+    let backupLines = text.prevText.split(/\n/).length;
+    let textLines = textRef.value.innerText.trim().split(/\n/);
+    let selected = toRaw(state.selectedFiles);
+    
     let i = 0;
     let restore = false;
-    let selectedLines = state.selectedFiles.length;
-    if(textLines < selectedLines){
-      alert('WTF BRO!');
-    }
-    do {
-      if(!textLines[i]){
-        restore = true;
-        if(state.selectedFiles[i].extension){
-          textLines[i] = state.selectedFiles[i].name+'.'+state.selectedFiles[i].extension;
-        } else {
-          textLines[i] = state.selectedFiles[i].name;
+        
+    if(textLines.length < backupLines){
+      //console.log('You deleted the wrong thing!');
+      textRef.value.textContent = text.prevText;
+      
+      let selectedText = window.getSelection();
+      let selectedRange = document.createRange();
+      selectedRange.setStart(textRef.value.childNodes[0], text.lastCursor);
+      selectedRange.collapse(true);
+      selectedText.removeAllRanges();
+      selectedText.addRange(selectedRange);
+      textRef.value.focus();       
+    } else {
+      do {
+        if(!textLines[i]){
+          restore = true;
+          if(selected.extension){
+            textLines[i] = selected[i].name+'.'+selected[i].extension;
+          } else {
+            textLines[i] = selected[i].name;
+          }
         }
-      }
-      i = i + 1;
-    } while (i < state.selectedFiles.length);
-    
-    if(restore){
-      text.selectedText = textLines.join('\n');
+        i = i + 1;
+      } while (i < selected.length);
+      
+      if(restore){
+        text.selectedText = textLines.join('\n');
+      }      
+      text.prevText = text.selectedText;
     }
   }
   
@@ -150,11 +197,11 @@
               extension = fullfilename.split('.').slice(-1).toString();
             }
             let filename = fullfilename.replace('.'+extension, '');
-            
+            let newId = 'file'+filecounter;
             //if(filename && extension.toLowerCase() === 'mp4'){
-            let newFile = { id: 'file'+filecounter, name: filename, extension: extension, path: filepath, date: modified, fullname: fullfilename };
+            let newFile = { id: newId, name: filename, extension: extension, path: filepath, date: modified, fullname: fullfilename, saved: false };
             // console.debug(newFile);
-            state.selectedFiles.push(await newFile);
+            state.selectedFiles.push(newFile);
             //}
             filecounter += 1;
           });
@@ -163,6 +210,78 @@
         }
       }
     });
+  }
+  
+  function saveFiles(){
+
+    // We need to save the status of each file: if it has been saved or not, and update it after saving it.
+
+    let updated = false;
+    state.renameErrors = [];
+    
+    var selected = toRaw(state.selectedFiles);
+    var modified = textRef.value.innerText.trim().split(/\n/);
+    
+    let targetLength = Number(selected.length);
+    console.log('Selected: ', targetLength);
+    console.log('Input text: ', modified.length);
+    // console.log('Selected: ', selected);
+    // console.log('Input text: ', modified);
+    
+    if(targetLength == modified.length){
+      let i = 0;
+      state.selectedFiles = [];
+      do {
+        //if(selected[i].id == 'file'+i){
+          let newFullName = modified[i];
+          let newExtension = newFullName.split('.').slice(-1).toString();
+          let newName = newFullName.replace('.'+newExtension, '');
+          // if(selected[i].fullname != modified[i]){
+            let initialPath = selected[i].path+selected[i].fullname;
+            let newPath = selected[i].path+modified[i];
+            let updating = selected[i];
+            
+            updating.fullname = newFullName;
+            updating.name = newName;
+            updating.extension = newExtension;
+            updating.saved = false;
+            
+            console.log('Initial: ', initialPath);
+            console.log('Newpath: ', newPath);
+            updated = true;
+                        
+            renameFile(initialPath, newPath).then(
+              (success)=>{
+                updating.saved = true;
+                state.selectedFiles.push(updating)
+                console.log('File renamed successfully');
+              },
+              (error) => { 
+                updating.saved = false;
+                state.selectedFiles.push(updating)
+                state.renameErrors.push(error); 
+                console.log(error);
+              }
+            )
+          //} else {
+          //  console.log('New name: '+modified[i]);
+          //  console.log('Old name: '+selected[i].fullname);
+          //}
+        //} else {
+          //console.log('No changes for file'+i);
+        //}
+        i++
+      } while (i < targetLength);
+    }
+    
+    if(state.renameErrors.length > 0){
+      console.log(state.renameErrors);
+    } else {
+      if(updated){
+        console.log('Updating files array');
+        // state.selectedFiles = selected;
+      }
+    }
   }
   
   function delFile(removed){
@@ -176,7 +295,7 @@
       removedText = removed.name+'\n';
     }
     
-    let selectedFiles = state.selectedFiles
+    let selectedFiles = toRaw(state.selectedFiles);
     let i = 0;
     do {
       let current = selectedFiles[i];
@@ -195,6 +314,7 @@
           extension = modified.split('.').slice(-1).toString();
           name = modified.split('.')[0].toString();
         }
+        selectedFiles[i].saved = false;
         selectedFiles[i].name = name;
         selectedFiles[i].extension = extension;
         selectedFiles[i].fullname = name+'.'+extension;
@@ -203,7 +323,7 @@
       i = i + 1;
     } while (i < selectedFiles.length);
 
-    state.selectedFiles = selectedFiles.filter((file) => file.id !== removed.id)
+    state.selectedFiles = toRaw(selectedFiles.filter(file => file.id != removed.id));
   }
   
 </script>
