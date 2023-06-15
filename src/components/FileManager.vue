@@ -1,6 +1,20 @@
 <template>
     <v-row>
       <v-col>
+        <v-text-field
+          v-model="state.prefix"
+          label="Prefix"
+        ></v-text-field>
+      </v-col>
+      <v-col>
+        <v-text-field
+          v-model="state.suffix"
+          label="Suffix"
+        ></v-text-field>
+      </v-col>
+    </v-row>   
+    <v-row>
+      <v-col>
         <v-btn append-icon="mdi-file" @click="openFolder">
           Select files
         </v-btn>
@@ -60,7 +74,7 @@
 
   // Equivalent to tracked properties:
   
-  const state = reactive({selectedFiles: [], renameErrors: []});
+  const state = reactive({selectedFiles: [], renameErrors: [], prefix: '', suffix: ''});
   const text = reactive({selectedText: '', prevText: '', lastCursor: '', isKeydown: false });
   
   const textRef = ref('');
@@ -70,7 +84,20 @@
     // console.log(list.length);
     let newText = '';
     if(list.length > 0){
-      let textLines = list.map(item => item.newfullname);
+      let textLines = [];
+      if(state.prefix || state.suffix){
+        console.log('test with prefix or suffix');
+        textLines = list.map((item) => { 
+          if(item.extension){
+            return state.prefix+item.name+state.suffix+'.'+item.extension;
+          } else {
+            return state.prefix+item.name+state.suffix;
+          }
+        });
+      } else {
+        console.log('No prefix/suffix');
+        textLines = list.map(item => item.newfullname);
+      }
       newText = textLines.join('\n');    
     }
     text.selectedText = newText;
@@ -79,7 +106,8 @@
 
   watch(text, (newValue, oldValue) => {
 
-  }); 
+  });
+  
   onUpdated(() => {
     // text content should be the same as current `count.value`
     console.log('Content got updated')
@@ -170,7 +198,9 @@
       do {
         if(!textLines[i]){
           restore = true;
-          textLines[i] = selected[i].newfullname;
+          if(selected[i]){
+            textLines[i] = selected[i].newfullname;
+          }
         }
         i = i + 1;
       } while (i < selected.length);
@@ -298,6 +328,8 @@
       } else {
         if(updated){
           console.log('Updating files array');
+          state.prefix = '';
+          state.suffix = '';
           // state.selectedFiles = selected;
         }
       }
