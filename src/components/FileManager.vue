@@ -1,19 +1,5 @@
-<template>
-    <v-row>
-      <v-col>
-        <v-text-field
-          v-model="state.prefix"
-          label="Prefix"
-        ></v-text-field>
-      </v-col>
-      <v-col>
-        <v-text-field
-          v-model="state.suffix"
-          label="Suffix"
-        ></v-text-field>
-      </v-col>
-    </v-row>   
-    <v-row>
+<template>   
+    <v-row no-gutters class="pb-2">
       <v-col>
         <v-btn append-icon="mdi-file" @click="openFolder">
           Select files
@@ -22,13 +8,75 @@
           Apply
         </v-btn>
       </v-col>
-    </v-row>    
+    </v-row>  
+    <v-row dense>
+      <v-col>
+        <v-text-field
+          v-model="state.findText"
+          label="Find"
+          density="compact"
+          variant="solo"
+          append-inner-icon="mdi-magnify"
+          single-line
+          hide-details
+          clearable
+        ></v-text-field>
+      </v-col>
+      <v-col>
+        <v-text-field
+          v-model="state.replaceText"
+          label="Replace"
+          density="compact"
+          variant="solo"
+          append-inner-icon="mdi-content-paste"
+          single-line
+          hide-details
+          clearable
+          :disabled="state.removeText"
+        ></v-text-field>
+      </v-col>
+      <v-col cols="2">
+        <v-checkbox
+          v-model="state.removeText"
+          label="Remove"
+          density="compact"
+          variant="solo"
+          single-line
+          hide-details
+          >
+          </v-checkbox>
+      </v-col> 
+      <v-col>
+        <v-text-field
+          v-model="state.prefix"
+          label="Prefix"
+          density="compact"
+          variant="solo"
+          append-inner-icon="mdi-content-paste"
+          single-line
+          hide-details
+          clearable
+        ></v-text-field>
+      </v-col>
+      <v-col>
+        <v-text-field
+          v-model="state.suffix"
+          label="Suffix"
+          density="compact"
+          variant="solo"
+          append-inner-icon="mdi-content-paste"
+          single-line
+          hide-details
+          clearable
+        ></v-text-field>
+      </v-col>     
+    </v-row>  
     <v-row no-gutters>
-      <v-col class="pt-3 my-0" cols="3">
+      <v-col class="pt-2 my-0" cols="3">
         <strong>Date</strong>
         <hr>
       </v-col>
-      <v-col class="pt-3 my-0">
+      <v-col class="pt-2 my-0">
         <strong class="px-3">File name</strong>
         <hr>
       </v-col>
@@ -74,7 +122,7 @@
 
   // Equivalent to tracked properties:
   
-  const state = reactive({selectedFiles: [], renameErrors: [], prefix: '', suffix: ''});
+  const state = reactive({selectedFiles: [], renameErrors: [], prefix: '', suffix: '', findText: '', replaceText: '', removeText: false});
   const text = reactive({selectedText: '', prevText: '', lastCursor: '', isKeydown: false });
   
   const textRef = ref('');
@@ -85,20 +133,39 @@
     let newText = '';
     if(list.length > 0){
       let textLines = [];
-      if(state.prefix || state.suffix){
+      if(state.prefix || state.suffix || state.findText){
         console.log('test with prefix or suffix');
-        textLines = list.map((item) => { 
-          if(item.extension){
-            return state.prefix+item.name+state.suffix+'.'+item.extension;
+        textLines = list.map((item) => {
+        
+          let finalname = item.name;
+          
+          // Find-replace functionality
+          let findText = state.findText.replace(/[^a-zA-Z0-9 _\.\-]/g, '');
+          let relaceText = state.replaceText.replace(/[^a-zA-Z0-9 _\.\-]/g, '');
+          if(findText && relaceText && !state.removeText){
+            finalname = finalname.replaceAll(findText,relaceText);
           } else {
-            return state.prefix+item.name+state.suffix;
+            if(state.findText && state.removeText){
+              finalname = finalname.replaceAll(state.findText,'');        
+            }
+          }
+          
+          // Prefix/suffix functionality
+          if(state.prefix || state.suffix){
+            if(item.extension){
+              return state.prefix+finalname+state.suffix+'.'+item.extension;
+            } else {
+              return state.prefix+finalname+state.suffix;
+            }
+          } else {
+            return finalname+'.'+item.extension;
           }
         });
       } else {
         console.log('No prefix/suffix');
         textLines = list.map(item => item.newfullname);
       }
-      newText = textLines.join('\n');    
+      newText = textLines.join('\n');
     }
     text.selectedText = newText;
     text.prevText = newText;
@@ -330,6 +397,9 @@
           console.log('Updating files array');
           state.prefix = '';
           state.suffix = '';
+          state.findText = '';
+          state.replaceText = '';
+          state.removeText = false;
           // state.selectedFiles = selected;
         }
       }
