@@ -1,78 +1,124 @@
 <template>   
-    <v-row no-gutters class="pb-2">
-      <v-col>
-        <v-btn append-icon="mdi-file" @click="openFolder">
-          Select files
-        </v-btn>
-        <v-btn append-icon="mdi-content-save" @click="saveFiles" class="float-right" :disabled="isDisabled">
-          Apply
-        </v-btn>
+    <v-row dense>
+      <v-col cols="12" sm="6">
+        <v-row dense>
+          <v-col cols="6">
+            <v-btn 
+              append-icon="mdi-file" 
+              @click="openFolder"
+              variant="tonal"
+              color="primary"
+              class="w-100"
+            >
+              Select files
+            </v-btn>
+          </v-col>
+          <v-col cols="6">
+            <v-btn 
+              append-icon="mdi-content-save" 
+              @click="saveFiles" 
+              :disabled="isDisabled"
+              variant="tonal"
+              color="warning"
+              class="w-100"
+            >
+              Apply
+            </v-btn>
+          </v-col>
+        </v-row>
+      </v-col>
+      <v-col cols="12" sm="6">
+        <v-text-field
+          v-model="state.fileFilter"
+          label="Filter"
+          density="compact"
+          variant="solo"
+          append-inner-icon="mdi-filter"
+          single-line
+          hide-details
+          clearable :disabled="isDisabled"
+        ></v-text-field>
       </v-col>
     </v-row>  
     <v-row dense>
       <v-col>
-        <v-text-field
-          v-model="state.findText"
-          label="Find"
-          density="compact"
-          variant="solo"
-          append-inner-icon="mdi-magnify"
-          single-line
-          hide-details
-          clearable
-        ></v-text-field>
-      </v-col>
-      <v-col>
-        <v-text-field
-          v-model="state.replaceText"
-          label="Replace"
-          density="compact"
-          variant="solo"
-          append-inner-icon="mdi-content-paste"
-          single-line
-          hide-details
-          clearable
-          :disabled="state.removeText"
-        ></v-text-field>
-      </v-col>
-      <v-col cols="2">
-        <v-checkbox
-          v-model="state.removeText"
-          label="Remove"
-          density="compact"
-          variant="solo"
-          single-line
-          hide-details
+        <v-row dense>
+          <v-col cols="12"
+              :md="state.removeText?'':'5'"
+            >
+            <v-text-field
+              v-model="state.findText"
+              label="Find"
+              density="compact"
+              variant="solo"
+              append-inner-icon="mdi-magnify"
+              single-line
+              hide-details
+              clearable :disabled="isDisabled"
+            ></v-text-field>
+          </v-col>
+          <v-col :class="{ 'd-none': state.removeText }">
+            <v-text-field
+              v-model="state.replaceText"
+              label="Replace"
+              density="compact"
+              variant="solo"
+              single-line
+              hide-details
+              clearable
+              :disabled="state.removeText || isDisabled"
+            ></v-text-field>
+          </v-col>
+          <v-col cols="auto"
+            md="auto"
           >
-          </v-checkbox>
-      </v-col> 
-      <v-col>
-        <v-text-field
-          v-model="state.prefix"
-          label="Prefix"
-          density="compact"
-          variant="solo"
-          append-inner-icon="mdi-content-paste"
-          single-line
-          hide-details
-          clearable
-        ></v-text-field>
+            <v-checkbox
+              v-model="state.removeText"
+              :label="state.removeText?'Remove':'Rm'"
+              title="Remove"
+              density="compact"
+              single-line
+              hide-details 
+              variant="solo"
+              :disabled="isDisabled"
+              >
+              </v-checkbox>
+          </v-col> 
+        </v-row>
       </v-col>
       <v-col>
-        <v-text-field
-          v-model="state.suffix"
-          label="Suffix"
-          density="compact"
-          variant="solo"
-          append-inner-icon="mdi-content-paste"
-          single-line
-          hide-details
-          clearable
-        ></v-text-field>
-      </v-col>     
+        <v-row dense>
+          <v-col cols="12"
+            md="6"
+          >
+            <v-text-field
+              v-model="state.prefix"
+              label="Prefix"
+              density="compact"
+              variant="solo"
+              single-line
+              hide-details
+              clearable :disabled="isDisabled"
+            ></v-text-field>
+          </v-col>
+          <v-col cols="12"
+            md="6"
+          >
+            <v-text-field
+              v-model="state.suffix"
+              label="Suffix"
+              density="compact"
+              variant="solo"
+              single-line
+              hide-details
+              clearable :disabled="isDisabled"
+            ></v-text-field>
+          </v-col>
+        </v-row>
+      </v-col>
     </v-row>  
     <v-row no-gutters>
-      <v-col class="pt-2 my-0" cols="3">
+      <v-col class="pt-2 my-0" cols="5" sm="3">
         <strong>Date</strong>
         <hr>
       </v-col>
@@ -82,8 +128,8 @@
       </v-col>
     </v-row>  
     <v-row no-gutters>
-      <v-col class="py-0 my-0" cols="3">
-        <v-row no-gutters v-for="file in state.selectedFiles">
+      <v-col class="py-0 my-0" cols="5" sm="3">
+        <v-row no-gutters v-for="file in filteredFiles">
           <v-col class="py-0 my-0">
             <pre>{{niceDate(file.date)}}</pre>
           </v-col> 
@@ -96,7 +142,7 @@
         <pre class="px-3" ref="textRef" @keydown="backupText"  @keyup="getText" contenteditable >{{text.selectedText}}</pre>
       </v-col>
       <v-col class="py-0 my-0" cols="1">
-        <v-row no-gutters v-for="file in state.selectedFiles">
+        <v-row no-gutters v-for="file in filteredFiles">
           <v-col class="py-0 my-0 text-end">
             <pre class="prebuttons"><v-btn v-on:click="delFile(file)" density="compact" icon="mdi-delete-outline"></v-btn></pre>
           </v-col>
@@ -122,17 +168,30 @@
 
   // Equivalent to tracked properties:
   
-  const state = reactive({selectedFiles: [], renameErrors: [], prefix: '', suffix: '', findText: '', replaceText: '', removeText: false});
+  const state = reactive({
+    selectedFiles: [], 
+    renameErrors: [], 
+    prefix: '', suffix: '', 
+    findText: '', replaceText: '', 
+    removeText: false,
+    fileFilter: ''
+  });
   const text = reactive({selectedText: '', prevText: '', lastCursor: '', isKeydown: false });
   
   const textRef = ref('');
   
   watch(state, (newValue, oldValue) => {
-    let list = toRaw(state.selectedFiles);
+    let list = toRaw(filteredFiles.value);
+    // console.log(filteredFiles);
     // console.log(list.length);
     let newText = '';
     if(list.length > 0){
       let textLines = [];
+      if(state.fileFilter){
+      let filter = state.fileFilter.toLowerCase();
+        list = list.filter(item => item.name.toLowerCase().includes(filter));
+      }
+      
       if(state.prefix || state.suffix || state.findText){
         console.log('test with prefix or suffix');
         textLines = list.map((item) => {
@@ -183,6 +242,10 @@
 
   const filteredFiles = computed(() => {
     if(state.selectedFiles.length > 0){
+      if(state.fileFilter){
+        let filter = state.fileFilter.toLowerCase();
+        return state.selectedFiles.filter(item => item.name.toLowerCase().includes(filter));
+      } 
       return state.selectedFiles;
     }
     return '';
@@ -193,13 +256,6 @@
       return false;
     }
     return true;
-  })
-
-  const nrFiles = computed(() => {
-    if(filteredFiles.length > 0){
-      return filteredFiles.length;
-    }
-    return 1;
   })
 
   // Equivalent to Ember actions:
@@ -245,7 +301,7 @@
     // text.selectedText = textRef.value.innerText.trim().split(/\r?\n/)
     let backupLines = text.prevText.split(/\n/).length;
     let textLines = textRef.value.innerText.trim().split(/\n/);
-    let selected = toRaw(state.selectedFiles);
+    let selected = toRaw(filteredFiles.value);
     
     let i = 0;
     let restore = false;
@@ -328,10 +384,10 @@
     let updated = false;
     state.renameErrors = [];
     
-    var selected = toRaw(state.selectedFiles);
+    var selected = toRaw(filteredFiles.value);
     var modified = textRef.value.innerText.trim().split(/\n/);
     let haveDuplicates = modified.filter((item, index) => modified.indexOf(item) !== index);    
-    let tooLong = modified.length > state.selectedFiles.length;
+    let tooLong = modified.length > selected.length;
     let targetLength = Number(selected.length);
     
     console.log('Too much text?: ', tooLong);
@@ -399,6 +455,7 @@
           state.suffix = '';
           state.findText = '';
           state.replaceText = '';
+          state.fileFilter = '';
           state.removeText = false;
           // state.selectedFiles = selected;
         }
@@ -417,7 +474,7 @@
       removedText = removed.name+'\n';
     }
     
-    let selectedFiles = toRaw(state.selectedFiles);
+    let selectedFiles = toRaw(filteredFiles.value);
     let i = 0;
     do {
       let current = selectedFiles[i];

@@ -1,6 +1,8 @@
 <template>
-    <v-layout full-height full-width>
-      <v-app-bar prominent
+    <v-layout full-height full-width
+        density="compact">
+      <v-app-bar prominent 
+        density="compact"
         v-draggable
       >
         <v-app-bar-nav-icon
@@ -13,10 +15,6 @@
         <v-toolbar-title>MFR</v-toolbar-title>
 
         <v-spacer></v-spacer>
-
-        <v-btn variant="text" icon="mdi-magnify" v-draggable:disable ></v-btn>
-
-        <v-btn variant="text" icon="mdi-filter" v-draggable:disable ></v-btn>
 
         <v-btn variant="text" icon="mdi-dots-vertical" v-draggable:disable ></v-btn>
       </v-app-bar>
@@ -32,7 +30,7 @@
           </v-list-item>
         </v-list>
       </v-navigation-drawer>
-      <v-main>
+      <v-main class="px-0">
         <RouterView />
       </v-main>
     </v-layout>
@@ -91,7 +89,7 @@
     max-height: 100%;
     min-width: 100%;
     min-height: 100%;
-    padding: 0 2rem!important;
+    padding: 1rem 1rem!important;
     display: block!important;
   }
   main, .v-layout { width: 100%!important; min-width: 100%!important; }
