@@ -7,7 +7,7 @@
               append-icon="mdi-file" 
               @click="openFolder"
               variant="tonal"
-              color="primary"
+              color="secondary"
               class="w-100"
             >
               Select files
@@ -162,9 +162,9 @@
 <script setup> 
   import { dialog, invoke } from '@tauri-apps/api';
   import { readDir, renameFile } from '@tauri-apps/api/fs';
-  import { useDate } from 'vuetify/labs/date'
-  import { ref, computed, reactive, onMounted, onUpdated, watch, isProxy, toRaw  } from 'vue'
-  import dayjs from 'dayjs'
+  import { useDate } from 'vuetify/labs/date';
+  import { ref, computed, reactive, onMounted, onUpdated, watch, isProxy, toRaw  } from 'vue';
+  import dayjs from 'dayjs';
 
   // Equivalent to tracked properties:
   
