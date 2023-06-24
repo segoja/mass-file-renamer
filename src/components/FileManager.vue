@@ -1,5 +1,5 @@
-<template>   
-    <v-row dense>
+<template>
+    <v-row dense class="mx-3 pt-4">
       <v-col cols="12" sm="6">
         <v-row dense>
           <v-col cols="6">
@@ -40,7 +40,7 @@
         ></v-text-field>
       </v-col>
     </v-row>  
-    <v-row dense>
+    <v-row dense class="mx-3">
       <v-col>
         <v-row dense>
           <v-col cols="12"
@@ -116,39 +116,50 @@
           </v-col>
         </v-row>
       </v-col>
-    </v-row>  
-    <v-row no-gutters>
+    </v-row>
+    <v-row no-gutters class="mx-3">
       <v-col class="pt-2 my-0" cols="5" sm="3">
         <strong>Date</strong>
         <hr>
       </v-col>
-      <v-col class="pt-2 my-0">
-        <strong class="px-3">File name</strong>
+      <v-col class="pt-2 my-0 pe-0">
+        <strong>File name</strong>
         <hr>
       </v-col>
-    </v-row>  
-    <v-row no-gutters>
+    </v-row>
+    <v-row no-gutters class="mx-3">
+      <v-col class="m-0 p-0">
+        <v-alert 
+          closable
+          v-model="state.alert"
+          density="compact"
+          type="warning"
+          variant="tonal"
+          title="Error"
+        >
+        <pre>{{state.alertMsg}}</pre>
+        </v-alert>
+      </v-col>
+    </v-row>
+    <v-row class="h-100 overflow-y-auto overflow-x-auto mb-3 mt-0 mx-3" no-gutters>
       <v-col class="py-0 my-0" cols="5" sm="3">
         <v-row no-gutters v-for="file in filteredFiles">
           <v-col class="py-0 my-0">
             <pre>{{niceDate(file.date)}}</pre>
-          </v-col> 
-          <!-- <v-col class="py-0 my-0">
-            <pre contenteditable @paste="massPaste" @drag="massCopy" class="selectable">{{file.name}}</pre>
-          </v-col> -->           
+          </v-col>          
         </v-row>
       </v-col>
       <v-col class="py-0 my-0">
-        <pre class="px-3" ref="textRef" @keydown="backupText"  @keyup="getText" contenteditable >{{text.selectedText}}</pre>
+        <pre ref="textRef" @keydown="backupText"  @keyup="getText" contenteditable >{{text.selectedText}}</pre>
       </v-col>
-      <v-col class="py-0 my-0" cols="1">
+      <v-col class="py-0 my-0 pe-0" cols="1">
         <v-row no-gutters v-for="file in filteredFiles">
           <v-col class="py-0 my-0 text-end">
             <pre class="prebuttons"><v-btn v-on:click="delFile(file)" density="compact" icon="mdi-delete-outline"></v-btn></pre>
           </v-col>
         </v-row>
       </v-col>
-    </v-row>
+    </v-row>   
 </template>
 
 <style>
@@ -174,7 +185,9 @@
     prefix: '', suffix: '', 
     findText: '', replaceText: '', 
     removeText: false,
-    fileFilter: ''
+    fileFilter: '',
+    alert: false,
+    alertMsg: ""
   });
   const text = reactive({selectedText: '', prevText: '', lastCursor: '', isKeydown: false });
   
@@ -343,6 +356,9 @@
         if(files.length > 0){
           // console.log(files);
           let filecounter = 0; 
+          state.renameErrors = [];
+          state.alertMsg = ''
+          state.alert = false
           state.selectedFiles = [];
           files.forEach(async(file)=>{
             let modified = await invoke('modified_time',{filePath: file});
@@ -383,6 +399,8 @@
 
     let updated = false;
     state.renameErrors = [];
+    state.alertMsg = ''
+    state.alert = false
     
     var selected = toRaw(filteredFiles.value);
     var modified = textRef.value.innerText.trim().split(/\n/);
@@ -448,6 +466,8 @@
       
       if(state.renameErrors.length > 0){
         console.log(state.renameErrors);
+        
+        
       } else {
         if(updated){
           console.log('Updating files array');
@@ -460,6 +480,16 @@
           // state.selectedFiles = selected;
         }
       }
+    } else {
+      if(haveDuplicates.length > 0){
+        haveDuplicates.forEach((fileErr)=>{
+          state.alertMsg += 'The file name '+fileErr+' is duplicated.\n';         
+        });
+      }
+      if(tooLong){
+        state.alertMsg += 'There are more names than files!.\n'; 
+      }
+      state.alert = true;
     }
   }
   

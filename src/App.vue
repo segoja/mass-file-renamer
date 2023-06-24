@@ -1,41 +1,41 @@
 <template>
-    <v-layout full-height full-width
-        density="compact">
-      <v-app-bar prominent 
-        density="compact"
-        v-draggable
+  <v-layout full-height full-width
+      density="compact" class="h-100 w-100 flex-fill">
+    <v-app-bar prominent 
+      density="compact"
+      v-draggable
+    >
+      <v-app-bar-nav-icon
+        variant="text"
+        @click.stop="drawer = !drawer"
+        v-draggable:disable
       >
-        <v-app-bar-nav-icon
-          variant="text"
-          @click.stop="drawer = !drawer"
-          v-draggable:disable
+      </v-app-bar-nav-icon>
+
+      <v-toolbar-title>MFR</v-toolbar-title>
+
+      <v-spacer></v-spacer>
+      <v-btn variant="text" icon="mdi-theme-light-dark" v-draggable:disable @click="toggleLight"></v-btn>
+      <v-btn variant="text" icon="mdi-window-minimize" v-draggable:disable @click="minimizeWindow"></v-btn>
+      <v-btn variant="text" icon="mdi-window-maximize" v-draggable:disable @click="maximizeWindow"></v-btn>
+      <v-btn variant="text" icon="mdi-close" v-draggable:disable @click="closeWindow"></v-btn>
+    </v-app-bar>
+
+    <v-navigation-drawer v-model="drawer" location="top" temporary>
+      <v-list>
+        <v-list-item 
+          v-for="item in items"
+          :key="item.title"
+          :title="item.title"
+          :to="item.value"
         >
-        </v-app-bar-nav-icon>
-
-        <v-toolbar-title>MFR</v-toolbar-title>
-
-        <v-spacer></v-spacer>
-        <v-btn variant="text" icon="mdi-theme-light-dark" v-draggable:disable @click="toggleLight"></v-btn>
-        <v-btn variant="text" icon="mdi-window-minimize" v-draggable:disable @click="minimizeWindow"></v-btn>
-        <v-btn variant="text" icon="mdi-window-maximize" v-draggable:disable @click="maximizeWindow"></v-btn>
-        <v-btn variant="text" icon="mdi-close" v-draggable:disable @click="closeWindow"></v-btn>
-      </v-app-bar>
-
-      <v-navigation-drawer v-model="drawer" location="top" temporary>
-        <v-list>
-          <v-list-item 
-            v-for="item in items"
-            :key="item.title"
-            :title="item.title"
-            :to="item.value"
-          >
-          </v-list-item>
-        </v-list>
-      </v-navigation-drawer>
-      <v-main class="px-0">
-        <RouterView />
-      </v-main>
-    </v-layout>
+        </v-list-item>
+      </v-list>
+    </v-navigation-drawer>
+    <v-main class="d-flex flex-column h-100 flex-fill">
+      <RouterView />
+    </v-main>
+  </v-layout>
 </template>
 <script>
   import { useTheme } from 'vuetify'
@@ -108,10 +108,9 @@
   html::-webkit-scrollbar {
     display: none;
   }
+  body, html { overflow: hidden; height: 100%; }
   body {
-      display: flex;
-      place-items: initial;
-      border: 3px solid rgba(0,0,0,0.5)!important;
+      border: 5px solid rgba(0,0,0,0.5)!important;
   }
   
   header { 
@@ -120,15 +119,6 @@
     border-right: 3px solid rgba(0,0,0,0.5)!important;  
   }
   
-  #app{
-    width: 100%;
-    height: 100%;
-    max-width: 100%;
-    max-height: 100%;
-    min-width: 100%;
-    min-height: 100%;
-    padding: 1rem 1rem!important;
-    display: block!important;
-  }
-  main, .v-layout { width: 100%!important; min-width: 100%!important; }
+  main { padding: 5rem 1rem 0rem 1rem; }
+  #app { max-width: 100%; } 
 </style>
