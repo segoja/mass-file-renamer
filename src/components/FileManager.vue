@@ -1,5 +1,5 @@
 <template>
-    <v-row dense class="mx-3 pt-4">
+    <v-row dense class="mx-2 pt-4">
       <v-col cols="12" sm="6">
         <v-row dense>
           <v-col cols="6">
@@ -40,7 +40,7 @@
         ></v-text-field>
       </v-col>
     </v-row>  
-    <v-row dense class="mx-3">
+    <v-row dense class="mx-2">
       <v-col>
         <v-row dense>
           <v-col cols="12"
@@ -99,7 +99,11 @@
               single-line
               hide-details
               clearable :disabled="isDisabled"
-            ></v-text-field>
+            >  
+              <template v-slot:append-inner>             
+                <v-icon icon="mdi-format-list-numbered" :color="state.preNum? 'secondary':undefined" @click="togglePreNum" />
+              </template>
+            </v-text-field>
           </v-col>
           <v-col cols="12"
             md="6"
@@ -111,20 +115,27 @@
               variant="solo"
               single-line
               hide-details
-              clearable :disabled="isDisabled"
-            ></v-text-field>
+              clearable :disabled="isDisabled"              
+            > <template v-slot:append-inner>         
+                <v-icon icon="mdi-format-list-numbered-rtl" :color="state.posNum? 'secondary':undefined" @click="togglePosNum" />
+              </template>
+            </v-text-field>
           </v-col>
         </v-row>
       </v-col>
     </v-row>
     <v-row no-gutters class="mx-3">
-      <v-col class="pt-2 my-0" cols="5" sm="3">
-        <strong>Date</strong>
-        <hr>
-      </v-col>
       <v-col class="pt-2 my-0 pe-0">
         <strong>File name</strong>
-        <hr>
+      </v-col>
+      <v-col class="pt-2 my-0 pe-1 text-right">
+        <v-row no-gutters class="stripped" justify="end">
+          <v-col class="py-0 my-0 pl-1 d-none d-sm-block text-right">
+          </v-col> 
+          <v-col class="py-0 my-0 text-end" cols="1" sm="4">
+            <v-icon icon="mdi-delete-sweep-outline"></v-icon>
+          </v-col>          
+        </v-row>
       </v-col>
     </v-row>
     <v-row no-gutters class="mx-3">
@@ -141,22 +152,21 @@
         </v-alert>
       </v-col>
     </v-row>
-    <v-row class="h-100 overflow-y-auto overflow-x-auto mb-3 mt-0 mx-3" no-gutters>
-      <v-col class="py-0 my-0" cols="5" sm="3">
-        <v-row no-gutters v-for="file in filteredFiles">
-          <v-col class="py-0 my-0">
+    <v-row class="h-100 overflow-y-auto mb-3 mt-0 mx-3 border-2 files" no-gutters>
+      <v-col class="py-0 my-0 ps-1 overflow-x-auto filenames">
+        <pre ref="textRef" @keydown="backupText" @keyup="getText" contenteditable >{{text.selectedText}}</pre>
+      </v-col>
+      <v-col class="py-0 my-0 text-right" cols="2" sm="5">
+        <v-row no-gutters v-for="file in filteredFiles" class="stripped" justify="end">
+          <v-spacer></v-spacer>
+          <v-col class="py-0 my-0 ps-1 d-none d-sm-block text-right">
             <pre>{{niceDate(file.date)}}</pre>
+          </v-col> 
+          <v-col class="py-0 my-0 text-right" sm="2" md="1">
+            <pre class="prebuttons"><v-btn v-on:click="delFile(file)" density="compact" icon="mdi-file-document-remove-outline"
+              variant="plain"
+              color="deep-orange-accent-4"></v-btn></pre>
           </v-col>          
-        </v-row>
-      </v-col>
-      <v-col class="py-0 my-0">
-        <pre ref="textRef" @keydown="backupText"  @keyup="getText" contenteditable >{{text.selectedText}}</pre>
-      </v-col>
-      <v-col class="py-0 my-0 pe-0" cols="1">
-        <v-row no-gutters v-for="file in filteredFiles">
-          <v-col class="py-0 my-0 text-end">
-            <pre class="prebuttons"><v-btn v-on:click="delFile(file)" density="compact" icon="mdi-delete-outline"></v-btn></pre>
-          </v-col>
         </v-row>
       </v-col>
     </v-row>   
@@ -168,6 +178,12 @@
   [contenteditable] { outline: 0px solid transparent; border-color: black!important; border-width: 0px!important; }
   .prebuttons { max-height: 2em!important; }
   pre.selectable{ pointer-events: stroke; }
+  .border-bottom { border-bottom: 2px solid rgba(var(--v-border-color), var(--v-border-opacity)) !important; }
+  .border-2 { border: 2px solid rgba(var(--v-border-color), var(--v-border-opacity)) !important; }
+  /* .files .v-row:nth-of-type(even) { background-color: rgba(0, 0, 0, .5); } */
+  /* .filenames { background: repeating-linear-gradient(to bottom, transparent, transparent 30px, rgba(0,0,0,0.5) 0px, rgba(0,0,0,0.5) 60px); } */
+  /* .files { background: repeating-linear-gradient(to bottom, transparent, transparent 30px, rgba(0,0,0,0.5) 0px, rgba(0,0,0,0.5) 60px); } */
+  .files { background: rgba(0,0,0,0.5); }
 </style>
 
 <script setup> 
@@ -181,8 +197,11 @@
   
   const state = reactive({
     selectedFiles: [], 
-    renameErrors: [], 
-    prefix: '', suffix: '', 
+    renameErrors: [],
+    preNum: false,
+    prefix: '', 
+    suffix: '',
+    posNum: false,
     findText: '', replaceText: '', 
     removeText: false,
     fileFilter: '',
@@ -200,44 +219,72 @@
     let newText = '';
     if(list.length > 0){
       let textLines = [];
-      if(state.fileFilter){
-      let filter = state.fileFilter.toLowerCase();
+      if(state.fileFilter && state.fileFilter != null){
+        let filter = state.fileFilter.toLowerCase();
         list = list.filter(item => item.name.toLowerCase().includes(filter));
       }
       
-      if(state.prefix || state.suffix || state.findText){
+      if(state.prefix || state.suffix || state.findText || state.preNum || state.posNum){
         console.log('test with prefix or suffix');
-        textLines = list.map((item) => {
+        let numDigits = '';
+        if(state.posNum || state.preNum){
+          numDigits = list.length;
+          numDigits = Math.floor(Math.log10(numDigits) + 1);
+        }
         
+        
+        let listNr = 0;
+        list.forEach((item) => {          
+          listNr = listNr +1;          
           let finalname = item.name;
-          
-          // Find-replace functionality
-          let findText = state.findText.replace(/[^a-zA-Z0-9 _\.\-]/g, '');
-          let relaceText = state.replaceText.replace(/[^a-zA-Z0-9 _\.\-]/g, '');
-          if(findText && relaceText && !state.removeText){
-            finalname = finalname.replaceAll(findText,relaceText);
-          } else {
-            if(state.findText && state.removeText){
-              finalname = finalname.replaceAll(state.findText,'');        
-            }
-          }
+          let finalExtension = item.extension;
           
           // Prefix/suffix functionality
-          if(state.prefix || state.suffix){
-            if(item.extension){
-              return state.prefix+finalname+state.suffix+'.'+item.extension;
-            } else {
-              return state.prefix+finalname+state.suffix;
-            }
-          } else {
-            return finalname+'.'+item.extension;
+          if(state.prefix && state.prefix != null){
+            finalname = state.prefix+finalname;
+          } 
+          if(state.suffix && state.suffix != null){
+            finalname = finalname+state.suffix;
+          } 
+          
+          let numString = listNr.toString().padStart(numDigits, "0");
+          if(state.preNum){
+            finalname = numString+finalname;          
           }
+          
+          if(state.posNum){
+            finalname = finalname+numString;              
+          }
+          
+          if(finalExtension){
+            finalname = finalname+'.'+finalExtension;
+          }
+          
+          // Find-replace functionality
+          let findText = '';
+          let replaceText = '';
+          if(state.findText != null){
+            findText = state.findText.replace(/[^a-zA-Z0-9 _\.\-]/g, '');
+          }
+          if(state.replaceText != null){
+            replaceText = state.replaceText.replace(/[^a-zA-Z0-9 _\.\-]/g, '');
+          }
+          if(findText && replaceText && !state.removeText){          
+            finalname = finalname.replaceAll(findText,replaceText);
+          } else {
+            if(findText && state.removeText){
+              finalname = finalname.replaceAll(findText,'');
+            }
+          }
+          
+          textLines.push(finalname);
         });
+        newText = textLines.join('\n');
       } else {
         console.log('No prefix/suffix');
         textLines = list.map(item => item.newfullname);
+        newText = textLines.join('\n');
       }
-      newText = textLines.join('\n');
     }
     text.selectedText = newText;
     text.prevText = newText;
@@ -272,6 +319,14 @@
   })
 
   // Equivalent to Ember actions:
+  
+  function togglePreNum(){
+    state.preNum = !state.preNum;
+  }
+  
+  function togglePosNum(){
+    state.posNum = !state.posNum;  
+  }
   
   function sortById( a, b ){
     let aID = a.id;
@@ -360,7 +415,7 @@
           state.alertMsg = ''
           state.alert = false
           state.selectedFiles = [];
-          files.forEach(async(file)=>{
+          files.map(async(file)=>{
             let modified = await invoke('modified_time',{filePath: file});
             modified = modified.secs_since_epoch * 1000;
             let filedata = file.split('\\');
@@ -384,7 +439,7 @@
               saved: false,
             };
             
-            state.selectedFiles.push(newFile);
+            await state.selectedFiles.push(newFile);
             //}
             filecounter += 1;
           });

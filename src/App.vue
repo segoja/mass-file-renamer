@@ -4,21 +4,21 @@
     <v-app-bar prominent 
       density="compact"
       v-draggable
+       :elevation="2"
     >
       <v-app-bar-nav-icon
         variant="text"
         @click.stop="drawer = !drawer"
-        v-draggable:disable
-      >
-      </v-app-bar-nav-icon>
+        v-draggable:disable 
+      />
 
       <v-toolbar-title>MFR</v-toolbar-title>
 
       <v-spacer></v-spacer>
-      <v-btn variant="text" icon="mdi-theme-light-dark" v-draggable:disable @click="toggleLight"></v-btn>
-      <v-btn variant="text" icon="mdi-window-minimize" v-draggable:disable @click="minimizeWindow"></v-btn>
-      <v-btn variant="text" icon="mdi-window-maximize" v-draggable:disable @click="maximizeWindow"></v-btn>
-      <v-btn variant="text" icon="mdi-close" v-draggable:disable @click="closeWindow"></v-btn>
+      <!-- <v-btn variant="text" icon="mdi-theme-light-dark" v-draggable:disable @click="toggleLight"></v-btn> -->
+      <v-btn variant="text" size="small" icon="mdi-window-minimize" ></v-btn>
+      <v-btn variant="text" size="small" icon="mdi-window-maximize" v-draggable:disable @click="maximizeWindow"></v-btn>
+      <v-btn variant="text" color="red" size="small" icon="mdi-close" v-draggable:disable @click="closeWindow"></v-btn>
     </v-app-bar>
 
     <v-navigation-drawer v-model="drawer" location="top" temporary>
