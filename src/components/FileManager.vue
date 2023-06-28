@@ -2,20 +2,31 @@
   <v-row dense class="mx-2 pt-4">
     <v-col cols="12" sm="6">
       <v-row dense no-gutters class="mh-100">
-        <v-col cols="6" class="mh-100 pr-1">
+        <v-col cols="4" class="mh-100 pr-1">
           <v-btn
-            append-icon="mdi-file"
+            append-icon="mdi-folder"
             @click="openFolder"
             variant="tonal"
             color="secondary"
             class="w-100 mh-100"
           >
-            Select files
+            Folder
           </v-btn>
         </v-col>
-        <v-col cols="6" class="mh-100 pl-1">
+        <v-col cols="4" class="mh-100 pr-1">
+          <v-btn
+            append-icon="mdi-file"
+            @click="selectFiles"
+            variant="tonal"
+            color="secondary"
+            class="w-100 mh-100"
+          >
+            Files
+          </v-btn>
+        </v-col>
+        <v-col cols="4" class="mh-100 pl-1">
           <ButtonConfirm
-            btnText="Apply"
+            btnText="Rename"
             btnAppendIcon="mdi-content-save"
             :btnDisabled="isDisabled"
             btnVariant="tonal"
@@ -172,7 +183,7 @@
             icon="mdi-close-box-multiple-outline" 
             @click="clearAll" 
             variant="plain" 
-            color="warning"
+            color="brown"
             :disabled="isDisabled"
           />
         </v-col>
@@ -193,9 +204,63 @@
       </v-alert>
     </v-col>
   </v-row>
-  <v-row class="h-100 overflow-y-auto mb-3 mt-0 mx-3 border-2 files" no-gutters>
+  <v-row no-gutters class="mx-3 justify-center">
+    <v-col cols="12">
+      <v-dialog
+        v-model="isLoading"
+        persistent
+        transition="dialog-bottom-transition"
+        class="w-100"
+      >
+        <v-row no-gutters class="mx-3 justify-center">
+          <v-col cols="12" md="6">      
+            <v-card class="w-100">
+              <v-card-title class="text-h5 text-center">
+                Loading...
+              </v-card-title>
+              <v-card-text>
+                <v-progress-linear
+                  :model-value="progress"
+                  height="15"
+                  striped
+                  color="secondary"
+                  :active="isLoading"
+                ></v-progress-linear>        
+              </v-card-text>
+            </v-card>
+          </v-col>
+        </v-row>
+      </v-dialog>
+      <v-dialog
+        v-model="isRenaming"
+        persistent
+        transition="dialog-bottom-transition"
+        class="w-100"
+      >
+        <v-row no-gutters class="mx-3 justify-center">
+          <v-col cols="12" md="6">      
+            <v-card class="w-100">
+              <v-card-title class="text-h5 text-center">
+                Renaming...
+              </v-card-title>
+              <v-card-text>
+                <v-progress-linear
+                  :model-value="progress"
+                  height="15"
+                  striped
+                  color="warning"
+                  :active="isRenaming"
+                ></v-progress-linear>        
+              </v-card-text>
+            </v-card>
+          </v-col>
+        </v-row>
+      </v-dialog>
+    </v-col>
+  </v-row>
+  <v-row class="h-100 overflow-y-auto mb-3 mt-0 mx-3 border-2 files justify-center" no-gutters>
     <v-col class="py-0 my-0 ps-1 overflow-x-auto filenames">
-      <pre ref="textRef" @keydown="backupText" @keyup="getText" contenteditable>{{text.selectedText}}</pre>
+      <pre ref="textRef" @keydown="backupText" @keyup="getText" disabled="isLoading" contenteditable>{{text.selectedText}}</pre>
     </v-col>
     <v-col class="py-0 my-0 text-right col-auto">
       <v-row no-gutters v-for="file in filteredFiles" class="stripped" justify="end">
@@ -286,9 +351,17 @@ const state = reactive({
   alert: false,
   alertMsg: ''
 })
-const text = reactive({ selectedText: '', prevText: '', lastCursor: '', isKeydown: false })
+const text = reactive({ 
+  selectedText: '', 
+  prevText: '', 
+  lastCursor: '', 
+  isKeydown: false,
+})
 
 const textRef = ref('')
+const progress = ref(0)
+const isLoading = ref(false)
+const isRenaming = ref(false)
 
 watch(state, (newValue, oldValue) => {
   let list = toRaw(filteredFiles.value)
@@ -522,7 +595,61 @@ function getText() {
 }
 
 function openFolder() {
-  let filter = [{ name: 'Mp4 video file', extensions: ['mp4'] }]
+  dialog.open({ directory: true }).then((directory) => {
+    // console.debug(directory);
+    if (directory != null && directory) {
+      readDir(directory, { recursive: false }).then((files) => {
+        if (files.length > 0) {
+          clearAll();
+          let totalLenght = files.length;
+          isLoading.value = true;
+          let filecounter = 0;
+          let folders = 0;
+          files.map(async (file) => {
+            let pathInfo = await invoke('get_path_info', { filePath: file.path });
+            if(!pathInfo.is_folder){
+              let modified = pathInfo.modified.secs_since_epoch * 1000;
+              let filedata = file.path.split('\\');
+              let fullfilename = file.name;
+              let filepath = file.path.replace(fullfilename, '');
+              let extension = '';
+              if (fullfilename.includes('.')) {
+                extension = fullfilename.split('.').slice(-1).toString();
+              }
+              let filename = fullfilename.replace('.' + extension, '');
+              let newId = 'file' + filecounter;
+
+              let newFile = {
+                id: newId,
+                name: filename,
+                extension: extension,
+                path: filepath,
+                date: modified,
+                fullname: fullfilename,
+                newfullname: fullfilename,
+                saved: false
+              }
+
+              await state.selectedFiles.push(newFile);
+              
+              filecounter += 1;
+              if(filecounter == (totalLenght - folders)){
+                isLoading.value = false;
+                progress.value = 0;
+              } else {
+                progress.value = Math.ceil((filecounter * 100 )/(totalLenght - folders));
+              }
+            } else {
+              folders += 1;
+            }
+          });
+        }
+      });
+    }
+  });
+}
+
+function selectFiles() {
   dialog
     .open({
       directory: false,
@@ -534,39 +661,47 @@ function openFolder() {
       if (files) {
         if (files.length > 0) {
           clearAll();
-          // console.log(files);
-          let filecounter = 0
-          state.renameErrors = []
-          state.alertMsg = ''
-          state.alert = false
-          state.selectedFiles = []
+          let totalLenght = files.length;
+          isLoading.value = true;
+          let filecounter = 0;
+          let folders = 0;
           files.map(async (file) => {
-            let modified = await invoke('modified_time', { filePath: file })
-            modified = modified.secs_since_epoch * 1000
-            let filedata = file.split('\\')
-            let fullfilename = filedata.pop().toString()
-            let filepath = file.replace(fullfilename, '')
-            let extension = ''
-            if (file.includes('.')) {
-              extension = fullfilename.split('.').slice(-1).toString()
-            }
-            let filename = fullfilename.replace('.' + extension, '')
-            let newId = 'file' + filecounter
+            let pathInfo = await invoke('get_path_info', { filePath: file });
+            if(!pathInfo.is_folder){
+              let modified = pathInfo.modified.secs_since_epoch * 1000;              
+              let filedata = file.split('\\')
+              let fullfilename = filedata.pop().toString()
+              let filepath = file.replace(fullfilename, '')
+              let extension = ''
+              if (fullfilename.includes('.')) {
+                extension = fullfilename.split('.').slice(-1).toString()
+              }
+              let filename = fullfilename.replace('.' + extension, '')
+              let newId = 'file' + filecounter
 
-            let newFile = {
-              id: newId,
-              name: filename,
-              extension: extension,
-              path: filepath,
-              date: modified,
-              fullname: fullfilename,
-              newfullname: fullfilename,
-              saved: false
-            }
+              let newFile = {
+                id: newId,
+                name: filename,
+                extension: extension,
+                path: filepath,
+                date: modified,
+                fullname: fullfilename,
+                newfullname: fullfilename,
+                saved: false
+              }
 
-            await state.selectedFiles.push(newFile)
-            //}
-            filecounter += 1
+              await state.selectedFiles.push(newFile)
+              
+              filecounter += 1;
+              if(filecounter == (totalLenght - folders)){
+                isLoading.value = false;
+                progress.value = 0;
+              } else {
+                progress.value = Math.ceil((filecounter * 100 )/(totalLenght - folders));
+              }
+            } else {
+              folders += 1;
+            }
           })
         }
       }
@@ -589,11 +724,24 @@ async function saveFiles() {
 
   console.log('Too much text?: ', tooLong)
   console.log('Duplicates: ', haveDuplicates)
-
+  
   if (haveDuplicates.length == 0 && !tooLong) {
     if (targetLength == modified.length) {
+      isRenaming.value = true;
+      let filecounter = 0;
       let i = 0
       state.selectedFiles = []
+      state.prefix = ''
+      state.suffix = ''
+      state.findText = ''
+      state.replaceText = ''
+      state.fileFilter = ''
+      state.removeText = false
+      state.preNum = false;
+      state.posNum = false;
+      state.toLower = false;
+      state.toUpper = false;
+
       do {
         //if(selected[i].id == 'file'+i){
         let newFullName = modified[i]
@@ -631,22 +779,26 @@ async function saveFiles() {
           updating.saved = false
           state.selectedFiles.push(updating)
         }
+        
+        filecounter++
+        
+        if(filecounter + 1 == targetLength){
+          isRenaming.value = false;
+          progress.value = 0;
+        } else {
+          progress.value = Math.ceil(((filecounter + 1) * 100 )/targetLength);
+        }
         i++
       } while (i < targetLength)
-      state.selectedFiles = state.selectedFiles.sort(function sortById(a, b) {
-        let aID = a.id
-        let bID = b.id
-
-        if (aID > bID) {
-          return 1
+      /*state.selectedFiles = state.selectedFiles.sort((a, b)=>{
+        if (a.id < b.id) {
+          return -1;
         }
-        if (aID == bID) {
-          return 0
+        if (a.id > b.id) {
+          return 1;
         }
-        if (aID < bID) {
-          return -1
-        }
-      })
+        return 0;
+      })*/
     }
 
     if (state.renameErrors.length > 0) {
@@ -660,10 +812,16 @@ async function saveFiles() {
         state.replaceText = ''
         state.fileFilter = ''
         state.removeText = false
+        state.preNum = false;
+        state.posNum = false;
+        state.toLower = false;
+        state.toUpper = false;
         // state.selectedFiles = selected;
       }
     }
   } else {
+    isRenaming.value = false;
+    progress.value = 0;
     if (haveDuplicates.length > 0) {
       haveDuplicates.forEach((fileErr) => {
         state.alertMsg += 'The file name ' + fileErr + ' is duplicated.\n'

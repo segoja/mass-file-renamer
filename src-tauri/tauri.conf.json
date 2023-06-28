@@ -32,7 +32,10 @@
         "removeDir": true,
         "removeFile": true,
         "renameFile": true
-      }, 
+      },
+      "path": {
+        "all": true
+      },
       "window": {
         "all": true,
         "create": true,
