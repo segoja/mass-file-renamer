@@ -4,6 +4,4 @@
   </article>
 </template>
 
-<style>
-
-</style>
+<style></style>
