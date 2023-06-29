@@ -138,19 +138,6 @@
             clearable
             :disabled="isDisabled"
           >
-            <template v-slot:prepend-inner>
-              <v-icon
-                icon="mdi-format-list-numbered"
-                :color="state.preNum ? 'secondary' : undefined"
-                @click="togglePreNum"
-              />
-              <v-icon
-                icon="mdi-clipboard-text-clock"
-                :color="state.preTime ? 'secondary' : undefined"
-                @click="togglePreTime"
-                class="pr-1"
-              />
-            </template>
           </v-text-field>
         </v-col>
         <v-col cols="12" md="6">
@@ -164,22 +151,64 @@
             clearable
             :disabled="isDisabled"
           >
-            <template v-slot:append-inner>
-              <v-icon
-                icon="mdi-format-list-numbered-rtl"
-                :color="state.posNum ? 'secondary' : undefined"
-                @click="togglePosNum"
-                class="pr-1"
-              />
-              <v-icon
-                icon="mdi-clipboard-text-clock"
-                :color="state.posTime ? 'secondary' : undefined"
-                @click="togglePosTime"
-              />
-            </template>
           </v-text-field>
         </v-col>
       </v-row>
+    </v-col>
+  </v-row>
+  <v-row no-gutters class="mx-3 pt-2">
+    <v-col>
+      <v-select
+        v-model="state.elements"
+        :items="items"
+        label="Select naming elements"
+        density="compact"
+        variant="solo"
+        single-line
+        clearable
+        multiple
+        :disabled="isDisabled"
+      >
+        <template v-slot:selection="{ item, index }">
+          <v-chip>
+            <span>{{ item.title }}</span>
+          </v-chip>
+        </template>
+      </v-select>
+    </v-col>
+  </v-row>
+  <v-row>
+    <v-col>
+        <v-chip-group
+          mandatory
+          variant="solo"
+          selected-class="text-primary"
+        >
+          <v-chip
+            v-for="(item, index) in state.elements"
+            :key="item"
+            @click="removeElement(index)"
+          >
+            {{ item }}
+          </v-chip>
+        </v-chip-group>
+    </v-col>
+  </v-row>
+  <v-row>
+    <v-col>
+        <v-chip-group
+          mandatory
+          variant="solo"
+          selected-class="text-primary"
+        >
+          <v-chip
+            v-for="item in items"
+            :key="item"
+            @click="addElement(item)"
+          >
+            {{ item }}
+          </v-chip>
+        </v-chip-group>
     </v-col>
   </v-row>
   <v-row no-gutters class="mx-3">
@@ -363,7 +392,8 @@ const state = reactive({
   removeText: false,
   fileFilter: '',
   alert: false,
-  alertMsg: ''
+  alertMsg: '',
+  elements: []
 })
 const text = reactive({ 
   selectedText: '', 
@@ -377,7 +407,10 @@ const progress = ref(0)
 const isLoading = ref(false)
 const isRenaming = ref(false)
 
+const items = ['date', 'time', 'name', 'number', 'prefix', 'suffix']
+
 watch(state, (newValue, oldValue) => {
+
   let list = toRaw(filteredFiles.value)
   // console.log(filteredFiles);
   // console.log(list.length);
@@ -390,15 +423,12 @@ watch(state, (newValue, oldValue) => {
     }
 
     if (
+      state.elements.length > 1 ||
       state.prefix || 
-      state.suffix || 
-      state.findText || 
-      state.preNum || 
-      state.posNum || 
-      state.preTime || 
-      state.posTime || 
+      state.suffix ||
       state.toLower || 
-      state.toUpper
+      state.toUpper ||
+      state.findText 
     ) {
       console.log('test with prefix or suffix')
       let numDigits = ''
@@ -406,18 +436,46 @@ watch(state, (newValue, oldValue) => {
         numDigits = list.length
         numDigits = Math.floor(Math.log10(numDigits) + 1)
       }
-
+      let structure = '';
+      if(state.elements.length > 0){
+        structure = '\\'+state.elements.join('-\\');
+        console.log(structure);
+      }
+      
       let listNr = 0
       list.forEach((item) => {
         listNr = listNr + 1
         let finalname = item.name
         let finalExtension = item.extension
-        let date = dayjs(item.date).format('YYYYMMDD-HHmmss').toString();
+        let date = dayjs(item.date).format('YYYYMMDD').toString()
+        let time = dayjs(item.date).format('HHmmss').toString()
         let numString = listNr.toString().padStart(numDigits, '0')
-
+        let prefix = state.prefix != null? state.prefix : '';
+        let suffix = state.suffix != null? state.suffix : '';
+        if(state.elements.length > 0){
+          // finalname = structure.replace('\\number', String(numString));
+          finalname = structure.split('\\number').join(String(numString))
+          finalname = finalname.replace('\\date', date);
+          finalname = finalname.replace('\\time', time);
+          if(prefix){
+            finalname = finalname.replace('\\prefix', prefix);
+          } else{
+            finalname = finalname.replace('-\\prefix', ''); 
+            finalname = finalname.replace('\\prefix', '');          
+          }
+          if(suffix){
+            finalname = finalname.replace('\\suffix', suffix);
+          } else {
+            finalname = finalname.replace('-\\suffix', '');
+            finalname = finalname.replace('\\suffix', '');
+          }
+          finalname = finalname.replace('\\name', item.name);
+        } else {
+          finalname = item.name;
+        }
         // Prefix/suffix functionality
         // Order is important when adding prefix and suffix. We go from center to edges:
-        if (state.prefix && state.prefix != null) {
+        /*if (state.prefix && state.prefix != null) {
           finalname = state.prefix + finalname
         }
         if (state.suffix && state.suffix != null) {
@@ -446,7 +504,7 @@ watch(state, (newValue, oldValue) => {
         
         if (state.preNum) {
           finalname = numString + finalname
-        }
+        }*/
 
                         
         if(state.toLower){
@@ -534,10 +592,23 @@ function clearAll(){
   state.fileFilter = '';
   state.alert = false;
   state.alertMsg = ''
+  state.elements = [];
   text.selectedText = '';
   text.prevText = '';
   text.lastCursor = '';
   text.isKeydown = false;
+}
+
+function addElement(item){
+  if(item){
+    state.elements.push(item);
+  }
+}
+
+function removeElement(index){
+  if(!isNaN(index)){
+    state.elements.splice(index, 1);
+  }
 }
 
 function togglePreTime() {
