@@ -594,7 +594,7 @@ function clearAll(){
   state.removeText = false;
   state.fileFilter = '';
   state.alert = false;
-  state.alertMsg = ''
+  state.alertMsg = '';
   state.elements = [];
   text.selectedText = '';
   text.prevText = '';
@@ -870,6 +870,7 @@ async function saveFiles() {
       state.findText = ''
       state.replaceText = ''
       state.fileFilter = ''
+      state.elements = [];
       state.removeText = false
       state.preNum = false;
       state.posNum = false;
@@ -949,6 +950,7 @@ async function saveFiles() {
         state.findText = ''
         state.replaceText = ''
         state.fileFilter = ''
+        state.elements = [];
         state.removeText = false
         state.preNum = false;
         state.posNum = false;
