@@ -470,11 +470,10 @@ watch(state, (newValue, oldValue) => {
       state.findText 
     ) {
       console.log('test with prefix or suffix')
-      let numDigits = ''
-      if (state.posNum || state.preNum) {
-        numDigits = list.length
-        numDigits = Math.floor(Math.log10(numDigits) + 1)
-      }
+      let numDigits = 0
+      numDigits = list.length
+      numDigits = Math.floor(Math.log10(numDigits) + 1)
+      
       let structure = '';
       if(state.elements.length > 0){
         structure = '\\'+state.elements.join('-\\');
@@ -482,32 +481,31 @@ watch(state, (newValue, oldValue) => {
       
       let listNr = 0
       list.forEach((item) => {
-        listNr = listNr + 1
+        listNr = String(Number(listNr) + 1)
         let finalname = item.name
         let finalExtension = item.extension
         let date = dayjs(item.date).format('YYYYMMDD').toString()
         let time = dayjs(item.date).format('HHmmss').toString()
-        let numString = listNr.toString().padStart(numDigits, '0')
+        let numString = listNr.padStart(numDigits, 0)
         let prefix = state.prefix != null? state.prefix : '';
         let suffix = state.suffix != null? state.suffix : '';
         if(state.elements.length > 0){
-          // finalname = structure.replace('\\number', String(numString));
-          finalname = structure.replaceAll('\\number', String(numString))
-          finalname = finalname.replaceAll('\\date', date);
-          finalname = finalname.replaceAll('\\time', time);
+          finalname = structure.replaceAll(/\\number/g, numString);          
+          finalname = String(finalname).replaceAll(/\\date/g, date);
+          finalname = String(finalname).replaceAll(/\\time/g, time);
           if(prefix){
-            finalname = finalname.replaceAll('\\prefix', prefix);
+            finalname = finalname.replaceAll(/\\prefix/g, prefix);
           } else{
-            finalname = finalname.replaceAll('-\\prefix', ''); 
-            finalname = finalname.replaceAll('\\prefix', '');          
+            finalname = finalname.replaceAll(/-\\prefix/g, ''); 
+            finalname = finalname.replaceAll(/\\prefix/g, '');          
           }
           if(suffix){
-            finalname = finalname.replaceAll('\\suffix', suffix);
+            finalname = finalname.replaceAll(/\\suffix/g, suffix);
           } else {
-            finalname = finalname.replaceAll('-\\suffix', '');
-            finalname = finalname.replaceAll('\\suffix', '');
+            finalname = finalname.replaceAll(/-\\suffix/g, '');
+            finalname = finalname.replaceAll(/\\suffix/g, '');
           }
-          finalname = finalname.replaceAll('\\name', item.name);
+          finalname = finalname.replaceAll(/\\name/g, item.name);
         } else {
           finalname = item.name;
         }

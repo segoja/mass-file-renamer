@@ -86,8 +86,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "com.tauri.dev",
-      "longDescription": "",
+      "longDescription": "Mass File Renamer",
       "macOS": {
         "entitlements": null,
         "exceptionDomain": "",
