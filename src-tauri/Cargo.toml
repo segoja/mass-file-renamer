@@ -1,10 +1,10 @@
 [package]
 name = "app"
-version = "0.1.0"
-description = "A Tauri App"
-authors = ["you"]
-license = ""
-repository = ""
+version = "0.4.5"
+description = "Mass File Renamer"
+authors = ["Javier Sevilla"]
+license = "MIT"
+repository = "https://github.com/segoja/mass-file-renamer"
 default-run = "app"
 edition = "2021"
 rust-version = "1.60"

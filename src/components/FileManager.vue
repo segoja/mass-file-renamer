@@ -87,8 +87,9 @@
       <v-chip-group class="bg-grey-darken-4 rounded py-0 px-1" :disabled="isDisabled">
         <v-chip
           size="small"
-          color="secondary" variant="text"
+          variant="text"
           label
+          draggable
           class="v-label my-1"
         >
           Elements:
@@ -97,6 +98,7 @@
           class="text-secondary"
           v-for="item in items"
           size="small"
+          draggable
           label
           :key="item"
           @click="addElement(item)"
@@ -111,8 +113,9 @@
           <v-col class="col-auto">
             <v-chip
               size="small"
-              color="secondary" variant="text"
+              variant="text"
               label
+              draggable
               class="v-label my-1"
             >
               Template:
@@ -131,6 +134,7 @@
                 <v-chip
                   size="small"
                   label
+                  draggable
                   color="warning"
                   class="my-0 mx-0 mr-1 text-warning"
                   @click="removeElement(index)"
@@ -144,6 +148,7 @@
             <v-chip
               v-if="state.elements.length"
               @click="clearElements"
+              draggable
               class="px-0 ml-2 mr-0"
               variant="plain"
               color="warning"
