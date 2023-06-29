@@ -82,7 +82,117 @@
       </v-row>
     </v-col>
   </v-row>
+  <v-row class="mx-2" dense>
+    <v-col cols="12" md="6">
+      <v-chip-group class="bg-grey-darken-4 rounded py-0 px-1" :disabled="isDisabled">
+        <v-chip
+          size="small"
+          color="secondary" variant="text"
+          label
+          class="v-label my-1"
+        >
+          Elements:
+        </v-chip>
+        <v-chip
+          class="text-secondary"
+          v-for="item in items"
+          size="small"
+          label
+          :key="item"
+          @click="addElement(item)"
+        >
+          {{ item }}
+        </v-chip>
+      </v-chip-group>
+    </v-col>
+    <v-col cols="12" md="6">
+      <v-chip-group class="bg-grey-darken-4 rounded py-0 px-1 d-block w-100 h-100" :disabled="isDisabled">
+        <v-row no-gutters dense>
+          <v-col class="col-auto">
+            <v-chip
+              size="small"
+              color="secondary" variant="text"
+              label
+              class="v-label my-1"
+            >
+              Template:
+            </v-chip>
+          </v-col>
+          <v-col class="fancyscroll">
+            <v-slide-group
+              show-arrows
+              class="w-100 mt-1 text-warning"
+              compact
+            >
+              <v-slide-group-item
+                v-for="(item, index) in state.elements" 
+                :key="item"
+              >
+                <v-chip
+                  size="small"
+                  label
+                  color="warning"
+                  class="my-0 mx-0 mr-1 text-warning"
+                  @click="removeElement(index)"
+                >
+                  {{ item }}
+                </v-chip>
+              </v-slide-group-item>
+            </v-slide-group>
+          </v-col>
+          <v-col class="col-auto">
+            <v-chip
+              v-if="state.elements.length"
+              @click="clearElements"
+              class="px-0 ml-2 mr-0"
+              variant="plain"
+              color="warning"
+              size="small"
+              label 
+            >
+              <span class="mr-1">{{state.elements.length}}</span>
+              <v-icon
+                size="large"
+                icon="mdi-eraser"
+                color="warning"
+              />
+            </v-chip>
+          </v-col>
+        </v-row>
+      </v-chip-group>
+    </v-col>
+  </v-row>
   <v-row dense class="mx-2">
+    <v-col>
+      <v-row dense>
+        <v-col cols="12" md="6">
+          <v-text-field
+            v-model="state.prefix"
+            label="Prefix"
+            density="compact"
+            variant="solo"
+            single-line
+            hide-details
+            clearable
+            :disabled="isDisabled"
+          >
+          </v-text-field>
+        </v-col>
+        <v-col cols="12" md="6">
+          <v-text-field
+            v-model="state.suffix"
+            label="Suffix"
+            density="compact"
+            variant="solo"
+            single-line
+            hide-details
+            clearable
+            :disabled="isDisabled"
+          >
+          </v-text-field>
+        </v-col>
+      </v-row>
+    </v-col>
     <v-col>
       <v-row dense>
         <v-col cols="12" :md="state.removeText ? '' : '5'">
@@ -124,91 +234,6 @@
           </v-checkbox>
         </v-col>
       </v-row>
-    </v-col>
-    <v-col>
-      <v-row dense>
-        <v-col cols="12" md="6">
-          <v-text-field
-            v-model="state.prefix"
-            label="Prefix"
-            density="compact"
-            variant="solo"
-            single-line
-            hide-details
-            clearable
-            :disabled="isDisabled"
-          >
-          </v-text-field>
-        </v-col>
-        <v-col cols="12" md="6">
-          <v-text-field
-            v-model="state.suffix"
-            label="Suffix"
-            density="compact"
-            variant="solo"
-            single-line
-            hide-details
-            clearable
-            :disabled="isDisabled"
-          >
-          </v-text-field>
-        </v-col>
-      </v-row>
-    </v-col>
-  </v-row>
-  <v-row no-gutters class="mx-3 pt-2">
-    <v-col>
-      <v-select
-        v-model="state.elements"
-        :items="items"
-        label="Select naming elements"
-        density="compact"
-        variant="solo"
-        single-line
-        clearable
-        multiple
-        :disabled="isDisabled"
-      >
-        <template v-slot:selection="{ item, index }">
-          <v-chip>
-            <span>{{ item.title }}</span>
-          </v-chip>
-        </template>
-      </v-select>
-    </v-col>
-  </v-row>
-  <v-row>
-    <v-col>
-        <v-chip-group
-          mandatory
-          variant="solo"
-          selected-class="text-primary"
-        >
-          <v-chip
-            v-for="(item, index) in state.elements"
-            :key="item"
-            @click="removeElement(index)"
-          >
-            {{ item }}
-          </v-chip>
-        </v-chip-group>
-    </v-col>
-  </v-row>
-  <v-row>
-    <v-col>
-        <v-chip-group
-          mandatory
-          variant="solo"
-          selected-class="text-primary"
-        >
-          <v-chip
-            v-for="item in items"
-            :key="item"
-            @click="addElement(item)"
-          >
-            {{ item }}
-          </v-chip>
-        </v-chip-group>
     </v-col>
   </v-row>
   <v-row no-gutters class="mx-3">
@@ -352,6 +377,15 @@ pre {
 pre.selectable {
   pointer-events: stroke;
 }
+
+.fancyscroll{
+  overflow-x: hidden !important;
+}
+
+.fancyscroll .v-slide-group__next, .fancyscroll .v-slide-group__prev{
+  min-width: initial;
+}
+
 .border-bottom {
   border-bottom: 2px solid rgba(var(--v-border-color), var(--v-border-opacity)) !important;
 }
@@ -439,7 +473,6 @@ watch(state, (newValue, oldValue) => {
       let structure = '';
       if(state.elements.length > 0){
         structure = '\\'+state.elements.join('-\\');
-        console.log(structure);
       }
       
       let listNr = 0
@@ -454,58 +487,25 @@ watch(state, (newValue, oldValue) => {
         let suffix = state.suffix != null? state.suffix : '';
         if(state.elements.length > 0){
           // finalname = structure.replace('\\number', String(numString));
-          finalname = structure.split('\\number').join(String(numString))
-          finalname = finalname.replace('\\date', date);
-          finalname = finalname.replace('\\time', time);
+          finalname = structure.replaceAll('\\number', String(numString))
+          finalname = finalname.replaceAll('\\date', date);
+          finalname = finalname.replaceAll('\\time', time);
           if(prefix){
-            finalname = finalname.replace('\\prefix', prefix);
+            finalname = finalname.replaceAll('\\prefix', prefix);
           } else{
-            finalname = finalname.replace('-\\prefix', ''); 
-            finalname = finalname.replace('\\prefix', '');          
+            finalname = finalname.replaceAll('-\\prefix', ''); 
+            finalname = finalname.replaceAll('\\prefix', '');          
           }
           if(suffix){
-            finalname = finalname.replace('\\suffix', suffix);
+            finalname = finalname.replaceAll('\\suffix', suffix);
           } else {
-            finalname = finalname.replace('-\\suffix', '');
-            finalname = finalname.replace('\\suffix', '');
+            finalname = finalname.replaceAll('-\\suffix', '');
+            finalname = finalname.replaceAll('\\suffix', '');
           }
-          finalname = finalname.replace('\\name', item.name);
+          finalname = finalname.replaceAll('\\name', item.name);
         } else {
           finalname = item.name;
         }
-        // Prefix/suffix functionality
-        // Order is important when adding prefix and suffix. We go from center to edges:
-        /*if (state.prefix && state.prefix != null) {
-          finalname = state.prefix + finalname
-        }
-        if (state.suffix && state.suffix != null) {
-          finalname = finalname + state.suffix
-        }
-        
-        if (state.preTime) {
-          if(state.preNum){
-            finalname = '-' +date + finalname
-          } else {
-            finalname = date + finalname          
-          }
-        }
-        
-        if (state.posNum) {
-          if (state.posTime) {
-            finalname = finalname + numString + '-' 
-          } else {
-            finalname = finalname + numString
-          }
-        }
-        
-        if (state.posTime) {
-           finalname = finalname + date 
-        }        
-        
-        if (state.preNum) {
-          finalname = numString + finalname
-        }*/
-
                         
         if(state.toLower){
           finalname = finalname.toLowerCase();
@@ -599,12 +599,14 @@ function clearAll(){
   text.isKeydown = false;
 }
 
+function clearElements(){
+  state.elements = [];
+}
 function addElement(item){
   if(item){
     state.elements.push(item);
   }
 }
-
 function removeElement(index){
   if(!isNaN(index)){
     state.elements.splice(index, 1);
@@ -761,8 +763,10 @@ function openFolder() {
               folders += 1;
             }
             if(filecounter == (totalLenght - folders)){
-              isLoading.value = false;
-              progress.value = 0;
+              setTimeout(() => {
+                isLoading.value = false;
+                progress.value = 0;
+              }, 500)
             } else {
               progress.value = Math.ceil((filecounter * 100 )/(totalLenght - folders));
             }
@@ -822,8 +826,10 @@ function selectFiles() {
             }
             
             if(filecounter == (totalLenght - folders)){
-              isLoading.value = false;
-              progress.value = 0;
+              setTimeout(() => {
+                isLoading.value = false;
+                progress.value = 0;
+              }, 500)
             } else {
               progress.value = Math.ceil((filecounter * 100 )/(totalLenght - folders));
             }
@@ -910,8 +916,10 @@ async function saveFiles() {
         filecounter++
         
         if(filecounter + 1 == targetLength){
-          isRenaming.value = false;
-          progress.value = 0;
+          setTimeout(() => {
+            isRenaming.value = false;
+            progress.value = 0;
+          }, 500)
         } else {
           progress.value = Math.ceil(((filecounter + 1) * 100 )/targetLength);
         }
@@ -949,8 +957,10 @@ async function saveFiles() {
       }
     }
   } else {
-    isRenaming.value = false;
-    progress.value = 0;
+    setTimeout(() => {
+      isRenaming.value = false;
+      progress.value = 0;
+    }, 1000)
     if (haveDuplicates.length > 0) {
       haveDuplicates.forEach((fileErr) => {
         state.alertMsg += 'The file name ' + fileErr + ' is duplicated.\n'

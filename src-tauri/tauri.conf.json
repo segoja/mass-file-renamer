@@ -116,8 +116,8 @@
         "title": "Mass File Renamer",
         "width": 1080,
         "height": 800,
-        "minWidth": 450,
-        "minHeight": 600,
+        "minWidth": 1024,
+        "minHeight": 768,
         "decorations": false
       }
     ]
