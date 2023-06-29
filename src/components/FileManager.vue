@@ -138,11 +138,17 @@
             clearable
             :disabled="isDisabled"
           >
-            <template v-slot:append-inner>
+            <template v-slot:prepend-inner>
               <v-icon
                 icon="mdi-format-list-numbered"
                 :color="state.preNum ? 'secondary' : undefined"
                 @click="togglePreNum"
+              />
+              <v-icon
+                icon="mdi-clipboard-text-clock"
+                :color="state.preTime ? 'secondary' : undefined"
+                @click="togglePreTime"
+                class="pr-1"
               />
             </template>
           </v-text-field>
@@ -163,6 +169,12 @@
                 icon="mdi-format-list-numbered-rtl"
                 :color="state.posNum ? 'secondary' : undefined"
                 @click="togglePosNum"
+                class="pr-1"
+              />
+              <v-icon
+                icon="mdi-clipboard-text-clock"
+                :color="state.posTime ? 'secondary' : undefined"
+                @click="togglePosTime"
               />
             </template>
           </v-text-field>
@@ -338,10 +350,12 @@ import ButtonConfirm from './ButtonConfirm.vue'
 const state = reactive({
   selectedFiles: [],
   renameErrors: [],
+  preTime: false,
   preNum: false,
   prefix: '',
   suffix: '',
   posNum: false,
+  posTime: false,
   toLower: false,
   toUpper: false,
   findText: '',
@@ -375,7 +389,17 @@ watch(state, (newValue, oldValue) => {
       list = list.filter((item) => item.name.toLowerCase().includes(filter))
     }
 
-    if (state.prefix || state.suffix || state.findText || state.preNum || state.posNum || state.toLower || state.toUpper) {
+    if (
+      state.prefix || 
+      state.suffix || 
+      state.findText || 
+      state.preNum || 
+      state.posNum || 
+      state.preTime || 
+      state.posTime || 
+      state.toLower || 
+      state.toUpper
+    ) {
       console.log('test with prefix or suffix')
       let numDigits = ''
       if (state.posNum || state.preNum) {
@@ -388,24 +412,43 @@ watch(state, (newValue, oldValue) => {
         listNr = listNr + 1
         let finalname = item.name
         let finalExtension = item.extension
+        let date = dayjs(item.date).format('YYYYMMDD-HHmmss').toString();
+        let numString = listNr.toString().padStart(numDigits, '0')
 
         // Prefix/suffix functionality
+        // Order is important when adding prefix and suffix. We go from center to edges:
         if (state.prefix && state.prefix != null) {
           finalname = state.prefix + finalname
         }
         if (state.suffix && state.suffix != null) {
           finalname = finalname + state.suffix
         }
-
-        let numString = listNr.toString().padStart(numDigits, '0')
+        
+        if (state.preTime) {
+          if(state.preNum){
+            finalname = '-' +date + finalname
+          } else {
+            finalname = date + finalname          
+          }
+        }
+        
+        if (state.posNum) {
+          if (state.posTime) {
+            finalname = finalname + numString + '-' 
+          } else {
+            finalname = finalname + numString
+          }
+        }
+        
+        if (state.posTime) {
+           finalname = finalname + date 
+        }        
+        
         if (state.preNum) {
           finalname = numString + finalname
         }
 
-        if (state.posNum) {
-          finalname = finalname + numString
-        }
-        
+                        
         if(state.toLower){
           finalname = finalname.toLowerCase();
         }
@@ -478,9 +521,11 @@ function clearAll(){
   state.selectedFiles = [];
   state.renameErrors = [];
   state.preNum = false;
+  state.preTime = false;
   state.prefix = '';
   state.suffix = '';
   state.posNum = false;
+  state.posTime = false;
   state.toLower = false;
   state.toUpper = false;
   state.findText = '';
@@ -493,6 +538,14 @@ function clearAll(){
   text.prevText = '';
   text.lastCursor = '';
   text.isKeydown = false;
+}
+
+function togglePreTime() {
+  state.preTime = !state.preTime
+}
+
+function togglePosTime() {
+  state.posTime = !state.posTime
 }
 
 function togglePreNum() {
@@ -633,14 +686,14 @@ function openFolder() {
               await state.selectedFiles.push(newFile);
               
               filecounter += 1;
-              if(filecounter == (totalLenght - folders)){
-                isLoading.value = false;
-                progress.value = 0;
-              } else {
-                progress.value = Math.ceil((filecounter * 100 )/(totalLenght - folders));
-              }
             } else {
               folders += 1;
+            }
+            if(filecounter == (totalLenght - folders)){
+              isLoading.value = false;
+              progress.value = 0;
+            } else {
+              progress.value = Math.ceil((filecounter * 100 )/(totalLenght - folders));
             }
           });
         }
@@ -693,14 +746,15 @@ function selectFiles() {
               await state.selectedFiles.push(newFile)
               
               filecounter += 1;
-              if(filecounter == (totalLenght - folders)){
-                isLoading.value = false;
-                progress.value = 0;
-              } else {
-                progress.value = Math.ceil((filecounter * 100 )/(totalLenght - folders));
-              }
             } else {
               folders += 1;
+            }
+            
+            if(filecounter == (totalLenght - folders)){
+              isLoading.value = false;
+              progress.value = 0;
+            } else {
+              progress.value = Math.ceil((filecounter * 100 )/(totalLenght - folders));
             }
           })
         }
@@ -739,6 +793,8 @@ async function saveFiles() {
       state.removeText = false
       state.preNum = false;
       state.posNum = false;
+      state.preTime = false;
+      state.posTime = false;
       state.toLower = false;
       state.toUpper = false;
 
@@ -814,6 +870,8 @@ async function saveFiles() {
         state.removeText = false
         state.preNum = false;
         state.posNum = false;
+        state.preTime = false;
+        state.posTime = false;
         state.toLower = false;
         state.toUpper = false;
         // state.selectedFiles = selected;
