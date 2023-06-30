@@ -1,32 +1,49 @@
 <template>
-  <v-row dense class="mx-2 pt-4">
+  <v-row dense class="mx-2 pt-3">
     <v-col cols="12" sm="6">
       <v-row dense no-gutters class="mh-100">
-        <v-col cols="4" class="mh-100 pr-1">
+        <v-col class="mh-100 pr-2">
           <v-btn
             append-icon="mdi-folder"
             @click="openFolder"
             variant="tonal"
             color="secondary"
             class="w-100 mh-100"
+            title="Select folder"
           >
             Folder
           </v-btn>
         </v-col>
-        <v-col cols="4" class="mh-100 pr-1">
+        <v-col class="mh-100 pr-2">
           <v-btn
             append-icon="mdi-file"
             @click="selectFiles"
             variant="tonal"
             color="secondary"
             class="w-100 mh-100"
+            title="Select files"
           >
             Files
           </v-btn>
         </v-col>
-        <v-col cols="4" class="mh-100 pl-1">
+        <v-col class="mh-100 col-auto pr-2">
+          <v-btn 
+            @click="restoreNames"
+            variant="tonal" 
+            :disabled="isDisabled"
+            class="w-100 mh-100"
+            title="Restore names"
+          >  
+            <v-icon
+              size="large"
+              icon="mdi-restore"
+            />
+          </v-btn>
+        </v-col>
+        <v-col class="mh-100">
           <ButtonConfirm
             btnText="Rename"
+            btnTitle="Apply name changes"
             btnAppendIcon="mdi-content-save"
             :btnDisabled="isDisabled"
             btnVariant="tonal"
@@ -59,6 +76,7 @@
             variant="tonal" 
             :disabled="isDisabled"
             class="ml-2 mh-100"
+            title="To lower case"
           >  
             <v-icon
               size="large"
@@ -72,6 +90,7 @@
             variant="tonal" 
             :disabled="isDisabled"
             class="ml-2 mh-100"
+            title="To upper case"
           >  
             <v-icon
               size="large"
@@ -84,91 +103,89 @@
   </v-row>
   <v-row class="mx-2" dense>
     <v-col cols="12" md="6">
-      <v-chip-group class="bg-grey-darken-4 rounded py-0 px-1" :disabled="isDisabled">
-        <v-chip
-          size="small"
-          variant="text"
-          label
-          draggable
-          class="v-label my-1"
-        >
-          Elements:
-        </v-chip>
-        <v-chip
-          class="text-secondary"
-          v-for="item in items"
-          size="small"
-          draggable
-          label
-          :key="item"
-          @click="addElement(item)"
-        >
-          {{ item }}
-        </v-chip>
-      </v-chip-group>
-    </v-col>
-    <v-col cols="12" md="6">
-      <v-chip-group class="bg-grey-darken-4 rounded py-0 px-1 d-block w-100 h-100" :disabled="isDisabled">
-        <v-row no-gutters dense>
-          <v-col class="col-auto">
+      <v-row dense align="center" justify="space-around">
+        <v-col justify="end">
+          <v-chip-group class="d-block bg-grey-darken-4 v-input rounded py-0 px-1 v-input__control" :disabled="isDisabled">
             <v-chip
-              size="small"
               variant="text"
               label
               draggable
-              class="v-label my-1"
+              class="v-label my-1 pr-0"
             >
-              Template:
+              Elements:
             </v-chip>
-          </v-col>
-          <v-col class="fancyscroll">
-            <v-slide-group
-              show-arrows
-              class="w-100 mt-1 text-warning"
-              compact
+            <v-chip
+              class="my-0 mx-0 mr-1 py-0"
+              v-for="item in items"
+              draggable
+              label
+              :key="item"
+              @click="addElement(item)"
+              size="small"
             >
-              <v-slide-group-item
-                v-for="(item, index) in state.elements" 
-                :key="item"
-              >
+              {{ item }}
+            </v-chip>
+          </v-chip-group>
+        </v-col>
+        <v-col class="col-auto mh-100">
+          <v-btn
+            @click="clearElements"
+            variant="tonal" 
+            :disabled="!state.elements.length"
+            class="d-block mh-100"
+            title="Clear template"
+          >  
+            <span class="mr-1">{{state.elements.length}}</span>
+            <v-icon
+              size="large"
+              icon="mdi-eraser"
+            />
+          </v-btn>
+        </v-col>
+      </v-row>
+      <v-row dense>
+        <v-col cols="12">
+          <v-chip-group class="bg-grey-darken-4 rounded py-0 px-1 d-block w-100 h-100" :disabled="isDisabled">
+            <v-row no-gutters dense align="center" justify="start">
+              <v-col class="col-auto">
                 <v-chip
-                  size="small"
+                  variant="text"
                   label
                   draggable
-                  color="warning"
-                  class="my-0 mx-0 mr-1 text-warning"
-                  @click="removeElement(index)"
+                  class="v-label my-1 pr-0"
                 >
-                  {{ item }}
+                  Template:
                 </v-chip>
-              </v-slide-group-item>
-            </v-slide-group>
-          </v-col>
-          <v-col class="col-auto">
-            <v-chip
-              v-if="state.elements.length"
-              @click="clearElements"
-              draggable
-              class="px-0 ml-2 mr-0"
-              variant="plain"
-              color="warning"
-              size="small"
-              label 
-            >
-              <span class="mr-1">{{state.elements.length}}</span>
-              <v-icon
-                size="large"
-                icon="mdi-eraser"
-                color="warning"
-              />
-            </v-chip>
-          </v-col>
-        </v-row>
-      </v-chip-group>
+              </v-col>
+              <v-col class="fancyscroll py-0 my-0" align="center">
+                <v-slide-group
+                  show-arrows
+                  class="w-100 py-0 text-warning"
+                  compact
+                >
+                  <v-slide-group-item
+                    v-for="(item, index) in state.elements" 
+                    :key="item"
+                  >
+                    <v-chip
+                      label
+                      draggable
+                      color="warning"
+                      class="my-0 mx-0 mr-1 py-0"
+                      size="small"
+                      @click="removeElement(index)"
+                    >
+                      {{ item }}
+                    </v-chip>
+                  </v-slide-group-item>
+                </v-slide-group>
+              </v-col>
+            </v-row>
+          </v-chip-group>
+        </v-col>
+      </v-row>
     </v-col>
-  </v-row>
-  <v-row dense class="mx-2">
-    <v-col>
+    <v-col cols="12" md="6">
       <v-row dense>
         <v-col cols="12" md="6">
           <v-text-field
@@ -197,8 +214,6 @@
           </v-text-field>
         </v-col>
       </v-row>
-    </v-col>
-    <v-col>
       <v-row dense>
         <v-col cols="12" :md="state.removeText ? '' : '5'">
           <v-text-field
@@ -238,7 +253,7 @@
           >
           </v-checkbox>
         </v-col>
-      </v-row>
+      </v-row>      
     </v-col>
   </v-row>
   <v-row no-gutters class="mx-3">
@@ -388,7 +403,8 @@ pre.selectable {
 }
 
 .fancyscroll .v-slide-group__next, .fancyscroll .v-slide-group__prev{
-  min-width: initial;
+  min-width: 22.5px;
+  max-width: 22.5px;
 }
 
 .border-bottom {
@@ -446,7 +462,7 @@ const progress = ref(0)
 const isLoading = ref(false)
 const isRenaming = ref(false)
 
-const items = ['date', 'time', 'name', 'number', 'prefix', 'suffix']
+const items = ['number','prefix','name','suffix','date','time']
 
 watch(state, (newValue, oldValue) => {
 
@@ -460,9 +476,37 @@ watch(state, (newValue, oldValue) => {
       let filter = state.fileFilter.toLowerCase()
       list = list.filter((item) => item.name.toLowerCase().includes(filter))
     }
-
+    
+    
+    // Find-replace functionality
+    let findText = ''
+    let replaceText = ''
+    if (state.findText != null) {
+      findText = state.findText;
+      try {
+        findText = new RegExp(findText,'gi')
+      } catch (error) {
+        if (error instanceof Error) {
+          state.alertMsg = error.message;
+          state.alert = true
+        } else {
+          state.alertMsg = '';
+          state.alert = false
+        }
+        findText = '';
+      } finally {
+        if(findText){
+          state.alertMsg = '';
+          state.alert = false
+        }
+      }
+    }
+    if (state.replaceText != null) {
+      replaceText = state.replaceText.replace(/[^a-zA-Z0-9\s_\.\-]/g, '')
+    }
+    
     if (
-      state.elements.length > 1 ||
+      state.elements.length > 0 ||
       state.prefix || 
       state.suffix ||
       state.toLower || 
@@ -489,25 +533,24 @@ watch(state, (newValue, oldValue) => {
         let numString = listNr.padStart(numDigits, 0)
         let prefix = state.prefix != null? state.prefix : '';
         let suffix = state.suffix != null? state.suffix : '';
+        
         if(state.elements.length > 0){
-          finalname = structure.replaceAll(/\\number/g, numString);          
-          finalname = String(finalname).replaceAll(/\\date/g, date);
-          finalname = String(finalname).replaceAll(/\\time/g, time);
+          finalname = structure.replaceAll('\\number', numString);          
+          finalname = String(finalname).replaceAll('\\date', date);
+          finalname = String(finalname).replaceAll('\\time', time);
           if(prefix){
-            finalname = finalname.replaceAll(/\\prefix/g, prefix);
+            finalname = finalname.replaceAll('\\prefix', prefix);
           } else{
-            finalname = finalname.replaceAll(/-\\prefix/g, ''); 
-            finalname = finalname.replaceAll(/\\prefix/g, '');          
+            finalname = finalname.replaceAll('-\\prefix', ''); 
+            finalname = finalname.replaceAll('\\prefix', '');          
           }
           if(suffix){
-            finalname = finalname.replaceAll(/\\suffix/g, suffix);
+            finalname = finalname.replaceAll('\\suffix', suffix);
           } else {
-            finalname = finalname.replaceAll(/-\\suffix/g, '');
-            finalname = finalname.replaceAll(/\\suffix/g, '');
+            finalname = finalname.replaceAll('-\\suffix', '');
+            finalname = finalname.replaceAll('\\suffix', '');
           }
-          finalname = finalname.replaceAll(/\\name/g, item.name);
-        } else {
-          finalname = item.name;
+          finalname = finalname.replaceAll('\\name', item.name);
         }
                         
         if(state.toLower){
@@ -518,15 +561,6 @@ watch(state, (newValue, oldValue) => {
           finalname = finalname.toUpperCase();  
         }
 
-        // Find-replace functionality
-        let findText = ''
-        let replaceText = ''
-        if (state.findText != null) {
-          findText = state.findText.replace(/[^a-zA-Z0-9\s_\.\-]/g, '')
-        }
-        if (state.replaceText != null) {
-          replaceText = state.replaceText.replace(/[^a-zA-Z0-9\s_\.\-]/g, '')
-        }
         if (findText && replaceText && !state.removeText) {
           finalname = finalname.replaceAll(findText, replaceText)
         } else {
@@ -578,15 +612,31 @@ const isDisabled = computed(() => {
 })
 
 // Equivalent to Ember actions:
+
+function restoreNames(){
+  state.renameErrors = [];
+  state.prefix = '';
+  state.suffix = '';
+  state.toLower = false;
+  state.toUpper = false;
+  state.findText = '';
+  state.replaceText = '';
+  state.removeText = false;
+  state.fileFilter = '';
+  state.alert = false;
+  state.alertMsg = '';
+  state.elements = [];
+  text.selectedText = '';
+  text.prevText = '';
+  text.lastCursor = '';
+  text.isKeydown = false;
+}
+
 function clearAll(){
   state.selectedFiles = [];
   state.renameErrors = [];
-  state.preNum = false;
-  state.preTime = false;
   state.prefix = '';
   state.suffix = '';
-  state.posNum = false;
-  state.posTime = false;
   state.toLower = false;
   state.toUpper = false;
   state.findText = '';
@@ -614,22 +664,6 @@ function removeElement(index){
   if(!isNaN(index)){
     state.elements.splice(index, 1);
   }
-}
-
-function togglePreTime() {
-  state.preTime = !state.preTime
-}
-
-function togglePosTime() {
-  state.posTime = !state.posTime
-}
-
-function togglePreNum() {
-  state.preNum = !state.preNum
-}
-
-function togglePosNum() {
-  state.posNum = !state.posNum
 }
 
 function toggleToLower() {
@@ -872,10 +906,6 @@ async function saveFiles() {
       state.fileFilter = ''
       state.elements = [];
       state.removeText = false
-      state.preNum = false;
-      state.posNum = false;
-      state.preTime = false;
-      state.posTime = false;
       state.toLower = false;
       state.toUpper = false;
 
@@ -952,10 +982,6 @@ async function saveFiles() {
         state.fileFilter = ''
         state.elements = [];
         state.removeText = false
-        state.preNum = false;
-        state.posNum = false;
-        state.preTime = false;
-        state.posTime = false;
         state.toLower = false;
         state.toUpper = false;
         // state.selectedFiles = selected;

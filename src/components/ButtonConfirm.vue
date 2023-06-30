@@ -1,6 +1,7 @@
 <template>
     <v-btn
       :append-icon="btnAppendIcon"
+      :title="btnTitle"
       :disabled="btnDisabled"
       :variant="btnVariant"
       :color="btnColor"
@@ -55,6 +56,7 @@ const dialog = ref(false)
 
 const props = defineProps({
   "btnText": String,
+  "btnTitle": String,
   "btnAppendIcon": String,
   "btnDisabled": Boolean,
   "btnVariant": String,
