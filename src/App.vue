@@ -2,8 +2,7 @@
   <v-layout full-height full-width density="compact" class="h-100 w-100 flex-fill">
     <header>
       <v-system-bar window v-draggable color="grey-darken-4" class="mr-0 pr-0" :elevation="3">
-        <v-icon icon="mdi-rename-box" color="grey-lighten-5" class="me-1" size="x-large"></v-icon>
-        <span class="text-grey-lighten-5">MFR {{appVersion}}</span>
+        <span class="text-grey-lighten-5">Mass File Renamer {{appVersion}}</span>
         
         <v-spacer></v-spacer>
         <AboutModal
@@ -46,70 +45,43 @@
 
 <script setup>
 import AboutModal from './components/AboutModal.vue'
-</script>
-
-<script>
 import { useTheme } from 'vuetify'
 import { appWindow, getCurrent } from '@tauri-apps/api/window'
+import { ref, computed, reactive, onMounted, onUpdated, watch, isProxy, toRaw } from 'vue'
 
-export default {
-  setup() {
-    const theme = useTheme()
-    
-    return {
-      appVersion: 'v'+process.env.APP_VERSION || '0',
-      theme,
-      toggleLight: () =>
-        (theme.global.name.value = theme.global.current.value.dark ? 'light' : 'dark')
-    }
-  },
-  data: () => ({
-    drawer: false,
-    light: true,
-    group: null,
-    items: [
-      {
-        title: 'Renamer',
-        value: '/'
-      }
-    ]
-  }),
 
-  watch: {
-    group() {
-      this.drawer = false
-    }
-  },
-  methods: {
-    increaseCount(n) {
-      this.count += n
-    },
-    async minimizeWindow() {
-      let currentWindow = getCurrent()
-      currentWindow.minimize()
-    },
-    async maximizeWindow() {
-      let currentWindow = getCurrent()
-      let isMaxed = await currentWindow.isMaximized()
-      if (isMaxed) {
-        currentWindow.unmaximize()
-      } else {
-        currentWindow.maximize()
-      }
-    },
-    async closeWindow() {
-      let currentWindow = getCurrent()
-      currentWindow.close()
-    },
-    dragWindow(event) {
-      event.preventDefault()
-      appWindow.startDragging()
-    },
-    dropWindow(event) {
-      event.preventDefault()
-    }
+const theme = useTheme()
+const appVersion = 'v'+process.env.APP_VERSION || '0'
+
+function toggleLight(){
+  theme.global.name.value = theme.global.current.value.dark ? 'light' : 'dark';
+}
+
+async function minimizeWindow() {
+  let currentWindow = getCurrent()
+  currentWindow.minimize()
+}
+async function maximizeWindow() {
+  let currentWindow = getCurrent()
+  let isMaxed = await currentWindow.isMaximized()
+  if (isMaxed) {
+    currentWindow.unmaximize()
+  } else {
+    currentWindow.maximize()
   }
 }
+async function closeWindow() {
+  let currentWindow = getCurrent()
+  currentWindow.close()
+}
+function dragWindow(event) {
+  event.preventDefault()
+  appWindow.startDragging()
+}
+function dropWindow(event) {
+  event.preventDefault()
+}
+
 </script>
 
 <style>
