@@ -29,6 +29,7 @@
         <v-col class="mh-100 col-auto pr-2">
           <v-btn 
             @click="restoreNames"
+            color="secondary"
             variant="tonal" 
             :disabled="isDisabled"
             class="w-100 mh-100"
@@ -73,6 +74,7 @@
         <v-col class="col-auto mh-100">
           <v-btn  
             @click="toggleToLower"
+            color="secondary"
             variant="tonal" 
             :disabled="isDisabled"
             class="ml-2 mh-100"
@@ -87,6 +89,7 @@
         <v-col class="col-auto mh-100">
           <v-btn 
             @click="toggleToUpper"
+            color="secondary"
             variant="tonal" 
             :disabled="isDisabled"
             class="ml-2 mh-100"
@@ -105,7 +108,7 @@
     <v-col cols="12" md="6">
       <v-row dense align="center" justify="space-around">
         <v-col justify="end">
-          <v-chip-group class="d-block bg-grey-darken-4 v-input rounded py-0 px-1 v-input__control" :disabled="isDisabled">
+          <v-chip-group class="v-field v-field--single-line v-field--variant-solo v-theme--high-contrast d-block v-input rounded py-0 px-1 v-input__control" :disabled="isDisabled">
             <v-chip
               variant="text"
               label
@@ -130,12 +133,13 @@
         <v-col class="col-auto mh-100">
           <v-btn
             @click="clearElements"
-            variant="tonal" 
+            variant="tonal"
+            color="secondary"
             :disabled="!state.elements.length"
-            class="d-block mh-100"
+            class="mh-100 h-100"
             title="Clear template"
           >  
-            <span class="mr-1">{{state.elements.length}}</span>
+            <span class="mr-1 py-2 mt-1">{{state.elements.length}}</span>
             <v-icon
               size="large"
               icon="mdi-eraser"
@@ -145,7 +149,7 @@
       </v-row>
       <v-row dense>
         <v-col cols="12">
-          <v-chip-group class="bg-grey-darken-4 rounded py-0 px-1 d-block w-100 h-100" :disabled="isDisabled">
+          <v-chip-group class="v-field v-field--single-line v-field--variant-solo v-theme--high-contrast py-0 px-1 d-block w-100 h-100" :disabled="isDisabled">
             <v-row no-gutters dense align="center" justify="start">
               <v-col class="col-auto">
                 <v-chip
@@ -160,7 +164,7 @@
               <v-col class="fancyscroll py-0 my-0" align="center">
                 <v-slide-group
                   show-arrows
-                  class="w-100 py-0 text-warning"
+                  class="w-100 py-0"
                   compact
                 >
                   <v-slide-group-item
@@ -170,8 +174,7 @@
                     <v-chip
                       label
                       draggable
-                      color="warning"
-                      class="my-0 mx-0 mr-1 py-0"
+                      class="my-0 mx-0 mr-1 py-0 text-warning"
                       size="small"
                       @click="removeElement(index)"
                     >
@@ -240,12 +243,13 @@
             :disabled="state.removeText || isDisabled"
           ></v-text-field>
         </v-col>
-        <v-col cols="auto" md="auto">
+        <v-col cols="auto" md="auto" class="v-field v-field--single-line v-field--variant-solo v-theme--high-contrast d-block v-input rounded py-0 my-1 mx-0 mr-1">
           <v-checkbox
             v-model="state.removeText"
             :label="state.removeText ? 'Remove' : 'Rm'"
             title="Remove"
             density="compact"
+            color="secondary"
             single-line
             hide-details
             variant="solo"
@@ -258,7 +262,7 @@
   </v-row>
   <v-row no-gutters class="mx-3">
     <v-col class="pt-2 my-0 pe-0">
-      <strong>File name</strong>
+      <span class="text-grey ml-2">File name</span>
     </v-col>
     <v-col class="pt-2 my-0 pe-1 text-right">
       <v-row no-gutters class="stripped" justify="end">
@@ -269,7 +273,7 @@
             icon="mdi-close-box-multiple-outline" 
             @click="clearAll" 
             variant="plain" 
-            color="brown"
+            color="error"
             :disabled="isDisabled"
           />
         </v-col>
@@ -344,18 +348,18 @@
       </v-dialog>
     </v-col>
   </v-row>
-  <v-row class="h-100 overflow-y-auto mb-3 mt-0 mx-3 border-2 files justify-center" no-gutters>
-    <v-col class="py-0 my-0 ps-1 overflow-x-auto filenames">
+  <v-row class="h-100 overflow-y-auto mb-3 mt-0 mx-3 border-2 justify-center v-field-label files" no-gutters>
+    <v-col class="py-0 my-0 ps-1 overflow-x-auto">
       <pre ref="textRef" @keydown="backupText" @keyup="getText" disabled="isLoading" contenteditable>{{text.selectedText}}</pre>
     </v-col>
     <v-col class="py-0 my-0 text-right col-auto">
-      <v-row no-gutters v-for="file in filteredFiles" class="stripped" justify="end">
-        <v-col class="py-0 my-0 ps-1 d-none d-sm-block align-self-end ">
+      <v-row no-gutters v-for="file in filteredFiles" class="" justify="end">
+        <v-col class="py-0 my-0 ps-1 d-none d-sm-block align-self-end">
           <pre>{{niceDate(file.date)}}</pre>
         </v-col>
         <v-col class="py-0 my-0 col-auto">
           <pre class="prebutton"><v-btn v-on:click="delFile(file)" density="compact" icon="mdi-close-box-outline"
-              variant="plain" color="brown"></v-btn></pre>
+              variant="plain" color="error"></v-btn></pre>
         </v-col>
       </v-row>
     </v-col>
@@ -413,12 +417,12 @@ pre.selectable {
 .border-2 {
   border: 2px solid rgba(var(--v-border-color), var(--v-border-opacity)) !important;
 }
-/* .files .v-row:nth-of-type(even) { background-color: rgba(0, 0, 0, .5); } */
-/* .filenames { background: repeating-linear-gradient(to bottom, transparent, transparent 30px, rgba(0,0,0,0.5) 0px, rgba(0,0,0,0.5) 60px); } */
-/* .files { background: repeating-linear-gradient(to bottom, transparent, transparent 30px, rgba(0,0,0,0.5) 0px, rgba(0,0,0,0.5) 60px); } */
+
 .files {
-  background: rgba(0, 0, 0, 0.5);
+  color:  rgba(var(--v-border-color),0.7);
+  background-color: rgba(var(--v-bg-color), var(--v-border-opacity));
 }
+
 </style>
 
 <script setup>
@@ -429,8 +433,11 @@ import { ref, computed, reactive, onMounted, onUpdated, watch, isProxy, toRaw } 
 import dayjs from 'dayjs'
 import ButtonConfirm from './ButtonConfirm.vue'
 
-// Equivalent to tracked properties:
 
+const props = defineProps({
+  "isDark": false
+})
+// Equivalent to tracked properties:
 const state = reactive({
   selectedFiles: [],
   renameErrors: [],

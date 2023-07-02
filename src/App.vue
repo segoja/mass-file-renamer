@@ -1,50 +1,44 @@
 <template>
   <v-layout full-height full-width density="compact" class="h-100 w-100 flex-fill">
-    <header>
-      <v-system-bar window v-draggable color="grey-darken-4" class="mr-0 pr-0" :elevation="3">
-        <span class="text-grey-lighten-5">Mass File Renamer {{appVersion}}</span>
-        
-        <v-spacer></v-spacer>
-        <AboutModal
-          btnTitle="Help/About"
-          btnIcon="mdi-help-box-outline"
-          btnVariant="flat"
-          btnColor="default"
-          version="appVersion"
-        />
+      <header class="bg-grey-darken-4">
+        <v-system-bar window v-draggable color="grey-darken-4" class="mr-0 pr-0" :elevation="3">
+          <span class="text-grey-lighten-5">Mass File Renamer {{appVersion}}</span>
+          
+          <v-spacer></v-spacer>
+          <v-btn variant="flat" size="small" rounded="0" v-draggable:disable @click="toggleLight" class="bg-grey-darken-4">
+            <v-icon icon="mdi-theme-light-dark" size="x-large"></v-icon>        
+          </v-btn>
+          <AboutModal
+            btnTitle="Help/About"
+            btnIcon="mdi-help-box-outline"
+            btnVariant="flat"
+            btnColor="default"
+            version="appVersion"
+            btnClass="bg-grey-darken-4"
+          />
 
-        <v-btn variant="flat" size="small" rounded="0" v-draggable:disable @click="minimizeWindow">
-          <v-icon icon="mdi-window-minimize" size="x-large"></v-icon>        
-        </v-btn>
-        <v-btn variant="flat" size="small" rounded="0" v-draggable:disable @click="maximizeWindow">
-          <v-icon icon="mdi-window-maximize" size="x-large"></v-icon>         
-        </v-btn>
-        <v-btn variant="flat" size="small" rounded="0" v-draggable:disable @click="closeWindow">
-          <v-icon icon="mdi-window-close" size="x-large" color="red"></v-icon>         
-        </v-btn>
-      </v-system-bar>
-    </header>
-
-    <v-navigation-drawer v-model="drawer" temporary location="top">
-      <v-list>
-        <v-list-item v-for="item in items" :key="item.title" :title="item.title" :to="item.value" />
-      </v-list>
-      <template v-slot:append>
-        <v-list>
-          <v-list-item variant="plain" class="text-left">
-            Mass File Renamer {{appVersion}}
-          </v-list-item>
-        </v-list>
-      </template>
-    </v-navigation-drawer>
-    <v-main class="d-flex flex-column h-100 flex-fill">
-      <RouterView />
-    </v-main>
+          <v-btn variant="flat" size="small" rounded="0" v-draggable:disable @click="minimizeWindow" class="bg-grey-darken-4">
+            <v-icon icon="mdi-window-minimize" size="x-large"></v-icon>        
+          </v-btn>
+          <v-btn variant="flat" size="small" rounded="0" v-draggable:disable @click="maximizeWindow" class="bg-grey-darken-4">
+            <v-icon icon="mdi-window-maximize" size="x-large"></v-icon>         
+          </v-btn>
+          <v-btn variant="flat" size="small" rounded="0" v-draggable:disable @click="closeWindow" class="bg-grey-darken-4">
+            <v-icon icon="mdi-window-close" size="x-large" color="red"></v-icon>         
+          </v-btn>
+        </v-system-bar>
+      </header>
+    <v-theme-provider theme="high-contrast">
+      <v-main class="d-flex flex-column h-100 flex-fill">
+        <FileManager isDark="mode.isDark"/>
+      </v-main>
+    </v-theme-provider >
   </v-layout>
 </template>
 
 <script setup>
 import AboutModal from './components/AboutModal.vue'
+import FileManager from './components/FileManager.vue'
 import { useTheme } from 'vuetify'
 import { appWindow, getCurrent } from '@tauri-apps/api/window'
 import { ref, computed, reactive, onMounted, onUpdated, watch, isProxy, toRaw } from 'vue'
@@ -53,8 +47,13 @@ import { ref, computed, reactive, onMounted, onUpdated, watch, isProxy, toRaw } 
 const theme = useTheme()
 const appVersion = 'v'+process.env.APP_VERSION || '0'
 
+const mode = reactive({ 
+  isDark: false
+})
+
 function toggleLight(){
   theme.global.name.value = theme.global.current.value.dark ? 'light' : 'dark';
+  mode.isDark = theme.global.current.value.dark ? true : false;
 }
 
 async function minimizeWindow() {
@@ -93,21 +92,25 @@ body,
 html {
   overflow: hidden;
   height: 100%;
+  background-color: transparent;
 }
 body {
   border: 5px solid rgba(0, 0, 0, 0.5) !important;
 }
 
 header .v-system-bar {
-  border-top: 4px solid rgba(0, 0, 0, 0.5) !important;
+  /*border-top: 4px solid rgba(0, 0, 0, 0.5) !important;
   border-left: 4px solid rgba(0, 0, 0, 0.5) !important;
   border-right: 4px solid rgba(0, 0, 0, 0.5) !important;
+  border-bottom: 4px solid rgba(0, 0, 0, 0.5) !important;*/
 }
 
 main {
   padding: 5rem 1rem 0rem 1rem; 
+  background-color: transparent;
 }
 #app {
   max-width: 100%;
+  background-color: transparent;
 }
 </style>
