@@ -1,11 +1,11 @@
 <template>
   <v-layout full-height full-width density="compact" class="h-100 w-100 flex-fill">
       <header class="bg-grey-darken-4">
-        <v-system-bar window v-draggable color="grey-darken-4" class="mr-0 pr-0" :elevation="3">
+        <v-system-bar window v-draggable :color="isDark? 'grey-darken-4':'grey-darken-3'" class="mr-0 pr-0" :elevation="3">
           <span class="text-grey-lighten-5">Mass File Renamer {{appVersion}}</span>
           
           <v-spacer></v-spacer>
-          <v-btn variant="flat" size="small" rounded="0" v-draggable:disable @click="toggleLight" class="bg-grey-darken-4">
+          <v-btn variant="flat" size="small" rounded="0" v-draggable:disable @click="toggleLight" :class="isDark? 'bg-grey-darken-4':'bg-grey-darken-3'">
             <v-icon icon="mdi-theme-light-dark" size="x-large"></v-icon>        
           </v-btn>
           <AboutModal
@@ -14,23 +14,23 @@
             btnVariant="flat"
             btnColor="default"
             version="appVersion"
-            btnClass="bg-grey-darken-4"
+            :btnClass="isDark? 'bg-grey-darken-4':'bg-grey-darken-3'"
           />
 
-          <v-btn variant="flat" size="small" rounded="0" v-draggable:disable @click="minimizeWindow" class="bg-grey-darken-4">
+          <v-btn variant="flat" size="small" rounded="0" v-draggable:disable @click="minimizeWindow" :class="isDark? 'bg-grey-darken-4':'bg-grey-darken-3'">
             <v-icon icon="mdi-window-minimize" size="x-large"></v-icon>        
           </v-btn>
-          <v-btn variant="flat" size="small" rounded="0" v-draggable:disable @click="maximizeWindow" class="bg-grey-darken-4">
+          <v-btn variant="flat" size="small" rounded="0" v-draggable:disable @click="maximizeWindow" :class="isDark? 'bg-grey-darken-4':'bg-grey-darken-3'">
             <v-icon icon="mdi-window-maximize" size="x-large"></v-icon>         
           </v-btn>
-          <v-btn variant="flat" size="small" rounded="0" v-draggable:disable @click="closeWindow" class="bg-grey-darken-4">
+          <v-btn variant="flat" size="small" rounded="0" v-draggable:disable @click="closeWindow" :class="isDark? 'bg-grey-darken-4':'bg-grey-darken-3'">
             <v-icon icon="mdi-window-close" size="x-large" color="red"></v-icon>         
           </v-btn>
         </v-system-bar>
       </header>
     <v-theme-provider theme="high-contrast">
-      <v-main class="d-flex flex-column h-100 flex-fill">
-        <FileManager isDark="mode.isDark"/>
+      <v-main :class="isDark? 'd-flex flex-column h-100 flex-fill':'d-flex flex-column h-100 flex-fill light'">
+        <FileManager :isDark="isDark" />
       </v-main>
     </v-theme-provider >
   </v-layout>
@@ -41,19 +41,24 @@ import AboutModal from './components/AboutModal.vue'
 import FileManager from './components/FileManager.vue'
 import { useTheme } from 'vuetify'
 import { appWindow, getCurrent } from '@tauri-apps/api/window'
-import { ref, computed, reactive, onMounted, onUpdated, watch, isProxy, toRaw } from 'vue'
+import { ref } from 'vue'
+import { configStore } from '@/stores/config'
+import { storeToRefs } from 'pinia'
 
+const store = configStore()
+const { isDark } = storeToRefs(store)
+const { toggleMode } = store
 
 const theme = useTheme()
+theme.global.name.value = isDark.value? 'dark' : 'light';
+console.log(theme.global.name.value);
+
 const appVersion = 'v'+process.env.APP_VERSION || '0'
 
-const mode = reactive({ 
-  isDark: false
-})
-
 function toggleLight(){
-  theme.global.name.value = theme.global.current.value.dark ? 'light' : 'dark';
-  mode.isDark = theme.global.current.value.dark ? true : false;
+  store.toggleMode()
+  theme.global.name.value = isDark.value? 'dark' : 'light';  
+  console.log(isDark.value);
 }
 
 async function minimizeWindow() {
@@ -106,11 +111,13 @@ header .v-system-bar {
 }
 
 main {
-  padding: 5rem 1rem 0rem 1rem; 
-  background-color: transparent;
+  padding: 5rem 1rem 0rem 1rem;
+}
+
+main.light {
+  background-color: rgba(0,0,0, 0.075);
 }
 #app {
   max-width: 100%;
-  background-color: transparent;
 }
 </style>

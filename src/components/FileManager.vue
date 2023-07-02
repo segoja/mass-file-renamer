@@ -8,7 +8,7 @@
             @click="openFolder"
             variant="tonal"
             color="secondary"
-            class="w-100 mh-100"
+            :class="isDark? 'w-100 mh-100':'w-100 mh-100 v-btn--variant-outlined'"
             title="Select folder"
           >
             Folder
@@ -20,7 +20,7 @@
             @click="selectFiles"
             variant="tonal"
             color="secondary"
-            class="w-100 mh-100"
+            :class="isDark? 'w-100 mh-100':'w-100 mh-100 v-btn--variant-outlined'"
             title="Select files"
           >
             Files
@@ -32,7 +32,7 @@
             color="secondary"
             variant="tonal" 
             :disabled="isDisabled"
-            class="w-100 mh-100"
+            :class="isDark? 'w-100 mh-100':'w-100 mh-100 v-btn--variant-outlined'"
             title="Restore names"
           >  
             <v-icon
@@ -49,7 +49,7 @@
             :btnDisabled="isDisabled"
             btnVariant="tonal"
             btnColor="warning"
-            btnClass="w-100 mh-100"
+            :btnClass="isDark? 'w-100 mh-100':'w-100 mh-100 v-btn--variant-outlined'"
             :action="saveFiles"
             msg="Are you sure you want to rename the files?"
           />
@@ -77,7 +77,7 @@
             color="secondary"
             variant="tonal" 
             :disabled="isDisabled"
-            class="ml-2 mh-100"
+            :class="isDark? 'ml-2 mh-100':'ml-2 mh-100 v-btn--variant-outlined'"
             title="To lower case"
           >  
             <v-icon
@@ -92,7 +92,7 @@
             color="secondary"
             variant="tonal" 
             :disabled="isDisabled"
-            class="ml-2 mh-100"
+            :class="isDark? 'ml-2 mh-100':'ml-2 mh-100 v-btn--variant-outlined'"
             title="To upper case"
           >  
             <v-icon
@@ -108,7 +108,7 @@
     <v-col cols="12" md="6">
       <v-row dense align="center" justify="space-around">
         <v-col justify="end">
-          <v-chip-group class="v-field v-field--single-line v-field--variant-solo v-theme--high-contrast d-block v-input rounded py-0 px-1 v-input__control" :disabled="isDisabled">
+          <v-chip-group :class="isDisabled?  'v-field v-field--variant-solo v-theme--high-contrast d-block v-input rounded py-0 px-1 v-input__control v-field--disabled': 'v-field v-field--variant-solo v-theme--high-contrast d-block v-input rounded py-0 px-1 v-input__control'" :disabled="isDisabled">
             <v-chip
               variant="text"
               label
@@ -136,7 +136,7 @@
             variant="tonal"
             color="secondary"
             :disabled="!state.elements.length"
-            class="mh-100 h-100"
+            :class="isDark? 'mh-100 h-100':'mh-100 h-100 v-btn--variant-outlined'"
             title="Clear template"
           >  
             <span class="mr-1 py-2 mt-1">{{state.elements.length}}</span>
@@ -149,7 +149,8 @@
       </v-row>
       <v-row dense>
         <v-col cols="12">
-          <v-chip-group class="v-field v-field--single-line v-field--variant-solo v-theme--high-contrast py-0 px-1 d-block w-100 h-100" :disabled="isDisabled">
+          <v-chip-group :class="isDisabled?  'v-field v-field--variant-solo v-theme--high-contrast d-block v-input rounded  py-0 px-1 d-block w-100 h-100 v-field--disabled': 'v-field v-field--variant-solo v-theme--high-contrast d-block v-input rounded py-0 px-1 d-block w-100 h-100'"
+          :disabled="isDisabled">
             <v-row no-gutters dense align="center" justify="start">
               <v-col class="col-auto">
                 <v-chip
@@ -243,7 +244,7 @@
             :disabled="state.removeText || isDisabled"
           ></v-text-field>
         </v-col>
-        <v-col cols="auto" md="auto" class="v-field v-field--single-line v-field--variant-solo v-theme--high-contrast d-block v-input rounded py-0 my-1 mx-0 mr-1">
+        <v-col cols="auto" md="auto"  :class="isDisabled?  'v-field v-field--variant-solo v-theme--high-contrast d-block v-input rounded  py-0 my-1 mx-0 mr-1 v-field--disabled': 'v-field v-field--variant-solo v-theme--high-contrast d-block v-input rounded py-0 my-1 mx-0 mr-1'">
           <v-checkbox
             v-model="state.removeText"
             :label="state.removeText ? 'Remove' : 'Rm'"
