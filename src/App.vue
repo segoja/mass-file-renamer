@@ -1,38 +1,76 @@
 <template>
   <v-layout full-height full-width density="compact" class="h-100 w-100 flex-fill">
-      <header class="bg-grey-darken-4">
-        <v-system-bar window v-draggable :color="isDark? 'grey-darken-4':'grey-darken-3'" class="mr-0 pr-0" :elevation="3">
-          <span class="text-grey-lighten-5">Mass File Renamer {{appVersion}}</span>
-          
-          <v-spacer></v-spacer>
-          <v-btn variant="flat" size="small" rounded="0" v-draggable:disable @click="toggleLight" :class="isDark? 'bg-grey-darken-4':'bg-grey-darken-3'">
-            <v-icon icon="mdi-theme-light-dark" size="x-large"></v-icon>        
-          </v-btn>
-          <AboutModal
-            btnTitle="Help/About"
-            btnIcon="mdi-help-box-outline"
-            btnVariant="flat"
-            btnColor="default"
-            version="appVersion"
-            :btnClass="isDark? 'bg-grey-darken-4':'bg-grey-darken-3'"
-          />
+    <header class="bg-grey-darken-4">
+      <v-system-bar
+        window
+        v-draggable
+        :color="isDark ? 'grey-darken-4' : 'grey-darken-3'"
+        class="mr-0 pr-0"
+        :elevation="3"
+      >
+        <span class="text-grey-lighten-5">Mass File Renamer {{ appVersion }}</span>
 
-          <v-btn variant="flat" size="small" rounded="0" v-draggable:disable @click="minimizeWindow" :class="isDark? 'bg-grey-darken-4':'bg-grey-darken-3'">
-            <v-icon icon="mdi-window-minimize" size="x-large"></v-icon>        
-          </v-btn>
-          <v-btn variant="flat" size="small" rounded="0" v-draggable:disable @click="maximizeWindow" :class="isDark? 'bg-grey-darken-4':'bg-grey-darken-3'">
-            <v-icon icon="mdi-window-maximize" size="x-large"></v-icon>         
-          </v-btn>
-          <v-btn variant="flat" size="small" rounded="0" v-draggable:disable @click="closeWindow" :class="isDark? 'bg-grey-darken-4':'bg-grey-darken-3'">
-            <v-icon icon="mdi-window-close" size="x-large" color="red"></v-icon>         
-          </v-btn>
-        </v-system-bar>
-      </header>
+        <v-spacer></v-spacer>
+        <v-btn
+          variant="flat"
+          size="small"
+          rounded="0"
+          v-draggable:disable
+          @click="toggleLight"
+          :class="isDark ? 'bg-grey-darken-4' : 'bg-grey-darken-3'"
+        >
+          <v-icon icon="mdi-theme-light-dark" size="x-large"></v-icon>
+        </v-btn>
+        <AboutModal
+          btnTitle="Help/About"
+          btnIcon="mdi-help-box-outline"
+          btnVariant="flat"
+          btnColor="default"
+          version="appVersion"
+          :btnClass="isDark ? 'bg-grey-darken-4' : 'bg-grey-darken-3'"
+        />
+
+        <v-btn
+          variant="flat"
+          size="small"
+          rounded="0"
+          v-draggable:disable
+          @click="minimizeWindow"
+          :class="isDark ? 'bg-grey-darken-4' : 'bg-grey-darken-3'"
+        >
+          <v-icon icon="mdi-window-minimize" size="x-large"></v-icon>
+        </v-btn>
+        <v-btn
+          variant="flat"
+          size="small"
+          rounded="0"
+          v-draggable:disable
+          @click="maximizeWindow"
+          :class="isDark ? 'bg-grey-darken-4' : 'bg-grey-darken-3'"
+        >
+          <v-icon icon="mdi-window-maximize" size="x-large"></v-icon>
+        </v-btn>
+        <v-btn
+          variant="flat"
+          size="small"
+          rounded="0"
+          v-draggable:disable
+          @click="closeWindow"
+          :class="isDark ? 'bg-grey-darken-4' : 'bg-grey-darken-3'"
+        >
+          <v-icon icon="mdi-window-close" size="x-large" color="red"></v-icon>
+        </v-btn>
+      </v-system-bar>
+    </header>
     <v-theme-provider theme="high-contrast">
-      <v-main :class="isDark? 'd-flex flex-column h-100 flex-fill':'d-flex flex-column h-100 flex-fill light'">
+      <v-main
+        :class="
+          isDark ? 'd-flex flex-column h-100 flex-fill' : 'd-flex flex-column h-100 flex-fill light'
+        "
+      >
         <FileManager :isDark="isDark" />
       </v-main>
-    </v-theme-provider >
+    </v-theme-provider>
   </v-layout>
 </template>
 
@@ -50,15 +88,15 @@ const { isDark } = storeToRefs(store)
 const { toggleMode } = store
 
 const theme = useTheme()
-theme.global.name.value = isDark.value? 'dark' : 'light';
-console.log(theme.global.name.value);
 
-const appVersion = 'v'+process.env.APP_VERSION || '0'
 
-function toggleLight(){
+theme.name.value = isDark.value ? 'dark' : 'light'
+
+const appVersion = 'v' + process.env.APP_VERSION || '0'
+
+function toggleLight() {
   store.toggleMode()
-  theme.global.name.value = isDark.value? 'dark' : 'light';  
-  console.log(isDark.value);
+  theme.name.value = isDark.value ? 'dark' : 'light'
 }
 
 async function minimizeWindow() {
@@ -85,7 +123,6 @@ function dragWindow(event) {
 function dropWindow(event) {
   event.preventDefault()
 }
-
 </script>
 
 <style>
@@ -115,7 +152,7 @@ main {
 }
 
 main.light {
-  background-color: rgba(0,0,0, 0.075);
+  background-color: rgba(0, 0, 0, 0.075);
 }
 #app {
   max-width: 100%;

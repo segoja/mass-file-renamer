@@ -8,7 +8,7 @@
             @click="openFolder"
             variant="tonal"
             color="secondary"
-            :class="isDark? 'w-100 mh-100':'w-100 mh-100 v-btn--variant-outlined'"
+            :class="isDark ? 'w-100 mh-100' : 'w-100 mh-100 v-btn--variant-outlined'"
             title="Select folder"
           >
             Folder
@@ -20,25 +20,22 @@
             @click="selectFiles"
             variant="tonal"
             color="secondary"
-            :class="isDark? 'w-100 mh-100':'w-100 mh-100 v-btn--variant-outlined'"
+            :class="isDark ? 'w-100 mh-100' : 'w-100 mh-100 v-btn--variant-outlined'"
             title="Select files"
           >
             Files
           </v-btn>
         </v-col>
         <v-col class="mh-100 col-auto pr-2">
-          <v-btn 
+          <v-btn
             @click="restoreNames"
             color="secondary"
-            variant="tonal" 
+            variant="tonal"
             :disabled="isDisabled"
-            :class="isDark? 'w-100 mh-100':'w-100 mh-100 v-btn--variant-outlined'"
+            :class="isDark ? 'w-100 mh-100' : 'w-100 mh-100 v-btn--variant-outlined'"
             title="Restore names"
-          >  
-            <v-icon
-              size="large"
-              icon="mdi-restore"
-            />
+          >
+            <v-icon size="large" icon="mdi-restore" />
           </v-btn>
         </v-col>
         <v-col class="mh-100">
@@ -49,7 +46,7 @@
             :btnDisabled="isDisabled"
             btnVariant="tonal"
             btnColor="warning"
-            :btnClass="isDark? 'w-100 mh-100':'w-100 mh-100 v-btn--variant-outlined'"
+            :btnClass="isDark ? 'w-100 mh-100' : 'w-100 mh-100 v-btn--variant-outlined'"
             :action="saveFiles"
             msg="Are you sure you want to rename the files?"
           />
@@ -72,33 +69,27 @@
           />
         </v-col>
         <v-col class="col-auto mh-100">
-          <v-btn  
+          <v-btn
             @click="toggleToLower"
             color="secondary"
-            variant="tonal" 
+            variant="tonal"
             :disabled="isDisabled"
-            :class="isDark? 'ml-2 mh-100':'ml-2 mh-100 v-btn--variant-outlined'"
+            :class="isDark ? 'ml-2 mh-100' : 'ml-2 mh-100 v-btn--variant-outlined'"
             title="To lower case"
-          >  
-            <v-icon
-              size="large"
-              icon="mdi-format-letter-case-lower"
-            />
+          >
+            <v-icon size="large" icon="mdi-format-letter-case-lower" />
           </v-btn>
         </v-col>
         <v-col class="col-auto mh-100">
-          <v-btn 
+          <v-btn
             @click="toggleToUpper"
             color="secondary"
-            variant="tonal" 
+            variant="tonal"
             :disabled="isDisabled"
-            :class="isDark? 'ml-2 mh-100':'ml-2 mh-100 v-btn--variant-outlined'"
+            :class="isDark ? 'ml-2 mh-100' : 'ml-2 mh-100 v-btn--variant-outlined'"
             title="To upper case"
-          >  
-            <v-icon
-              size="large"
-              icon="mdi-format-letter-case-upper"
-            />
+          >
+            <v-icon size="large" icon="mdi-format-letter-case-upper" />
           </v-btn>
         </v-col>
       </v-row>
@@ -108,15 +99,15 @@
     <v-col cols="12" md="6">
       <v-row dense align="center" justify="space-around">
         <v-col justify="end">
-          <v-chip-group :class="isDisabled?  'v-field v-field--variant-solo v-theme--high-contrast d-block v-input rounded py-0 px-1 v-input__control v-field--disabled': 'v-field v-field--variant-solo v-theme--high-contrast d-block v-input rounded py-0 px-1 v-input__control'" :disabled="isDisabled">
-            <v-chip
-              variant="text"
-              label
-              draggable
-              class="v-label my-1 pr-0"
-            >
-              Elements:
-            </v-chip>
+          <v-chip-group
+            :class="
+              isDisabled
+                ? 'v-field v-field--variant-solo v-theme--high-contrast d-block v-input rounded py-0 px-1 v-input__control v-field--disabled'
+                : 'v-field v-field--variant-solo v-theme--high-contrast d-block v-input rounded py-0 px-1 v-input__control'
+            "
+            :disabled="isDisabled"
+          >
+            <v-chip variant="text" label draggable class="v-label my-1 pr-0"> Elements: </v-chip>
             <v-chip
               class="my-0 mx-0 mr-1 py-0"
               v-for="item in items"
@@ -136,42 +127,33 @@
             variant="tonal"
             color="secondary"
             :disabled="!state.elements.length"
-            :class="isDark? 'mh-100 h-100':'mh-100 h-100 v-btn--variant-outlined'"
+            :class="isDark ? 'mh-100 h-100' : 'mh-100 h-100 v-btn--variant-outlined'"
             title="Clear template"
-          >  
-            <span class="mr-1 py-2 mt-1">{{state.elements.length}}</span>
-            <v-icon
-              size="large"
-              icon="mdi-eraser"
-            />
+          >
+            <span class="mr-1 py-2 mt-1">{{ state.elements.length }}</span>
+            <v-icon size="large" icon="mdi-eraser" />
           </v-btn>
         </v-col>
       </v-row>
       <v-row dense>
         <v-col cols="12">
-          <v-chip-group :class="isDisabled?  'v-field v-field--variant-solo v-theme--high-contrast d-block v-input rounded  py-0 px-1 d-block w-100 h-100 v-field--disabled': 'v-field v-field--variant-solo v-theme--high-contrast d-block v-input rounded py-0 px-1 d-block w-100 h-100'"
-          :disabled="isDisabled">
+          <v-chip-group
+            :class="
+              isDisabled
+                ? 'v-field v-field--variant-solo v-theme--high-contrast d-block v-input rounded  py-0 px-1 d-block w-100 h-100 v-field--disabled'
+                : 'v-field v-field--variant-solo v-theme--high-contrast d-block v-input rounded py-0 px-1 d-block w-100 h-100'
+            "
+            :disabled="isDisabled"
+          >
             <v-row no-gutters dense align="center" justify="start">
               <v-col class="col-auto">
-                <v-chip
-                  variant="text"
-                  label
-                  draggable
-                  class="v-label my-1 pr-0"
-                >
+                <v-chip variant="text" label draggable class="v-label my-1 pr-0">
                   Template:
                 </v-chip>
               </v-col>
               <v-col class="fancyscroll py-0 my-0" align="center">
-                <v-slide-group
-                  show-arrows
-                  class="w-100 py-0"
-                  compact
-                >
-                  <v-slide-group-item
-                    v-for="(item, index) in state.elements" 
-                    :key="item"
-                  >
+                <v-slide-group show-arrows class="w-100 py-0" compact>
+                  <v-slide-group-item v-for="(item, index) in state.elements" :key="item">
                     <v-chip
                       label
                       draggable
@@ -244,7 +226,15 @@
             :disabled="state.removeText || isDisabled"
           ></v-text-field>
         </v-col>
-        <v-col cols="auto" md="auto"  :class="isDisabled?  'v-field v-field--variant-solo v-theme--high-contrast d-block v-input rounded  py-0 my-1 mx-0 mr-1 v-field--disabled': 'v-field v-field--variant-solo v-theme--high-contrast d-block v-input rounded py-0 my-1 mx-0 mr-1'">
+        <v-col
+          cols="auto"
+          md="auto"
+          :class="
+            isDisabled
+              ? 'v-field v-field--variant-solo v-theme--high-contrast d-block v-input rounded  py-0 my-1 mx-0 mr-1 v-field--disabled'
+              : 'v-field v-field--variant-solo v-theme--high-contrast d-block v-input rounded py-0 my-1 mx-0 mr-1'
+          "
+        >
           <v-checkbox
             v-model="state.removeText"
             :label="state.removeText ? 'Remove' : 'Rm'"
@@ -258,7 +248,7 @@
           >
           </v-checkbox>
         </v-col>
-      </v-row>      
+      </v-row>
     </v-col>
   </v-row>
   <v-row no-gutters class="mx-3">
@@ -269,11 +259,11 @@
       <v-row no-gutters class="stripped" justify="end">
         <v-col class="py-0 my-0 pl-1 d-none d-sm-block text-right"> </v-col>
         <v-col class="py-0 my-0 text-end" cols="1" sm="4">
-          <v-btn 
-            density="compact" 
-            icon="mdi-close-box-multiple-outline" 
-            @click="clearAll" 
-            variant="plain" 
+          <v-btn
+            density="compact"
+            icon="mdi-close-box-multiple-outline"
+            @click="clearAll"
+            variant="plain"
             color="error"
             :disabled="isDisabled"
           />
@@ -297,18 +287,11 @@
   </v-row>
   <v-row no-gutters class="mx-3 justify-center">
     <v-col cols="12">
-      <v-dialog
-        v-model="isLoading"
-        persistent
-        transition="dialog-bottom-transition"
-        class="w-100"
-      >
+      <v-dialog v-model="isLoading" persistent transition="dialog-bottom-transition" class="w-100">
         <v-row no-gutters class="mx-3 justify-center">
-          <v-col cols="12" md="6">      
+          <v-col cols="12" md="6">
             <v-card class="w-100">
-              <v-card-title class="text-h5 text-center">
-                Loading...
-              </v-card-title>
+              <v-card-title class="text-h5 text-center"> Loading... </v-card-title>
               <v-card-text>
                 <v-progress-linear
                   :model-value="progress"
@@ -316,24 +299,17 @@
                   striped
                   color="secondary"
                   :active="isLoading"
-                ></v-progress-linear>        
+                ></v-progress-linear>
               </v-card-text>
             </v-card>
           </v-col>
         </v-row>
       </v-dialog>
-      <v-dialog
-        v-model="isRenaming"
-        persistent
-        transition="dialog-bottom-transition"
-        class="w-100"
-      >
+      <v-dialog v-model="isRenaming" persistent transition="dialog-bottom-transition" class="w-100">
         <v-row no-gutters class="mx-3 justify-center">
-          <v-col cols="12" md="6">      
+          <v-col cols="12" md="6">
             <v-card class="w-100">
-              <v-card-title class="text-h5 text-center">
-                Renaming...
-              </v-card-title>
+              <v-card-title class="text-h5 text-center"> Renaming... </v-card-title>
               <v-card-text>
                 <v-progress-linear
                   :model-value="progress"
@@ -341,7 +317,7 @@
                   striped
                   color="warning"
                   :active="isRenaming"
-                ></v-progress-linear>        
+                ></v-progress-linear>
               </v-card-text>
             </v-card>
           </v-col>
@@ -349,17 +325,29 @@
       </v-dialog>
     </v-col>
   </v-row>
-  <v-row class="h-100 overflow-y-auto mb-3 mt-0 mx-3 border-2 justify-center v-field-label files" no-gutters>
+  <v-row
+    class="h-100 overflow-y-auto mb-3 mt-0 mx-3 border-2 justify-center v-field-label files"
+    no-gutters
+  >
     <v-col class="py-0 my-0 ps-1 overflow-x-auto">
-      <pre ref="textRef" @keydown="backupText" @keyup="getText" disabled="isLoading" contenteditable>{{text.selectedText}}</pre>
+      <pre
+        ref="textRef"
+        @keydown="backupText"
+        @keyup="getText"
+        disabled="isLoading"
+        contenteditable
+        >{{ text.selectedText }}</pre
+      >
     </v-col>
     <v-col class="py-0 my-0 text-right col-auto">
       <v-row no-gutters v-for="file in filteredFiles" class="" justify="end">
         <v-col class="py-0 my-0 ps-1 d-none d-sm-block align-self-end">
-          <pre>{{niceDate(file.date)}}</pre>
+          <pre>{{ niceDate(file.date) }}</pre>
         </v-col>
         <v-col class="py-0 my-0 col-auto">
-          <pre class="prebutton"><v-btn v-on:click="delFile(file)" density="compact" icon="mdi-close-box-outline"
+          <pre
+            class="prebutton"
+          ><v-btn v-on:click="delFile(file)" density="compact" icon="mdi-close-box-outline"
               variant="plain" color="error"></v-btn></pre>
         </v-col>
       </v-row>
@@ -386,28 +374,33 @@ pre {
 .prebutton * {
   max-height: 26px !important;
   min-height: 0px !important;
-  --v-icon-size-multiplier: 1!important;
-  font-size: 1.25rem!important;
+  --v-icon-size-multiplier: 1 !important;
+  font-size: 1.25rem !important;
 }
-.prebutton i.v-icon { top: -1px; }
+.prebutton i.v-icon {
+  top: -1px;
+}
 
-.col-auto { 
-  -webkit-box-flex: 0!important;
-  -ms-flex: 0 0 auto!important;
-  flex: 0 0 auto!important;
-  width: auto!important;
-  max-width: none!important;
+.col-auto {
+  -webkit-box-flex: 0 !important;
+  -ms-flex: 0 0 auto !important;
+  flex: 0 0 auto !important;
+  width: auto !important;
+  max-width: none !important;
 }
-.mh-100 { min-height: 100%; }
+.mh-100 {
+  min-height: 100%;
+}
 pre.selectable {
   pointer-events: stroke;
 }
 
-.fancyscroll{
+.fancyscroll {
   overflow-x: hidden !important;
 }
 
-.fancyscroll .v-slide-group__next, .fancyscroll .v-slide-group__prev{
+.fancyscroll .v-slide-group__next,
+.fancyscroll .v-slide-group__prev {
   min-width: 22.5px;
   max-width: 22.5px;
 }
@@ -420,10 +413,9 @@ pre.selectable {
 }
 
 .files {
-  color:  rgba(var(--v-border-color),0.7);
+  color: rgba(var(--v-border-color), 0.7);
   background-color: rgba(var(--v-bg-color), var(--v-border-opacity));
 }
-
 </style>
 
 <script setup>
@@ -434,9 +426,8 @@ import { ref, computed, reactive, onMounted, onUpdated, watch, isProxy, toRaw } 
 import dayjs from 'dayjs'
 import ButtonConfirm from './ButtonConfirm.vue'
 
-
 const props = defineProps({
-  "isDark": false
+  isDark: false
 })
 // Equivalent to tracked properties:
 const state = reactive({
@@ -458,11 +449,11 @@ const state = reactive({
   alertMsg: '',
   elements: []
 })
-const text = reactive({ 
-  selectedText: '', 
-  prevText: '', 
-  lastCursor: '', 
-  isKeydown: false,
+const text = reactive({
+  selectedText: '',
+  prevText: '',
+  lastCursor: '',
+  isKeydown: false
 })
 
 const textRef = ref('')
@@ -470,10 +461,9 @@ const progress = ref(0)
 const isLoading = ref(false)
 const isRenaming = ref(false)
 
-const items = ['number','prefix','name','suffix','date','time']
+const items = ['number', 'prefix', 'name', 'suffix', 'date', 'time']
 
 watch(state, (newValue, oldValue) => {
-
   let list = toRaw(filteredFiles.value)
   // console.log(filteredFiles);
   // console.log(list.length);
@@ -484,27 +474,26 @@ watch(state, (newValue, oldValue) => {
       let filter = state.fileFilter.toLowerCase()
       list = list.filter((item) => item.name.toLowerCase().includes(filter))
     }
-    
-    
+
     // Find-replace functionality
     let findText = ''
     let replaceText = ''
     if (state.findText != null) {
-      findText = state.findText;
+      findText = state.findText
       try {
-        findText = new RegExp(findText,'gi')
+        findText = new RegExp(findText, 'gi')
       } catch (error) {
         if (error instanceof Error) {
-          state.alertMsg = error.message;
+          state.alertMsg = error.message
           state.alert = true
         } else {
-          state.alertMsg = '';
+          state.alertMsg = ''
           state.alert = false
         }
-        findText = '';
+        findText = ''
       } finally {
-        if(findText){
-          state.alertMsg = '';
+        if (findText) {
+          state.alertMsg = ''
           state.alert = false
         }
       }
@@ -512,25 +501,25 @@ watch(state, (newValue, oldValue) => {
     if (state.replaceText != null) {
       replaceText = state.replaceText.replace(/[^a-zA-Z0-9\s_\.\-]/g, '')
     }
-    
+
     if (
       state.elements.length > 0 ||
-      state.prefix || 
+      state.prefix ||
       state.suffix ||
-      state.toLower || 
+      state.toLower ||
       state.toUpper ||
-      state.findText 
+      state.findText
     ) {
       console.log('test with prefix or suffix')
       let numDigits = 0
       numDigits = list.length
       numDigits = Math.floor(Math.log10(numDigits) + 1)
-      
-      let structure = '';
-      if(state.elements.length > 0){
-        structure = '\\'+state.elements.join('-\\');
+
+      let structure = ''
+      if (state.elements.length > 0) {
+        structure = '\\' + state.elements.join('-\\')
       }
-      
+
       let listNr = 0
       list.forEach((item) => {
         listNr = String(Number(listNr) + 1)
@@ -539,34 +528,34 @@ watch(state, (newValue, oldValue) => {
         let date = dayjs(item.date).format('YYYYMMDD').toString()
         let time = dayjs(item.date).format('HHmmss').toString()
         let numString = listNr.padStart(numDigits, 0)
-        let prefix = state.prefix != null? state.prefix : '';
-        let suffix = state.suffix != null? state.suffix : '';
-        
-        if(state.elements.length > 0){
-          finalname = structure.replaceAll('\\number', numString);          
-          finalname = String(finalname).replaceAll('\\date', date);
-          finalname = String(finalname).replaceAll('\\time', time);
-          if(prefix){
-            finalname = finalname.replaceAll('\\prefix', prefix);
-          } else{
-            finalname = finalname.replaceAll('-\\prefix', ''); 
-            finalname = finalname.replaceAll('\\prefix', '');          
-          }
-          if(suffix){
-            finalname = finalname.replaceAll('\\suffix', suffix);
+        let prefix = state.prefix != null ? state.prefix : ''
+        let suffix = state.suffix != null ? state.suffix : ''
+
+        if (state.elements.length > 0) {
+          finalname = structure.replaceAll('\\number', numString)
+          finalname = String(finalname).replaceAll('\\date', date)
+          finalname = String(finalname).replaceAll('\\time', time)
+          if (prefix) {
+            finalname = finalname.replaceAll('\\prefix', prefix)
           } else {
-            finalname = finalname.replaceAll('-\\suffix', '');
-            finalname = finalname.replaceAll('\\suffix', '');
+            finalname = finalname.replaceAll('-\\prefix', '')
+            finalname = finalname.replaceAll('\\prefix', '')
           }
-          finalname = finalname.replaceAll('\\name', item.name);
-        }
-                        
-        if(state.toLower){
-          finalname = finalname.toLowerCase();
+          if (suffix) {
+            finalname = finalname.replaceAll('\\suffix', suffix)
+          } else {
+            finalname = finalname.replaceAll('-\\suffix', '')
+            finalname = finalname.replaceAll('\\suffix', '')
+          }
+          finalname = finalname.replaceAll('\\name', item.name)
         }
 
-        if(state.toUpper){
-          finalname = finalname.toUpperCase();  
+        if (state.toLower) {
+          finalname = finalname.toLowerCase()
+        }
+
+        if (state.toUpper) {
+          finalname = finalname.toUpperCase()
         }
 
         if (findText && replaceText && !state.removeText) {
@@ -580,7 +569,7 @@ watch(state, (newValue, oldValue) => {
         if (finalExtension) {
           finalname = finalname + '.' + finalExtension
         }
-        
+
         textLines.push(finalname)
       })
     } else {
@@ -621,67 +610,67 @@ const isDisabled = computed(() => {
 
 // Equivalent to Ember actions:
 
-function restoreNames(){
-  state.renameErrors = [];
-  state.prefix = '';
-  state.suffix = '';
-  state.toLower = false;
-  state.toUpper = false;
-  state.findText = '';
-  state.replaceText = '';
-  state.removeText = false;
-  state.fileFilter = '';
-  state.alert = false;
-  state.alertMsg = '';
-  state.elements = [];
-  text.selectedText = '';
-  text.prevText = '';
-  text.lastCursor = '';
-  text.isKeydown = false;
+function restoreNames() {
+  state.renameErrors = []
+  state.prefix = ''
+  state.suffix = ''
+  state.toLower = false
+  state.toUpper = false
+  state.findText = ''
+  state.replaceText = ''
+  state.removeText = false
+  state.fileFilter = ''
+  state.alert = false
+  state.alertMsg = ''
+  state.elements = []
+  text.selectedText = ''
+  text.prevText = ''
+  text.lastCursor = ''
+  text.isKeydown = false
 }
 
-function clearAll(){
-  state.selectedFiles = [];
-  state.renameErrors = [];
-  state.prefix = '';
-  state.suffix = '';
-  state.toLower = false;
-  state.toUpper = false;
-  state.findText = '';
-  state.replaceText = '';
-  state.removeText = false;
-  state.fileFilter = '';
-  state.alert = false;
-  state.alertMsg = '';
-  state.elements = [];
-  text.selectedText = '';
-  text.prevText = '';
-  text.lastCursor = '';
-  text.isKeydown = false;
+function clearAll() {
+  state.selectedFiles = []
+  state.renameErrors = []
+  state.prefix = ''
+  state.suffix = ''
+  state.toLower = false
+  state.toUpper = false
+  state.findText = ''
+  state.replaceText = ''
+  state.removeText = false
+  state.fileFilter = ''
+  state.alert = false
+  state.alertMsg = ''
+  state.elements = []
+  text.selectedText = ''
+  text.prevText = ''
+  text.lastCursor = ''
+  text.isKeydown = false
 }
 
-function clearElements(){
-  state.elements = [];
+function clearElements() {
+  state.elements = []
 }
-function addElement(item){
-  if(item){
-    state.elements.push(item);
+function addElement(item) {
+  if (item) {
+    state.elements.push(item)
   }
 }
-function removeElement(index){
-  if(!isNaN(index)){
-    state.elements.splice(index, 1);
+function removeElement(index) {
+  if (!isNaN(index)) {
+    state.elements.splice(index, 1)
   }
 }
 
 function toggleToLower() {
-  state.toLower = true;
-  state.toUpper = false;
+  state.toLower = true
+  state.toUpper = false
 }
 
 function toggleToUpper() {
-  state.toUpper = true;
-  state.toLower = false;
+  state.toUpper = true
+  state.toLower = false
 }
 
 function sortById(a, b) {
@@ -771,24 +760,24 @@ function openFolder() {
     if (directory != null && directory) {
       readDir(directory, { recursive: false }).then((files) => {
         if (files.length > 0) {
-          clearAll();
-          let totalLenght = files.length;
-          isLoading.value = true;
-          let filecounter = 0;
-          let folders = 0;
+          clearAll()
+          let totalLenght = files.length
+          isLoading.value = true
+          let filecounter = 0
+          let folders = 0
           files.map(async (file) => {
-            let pathInfo = await invoke('get_path_info', { filePath: file.path });
-            if(!pathInfo.is_folder){
-              let modified = pathInfo.modified.secs_since_epoch * 1000;
-              let filedata = file.path.split('\\');
-              let fullfilename = file.name;
-              let filepath = file.path.replace(fullfilename, '');
-              let extension = '';
+            let pathInfo = await invoke('get_path_info', { filePath: file.path })
+            if (!pathInfo.is_folder) {
+              let modified = pathInfo.modified.secs_since_epoch * 1000
+              let filedata = file.path.split('\\')
+              let fullfilename = file.name
+              let filepath = file.path.replace(fullfilename, '')
+              let extension = ''
               if (fullfilename.includes('.')) {
-                extension = fullfilename.split('.').slice(-1).toString();
+                extension = fullfilename.split('.').slice(-1).toString()
               }
-              let filename = fullfilename.replace('.' + extension, '');
-              let newId = 'file' + filecounter;
+              let filename = fullfilename.replace('.' + extension, '')
+              let newId = 'file' + filecounter
 
               let newFile = {
                 id: newId,
@@ -801,25 +790,25 @@ function openFolder() {
                 saved: false
               }
 
-              await state.selectedFiles.push(newFile);
-              
-              filecounter += 1;
+              await state.selectedFiles.push(newFile)
+
+              filecounter += 1
             } else {
-              folders += 1;
+              folders += 1
             }
-            if(filecounter == (totalLenght - folders)){
+            if (filecounter == totalLenght - folders) {
               setTimeout(() => {
-                isLoading.value = false;
-                progress.value = 0;
+                isLoading.value = false
+                progress.value = 0
               }, 500)
             } else {
-              progress.value = Math.ceil((filecounter * 100 )/(totalLenght - folders));
+              progress.value = Math.ceil((filecounter * 100) / (totalLenght - folders))
             }
-          });
+          })
         }
-      });
+      })
     }
-  });
+  })
 }
 
 function selectFiles() {
@@ -833,15 +822,15 @@ function selectFiles() {
       // console.debug(files);
       if (files) {
         if (files.length > 0) {
-          clearAll();
-          let totalLenght = files.length;
-          isLoading.value = true;
-          let filecounter = 0;
-          let folders = 0;
+          clearAll()
+          let totalLenght = files.length
+          isLoading.value = true
+          let filecounter = 0
+          let folders = 0
           files.map(async (file) => {
-            let pathInfo = await invoke('get_path_info', { filePath: file });
-            if(!pathInfo.is_folder){
-              let modified = pathInfo.modified.secs_since_epoch * 1000;              
+            let pathInfo = await invoke('get_path_info', { filePath: file })
+            if (!pathInfo.is_folder) {
+              let modified = pathInfo.modified.secs_since_epoch * 1000
               let filedata = file.split('\\')
               let fullfilename = filedata.pop().toString()
               let filepath = file.replace(fullfilename, '')
@@ -864,19 +853,19 @@ function selectFiles() {
               }
 
               await state.selectedFiles.push(newFile)
-              
-              filecounter += 1;
+
+              filecounter += 1
             } else {
-              folders += 1;
+              folders += 1
             }
-            
-            if(filecounter == (totalLenght - folders)){
+
+            if (filecounter == totalLenght - folders) {
               setTimeout(() => {
-                isLoading.value = false;
-                progress.value = 0;
+                isLoading.value = false
+                progress.value = 0
               }, 500)
             } else {
-              progress.value = Math.ceil((filecounter * 100 )/(totalLenght - folders));
+              progress.value = Math.ceil((filecounter * 100) / (totalLenght - folders))
             }
           })
         }
@@ -900,11 +889,11 @@ async function saveFiles() {
 
   console.log('Too much text?: ', tooLong)
   console.log('Duplicates: ', haveDuplicates)
-  
+
   if (haveDuplicates.length == 0 && !tooLong) {
     if (targetLength == modified.length) {
-      isRenaming.value = true;
-      let filecounter = 0;
+      isRenaming.value = true
+      let filecounter = 0
       let i = 0
       state.selectedFiles = []
       state.prefix = ''
@@ -912,10 +901,10 @@ async function saveFiles() {
       state.findText = ''
       state.replaceText = ''
       state.fileFilter = ''
-      state.elements = [];
+      state.elements = []
       state.removeText = false
-      state.toLower = false;
-      state.toUpper = false;
+      state.toLower = false
+      state.toUpper = false
 
       do {
         //if(selected[i].id == 'file'+i){
@@ -954,16 +943,16 @@ async function saveFiles() {
           updating.saved = false
           state.selectedFiles.push(updating)
         }
-        
+
         filecounter++
-        
-        if(filecounter + 1 == targetLength){
+
+        if (filecounter + 1 == targetLength) {
           setTimeout(() => {
-            isRenaming.value = false;
-            progress.value = 0;
+            isRenaming.value = false
+            progress.value = 0
           }, 500)
         } else {
-          progress.value = Math.ceil(((filecounter + 1) * 100 )/targetLength);
+          progress.value = Math.ceil(((filecounter + 1) * 100) / targetLength)
         }
         i++
       } while (i < targetLength)
@@ -988,17 +977,17 @@ async function saveFiles() {
         state.findText = ''
         state.replaceText = ''
         state.fileFilter = ''
-        state.elements = [];
+        state.elements = []
         state.removeText = false
-        state.toLower = false;
-        state.toUpper = false;
+        state.toLower = false
+        state.toUpper = false
         // state.selectedFiles = selected;
       }
     }
   } else {
     setTimeout(() => {
-      isRenaming.value = false;
-      progress.value = 0;
+      isRenaming.value = false
+      progress.value = 0
     }, 1000)
     if (haveDuplicates.length > 0) {
       haveDuplicates.forEach((fileErr) => {
