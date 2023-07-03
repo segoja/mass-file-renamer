@@ -11,27 +11,13 @@
     <v-icon :icon="btnIcon" size="x-large"></v-icon>
     <v-dialog v-model="dialog" activator="parent" :scrim="true" class="ma-14">
       <v-card class="rounded">
-        <v-card-title> About/Help </v-card-title>
+        <v-card-title>{{ t('text.abouttitle') }}</v-card-title>
         <v-card-text>
-          <p>
-            Because of what I do for a living I spend a lot of time renaming files. Tired of not
-            having a tool to fit my needs I decided to make this app using the latest Vue and Tauri
-            versions.
-          </p>
-          <p>
-            The idea was to make editing files as simple as possible, treating filenames like you
-            would do on any regular text editor like notepad.
-          </p>
-          <p>
-            I created a template system so you can rename massive amounts of files using the same
-            naming template/convention for all of them, so you can number them, include the date or
-            time, add prefix or suffix, etc.
-          </p>
-          <p>
-            You can also find, replace and remove fragments of the file names, allowing even the use
-            of regular expressions (regex)
-          </p>
-          <p>Additionally you can also upper case or lowercase file names.</p>
+          <p>{{ t('text.abouttext.p1') }}</p>
+          <p>{{ t('text.abouttext.p2') }}</p>
+          <p>{{ t('text.abouttext.p3') }}</p>
+          <p>{{ t('text.abouttext.p4') }}</p>
+          <p>{{ t('text.abouttext.p5') }}</p>
         </v-card-text>
         <v-card-actions>
           <v-row dense no-gutters>
@@ -41,8 +27,9 @@
                 :variant="isDark ? 'tonal' : 'elevated'"
                 class="px-5"
                 @click="confirmAction(action)"
+                :title="t('titles.close')"
               >
-                Close
+                {{ t('buttons.close') }}
               </v-btn>
             </v-col>
           </v-row>
@@ -54,8 +41,11 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 const dialog = ref(false)
+
+const { t } = useI18n()
 
 const props = defineProps({
   version: String,

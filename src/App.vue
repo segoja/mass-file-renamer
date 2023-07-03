@@ -18,19 +18,30 @@
           size="small"
           rounded="0"
           v-draggable:disable
+          @click="switchLang"
+          class="bg-transparent text-bold"
+        >
+          {{ locale }}
+        </v-btn>
+        <v-btn
+          variant="flat"
+          size="small"
+          rounded="0"
+          v-draggable:disable
           @click="toggleLight"
-          :class="isDark ? 'bg-grey-darken-4' : 'bg-grey-darken-3'"
+          class="bg-transparent"
+          :title="t('titles.mode')"
         >
           <v-icon icon="mdi-theme-light-dark" size="x-large"></v-icon>
         </v-btn>
         <AboutModal
-          btnTitle="Help/About"
+          :btnTitle="t('titles.about')"
           btnIcon="mdi-help-box-outline"
           btnVariant="flat"
           btnColor="default"
           :isDark="isDark"
           version="appVersion"
-          :btnClass="isDark ? 'bg-grey-darken-4' : 'bg-grey-darken-3'"
+          btnClass="bg-transparent"
         />
 
         <v-btn
@@ -39,7 +50,7 @@
           rounded="0"
           v-draggable:disable
           @click="minimizeWindow"
-          :class="isDark ? 'bg-grey-darken-4' : 'bg-grey-darken-3'"
+          class="bg-transparent"
         >
           <v-icon icon="mdi-window-minimize" size="x-large"></v-icon>
         </v-btn>
@@ -49,7 +60,7 @@
           rounded="0"
           v-draggable:disable
           @click="maximizeWindow"
-          :class="isDark ? 'bg-grey-darken-4' : 'bg-grey-darken-3'"
+          class="bg-transparent"
         >
           <v-icon icon="mdi-window-maximize" size="x-large"></v-icon>
         </v-btn>
@@ -59,7 +70,7 @@
           rounded="0"
           v-draggable:disable
           @click="closeWindow"
-          :class="isDark ? 'bg-grey-darken-4' : 'bg-grey-darken-3'"
+          class="bg-transparent"
         >
           <v-icon icon="mdi-window-close" size="x-large" color="red"></v-icon>
         </v-btn>
@@ -84,15 +95,32 @@ import { useTheme } from 'vuetify'
 import { getCurrent } from '@tauri-apps/api/window'
 import { configStore } from '@/stores/config'
 import { storeToRefs } from 'pinia'
+import { useI18n } from 'vue-i18n'
 
 const store = configStore()
 const { isDark } = storeToRefs(store)
+const { savedLocale } = storeToRefs(store)
 
 const theme = useTheme()
+
+const { t, locale } = useI18n()
+
+locale.value = savedLocale.value
 
 theme.name.value = isDark.value ? 'dark' : 'light'
 
 const appVersion = 'v' + process.env.APP_VERSION || '0'
+
+function switchLang() {
+  if (savedLocale.value != 'en') {
+    store.switchLang('en')
+  } else {
+    store.switchLang('es')
+  }
+  locale.value = savedLocale.value
+  console.log(locale)
+  console.log(savedLocale)
+}
 
 function toggleLight() {
   store.toggleMode()

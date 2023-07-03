@@ -10,9 +10,9 @@
     {{ btnText || 'Confirm?' }}
     <v-dialog v-model="dialog" activator="parent" width="auto">
       <v-card>
-        <v-card-title class="text-h6"> Confirm action </v-card-title>
+        <v-card-title class="text-h6"> {{ t('text.confirmtitle') }} </v-card-title>
         <v-card-text>
-          {{ msg }}
+          {{ t('text.confirmtext') }}
         </v-card-text>
         <v-card-actions>
           <v-row dense no-gutters>
@@ -22,8 +22,9 @@
                 :variant="isDark ? 'tonal' : 'elevated'"
                 class="w-100"
                 @click="dialog = false"
+                :title="t('titles.no')"
               >
-                No
+                {{ t('buttons.no') }}
               </v-btn>
             </v-col>
             <v-col class="pl-1">
@@ -32,8 +33,9 @@
                 :variant="isDark ? 'tonal' : 'elevated'"
                 class="w-100"
                 @click="confirmAction(action)"
+                :title="t('titles.yes')"
               >
-                Yes
+                {{ t('buttons.yes') }}
               </v-btn>
             </v-col>
           </v-row>
@@ -45,8 +47,10 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 const dialog = ref(false)
+const { t } = useI18n()
 
 const props = defineProps({
   btnText: String,

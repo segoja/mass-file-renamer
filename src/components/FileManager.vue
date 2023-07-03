@@ -9,9 +9,9 @@
             :variant="isDark ? 'tonal' : 'elevated'"
             color="cyan-darken-1"
             class="w-100 mh-100"
-            title="Select folder"
+            :title="t('titles.folder')"
           >
-            Folder
+            {{ t('buttons.folder') }}
           </v-btn>
         </v-col>
         <v-col class="mh-100 pr-2">
@@ -21,9 +21,9 @@
             :variant="isDark ? 'tonal' : 'elevated'"
             color="cyan-darken-1"
             class="w-100 mh-100"
-            title="Select files"
+            :title="t('titles.files')"
           >
-            Files
+            {{ t('buttons.files') }}
           </v-btn>
         </v-col>
         <v-col class="mh-100 col-auto pr-2">
@@ -33,15 +33,15 @@
             :variant="isDark ? 'tonal' : 'elevated'"
             :disabled="isDisabled"
             class="w-100 mh-100"
-            title="Restore names"
+            :title="t('titles.restore')"
           >
             <v-icon size="large" icon="mdi-restore" />
           </v-btn>
         </v-col>
         <v-col class="mh-100">
           <ButtonConfirm
-            btnText="Rename"
-            btnTitle="Apply name changes"
+            :btnText="t('buttons.rename')"
+            :btnTitle="t('titles.rename')"
             btnAppendIcon="mdi-content-save"
             :btnDisabled="isDisabled"
             :btnVariant="isDark ? 'tonal' : 'elevated'"
@@ -49,7 +49,7 @@
             btnClass="w-100 mh-100"
             :action="saveFiles"
             :isDark="isDark"
-            msg="Are you sure you want to rename the files?"
+            :msg="t('text.confirmtext')"
           />
         </v-col>
       </v-row>
@@ -59,7 +59,7 @@
         <v-col>
           <v-text-field
             v-model="state.fileFilter"
-            label="Filter"
+            :label="t('labels.filter')"
             density="compact"
             variant="solo"
             append-inner-icon="mdi-filter"
@@ -76,7 +76,7 @@
             :variant="isDark ? 'tonal' : 'elevated'"
             :disabled="isDisabled"
             class="ml-2 mh-100"
-            title="To lower case"
+            :title="t('titles.tolower')"
           >
             <v-icon size="large" icon="mdi-format-letter-case-lower" />
           </v-btn>
@@ -88,7 +88,7 @@
             :variant="isDark ? 'tonal' : 'elevated'"
             :disabled="isDisabled"
             class="ml-2 mh-100"
-            title="To upper case"
+            :title="t('titles.toupper')"
           >
             <v-icon size="large" icon="mdi-format-letter-case-upper" />
           </v-btn>
@@ -107,10 +107,13 @@
                 : 'v-field v-field--variant-solo v-theme--high-contrast d-block v-input rounded py-0 px-1 v-input__control'
             "
             :disabled="isDisabled"
+            justify="space-around"
           >
-            <v-chip variant="text" label draggable class="v-label my-1 pr-0"> Elements: </v-chip>
+            <v-chip variant="text" label draggable class="v-label my-1 pr-0">
+              {{ t('labels.elements') }}
+            </v-chip>
             <v-chip
-              class="my-0 mx-0 mr-1 py-0"
+              class="my-0 mx-0 mr-1 py-0 px-2"
               v-for="item in items"
               draggable
               label
@@ -118,7 +121,7 @@
               @click="addElement(item)"
               size="small"
             >
-              {{ item }}
+              {{ t('titles.' + item) }}
             </v-chip>
           </v-chip-group>
         </v-col>
@@ -128,10 +131,10 @@
             :variant="isDark ? 'tonal' : 'elevated'"
             color="cyan-darken-1"
             :disabled="!state.elements.length"
-            class="mh-100 h-100"
-            title="Clear template"
+            class="mh-100 h-100 clear-btn"
+            :title="t('titles.clear')"
           >
-            <span class="mr-1 py-2 mt-1">{{ state.elements.length }}</span>
+            <span class="mr-0 py-2 mt-1">{{ state.elements.length }}</span>
             <v-icon size="large" icon="mdi-eraser" />
           </v-btn>
         </v-col>
@@ -149,7 +152,7 @@
             <v-row no-gutters dense align="center" justify="start">
               <v-col class="col-auto">
                 <v-chip variant="text" label draggable class="v-label my-1 pr-0">
-                  Template:
+                  {{ t('labels.template') }}
                 </v-chip>
               </v-col>
               <v-col class="fancyscroll py-0 my-0" align="center">
@@ -158,11 +161,11 @@
                     <v-chip
                       label
                       draggable
-                      class="my-0 mx-0 mr-1 py-0 text-warning"
+                      class="my-0 mx-0 mr-1 px-2 py-0 text-warning"
                       size="small"
                       @click="removeElement(index)"
                     >
-                      {{ item }}
+                      {{ t('titles.' + item) }}
                     </v-chip>
                   </v-slide-group-item>
                 </v-slide-group>
@@ -177,7 +180,7 @@
         <v-col cols="12" md="6">
           <v-text-field
             v-model="state.prefix"
-            label="Prefix"
+            :label="t('labels.prefix')"
             density="compact"
             variant="solo"
             single-line
@@ -190,7 +193,7 @@
         <v-col cols="12" md="6">
           <v-text-field
             v-model="state.suffix"
-            label="Suffix"
+            :label="t('labels.suffix')"
             density="compact"
             variant="solo"
             single-line
@@ -205,7 +208,7 @@
         <v-col cols="12" :md="state.removeText ? '' : '5'">
           <v-text-field
             v-model="state.findText"
-            label="Find"
+            :label="t('labels.find')"
             density="compact"
             variant="solo"
             append-inner-icon="mdi-magnify"
@@ -218,7 +221,7 @@
         <v-col :class="{ 'd-none': state.removeText }">
           <v-text-field
             v-model="state.replaceText"
-            label="Replace"
+            :label="t('labels.replace')"
             density="compact"
             variant="solo"
             single-line
@@ -238,8 +241,8 @@
         >
           <v-checkbox
             v-model="state.removeText"
-            :label="state.removeText ? 'Remove' : 'Rm'"
-            title="Remove"
+            :label="t('labels.remove')"
+            :title="t('labels.remove')"
             density="compact"
             color="cyan-darken-1"
             single-line
@@ -254,7 +257,7 @@
   </v-row>
   <v-row no-gutters class="mx-3">
     <v-col class="pt-2 my-0 pe-0">
-      <span class="text-grey ml-2">File name</span>
+      <span class="text-grey ml-2">{{ t('labels.filename') }}</span>
     </v-col>
     <v-col class="pt-2 my-0 pe-1 text-right">
       <v-row no-gutters class="stripped" justify="end">
@@ -268,6 +271,7 @@
             color="error"
             :ripple="false"
             :disabled="isDisabled"
+            :title="t('titles.wipe')"
           />
         </v-col>
       </v-row>
@@ -293,7 +297,7 @@
         <v-row no-gutters class="mx-3 justify-center">
           <v-col cols="12" md="6">
             <v-card class="w-100">
-              <v-card-title class="text-h5 text-center"> Loading... </v-card-title>
+              <v-card-title class="text-h5 text-center"> {{ t('text.loading') }} </v-card-title>
               <v-card-text>
                 <v-progress-linear
                   :model-value="progress"
@@ -311,7 +315,7 @@
         <v-row no-gutters class="mx-3 justify-center">
           <v-col cols="12" md="6">
             <v-card class="w-100">
-              <v-card-title class="text-h5 text-center"> Renaming... </v-card-title>
+              <v-card-title class="text-h5 text-center"> {{ t('text.renaming') }} </v-card-title>
               <v-card-text>
                 <v-progress-linear
                   :model-value="progress"
@@ -350,7 +354,7 @@
           <pre
             class="prebutton"
           ><v-btn v-on:click="delFile(file)" density="compact" icon="mdi-close-box-outline"
-              variant="plain" color="error" :ripple="false"></v-btn></pre>
+              variant="plain" color="error" :ripple="false" :title="t('titles.del')"></v-btn></pre>
         </v-col>
       </v-row>
     </v-col>
@@ -390,6 +394,12 @@ pre {
   width: auto !important;
   max-width: none !important;
 }
+.clear-btn {
+  min-width: auto !important;
+  padding-left: 1em !important;
+  padding-right: 1em !important;
+}
+
 .mh-100 {
   min-height: 100%;
 }
@@ -426,10 +436,13 @@ import { readDir, renameFile } from '@tauri-apps/api/fs'
 import { ref, computed, reactive, watch, toRaw } from 'vue'
 import dayjs from 'dayjs'
 import ButtonConfirm from './ButtonConfirm.vue'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps({
   isDark: Boolean
 })
+
+const { t } = useI18n()
 
 // Equivalent to tracked properties:
 const state = reactive({
