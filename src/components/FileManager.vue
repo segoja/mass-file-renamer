@@ -6,9 +6,9 @@
           <v-btn
             append-icon="mdi-folder"
             @click="openFolder"
-            variant="tonal"
-            color="secondary"
-            :class="isDark ? 'w-100 mh-100' : 'w-100 mh-100 v-btn--variant-outlined'"
+            :variant="isDark ? 'tonal' : 'elevated'"
+            color="cyan-darken-1"
+            class="w-100 mh-100"
             title="Select folder"
           >
             Folder
@@ -18,9 +18,9 @@
           <v-btn
             append-icon="mdi-file"
             @click="selectFiles"
-            variant="tonal"
-            color="secondary"
-            :class="isDark ? 'w-100 mh-100' : 'w-100 mh-100 v-btn--variant-outlined'"
+            :variant="isDark ? 'tonal' : 'elevated'"
+            color="cyan-darken-1"
+            class="w-100 mh-100"
             title="Select files"
           >
             Files
@@ -29,10 +29,10 @@
         <v-col class="mh-100 col-auto pr-2">
           <v-btn
             @click="restoreNames"
-            color="secondary"
-            variant="tonal"
+            color="cyan-darken-1"
+            :variant="isDark ? 'tonal' : 'elevated'"
             :disabled="isDisabled"
-            :class="isDark ? 'w-100 mh-100' : 'w-100 mh-100 v-btn--variant-outlined'"
+            class="w-100 mh-100"
             title="Restore names"
           >
             <v-icon size="large" icon="mdi-restore" />
@@ -44,10 +44,11 @@
             btnTitle="Apply name changes"
             btnAppendIcon="mdi-content-save"
             :btnDisabled="isDisabled"
-            btnVariant="tonal"
+            :btnVariant="isDark ? 'tonal' : 'elevated'"
             btnColor="warning"
-            :btnClass="isDark ? 'w-100 mh-100' : 'w-100 mh-100 v-btn--variant-outlined'"
+            btnClass="w-100 mh-100"
             :action="saveFiles"
+            :isDark="isDark"
             msg="Are you sure you want to rename the files?"
           />
         </v-col>
@@ -71,10 +72,10 @@
         <v-col class="col-auto mh-100">
           <v-btn
             @click="toggleToLower"
-            color="secondary"
-            variant="tonal"
+            color="cyan-darken-1"
+            :variant="isDark ? 'tonal' : 'elevated'"
             :disabled="isDisabled"
-            :class="isDark ? 'ml-2 mh-100' : 'ml-2 mh-100 v-btn--variant-outlined'"
+            class="ml-2 mh-100"
             title="To lower case"
           >
             <v-icon size="large" icon="mdi-format-letter-case-lower" />
@@ -83,10 +84,10 @@
         <v-col class="col-auto mh-100">
           <v-btn
             @click="toggleToUpper"
-            color="secondary"
-            variant="tonal"
+            color="cyan-darken-1"
+            :variant="isDark ? 'tonal' : 'elevated'"
             :disabled="isDisabled"
-            :class="isDark ? 'ml-2 mh-100' : 'ml-2 mh-100 v-btn--variant-outlined'"
+            class="ml-2 mh-100"
             title="To upper case"
           >
             <v-icon size="large" icon="mdi-format-letter-case-upper" />
@@ -124,10 +125,10 @@
         <v-col class="col-auto mh-100">
           <v-btn
             @click="clearElements"
-            variant="tonal"
-            color="secondary"
+            :variant="isDark ? 'tonal' : 'elevated'"
+            color="cyan-darken-1"
             :disabled="!state.elements.length"
-            :class="isDark ? 'mh-100 h-100' : 'mh-100 h-100 v-btn--variant-outlined'"
+            class="mh-100 h-100"
             title="Clear template"
           >
             <span class="mr-1 py-2 mt-1">{{ state.elements.length }}</span>
@@ -240,7 +241,7 @@
             :label="state.removeText ? 'Remove' : 'Rm'"
             title="Remove"
             density="compact"
-            color="secondary"
+            color="cyan-darken-1"
             single-line
             hide-details
             variant="solo"
@@ -265,6 +266,7 @@
             @click="clearAll"
             variant="plain"
             color="error"
+            :ripple="false"
             :disabled="isDisabled"
           />
         </v-col>
@@ -278,7 +280,7 @@
         v-model="state.alert"
         density="compact"
         type="error"
-        variant="tonal"
+        :variant="isDark ? 'tonal' : 'elevated'"
         title="Error"
       >
         <pre>{{ state.alertMsg }}</pre>
@@ -297,7 +299,7 @@
                   :model-value="progress"
                   height="15"
                   striped
-                  color="secondary"
+                  color="cyan-darken-1"
                   :active="isLoading"
                 ></v-progress-linear>
               </v-card-text>
@@ -340,7 +342,7 @@
       >
     </v-col>
     <v-col class="py-0 my-0 text-right col-auto">
-      <v-row no-gutters v-for="file in filteredFiles" class="" justify="end">
+      <v-row no-gutters v-for="file in filteredFiles" :key="file" class="" justify="end">
         <v-col class="py-0 my-0 ps-1 d-none d-sm-block align-self-end">
           <pre>{{ niceDate(file.date) }}</pre>
         </v-col>
@@ -348,7 +350,7 @@
           <pre
             class="prebutton"
           ><v-btn v-on:click="delFile(file)" density="compact" icon="mdi-close-box-outline"
-              variant="plain" color="error"></v-btn></pre>
+              variant="plain" color="error" :ripple="false"></v-btn></pre>
         </v-col>
       </v-row>
     </v-col>
@@ -421,14 +423,14 @@ pre.selectable {
 <script setup>
 import { dialog, invoke } from '@tauri-apps/api'
 import { readDir, renameFile } from '@tauri-apps/api/fs'
-import { useDate } from 'vuetify/labs/date'
-import { ref, computed, reactive, onMounted, onUpdated, watch, isProxy, toRaw } from 'vue'
+import { ref, computed, reactive, watch, toRaw } from 'vue'
 import dayjs from 'dayjs'
 import ButtonConfirm from './ButtonConfirm.vue'
 
 const props = defineProps({
-  isDark: false
+  isDark: Boolean
 })
+
 // Equivalent to tracked properties:
 const state = reactive({
   selectedFiles: [],
@@ -463,10 +465,10 @@ const isRenaming = ref(false)
 
 const items = ['number', 'prefix', 'name', 'suffix', 'date', 'time']
 
-watch(state, (newValue, oldValue) => {
+watch(state, () => {
   let list = toRaw(filteredFiles.value)
-  // console.log(filteredFiles);
-  // console.log(list.length);
+  // console.debug(filteredFiles);
+  // console.debug(list.length);
   let newText = ''
   if (list.length > 0) {
     let textLines = []
@@ -499,7 +501,7 @@ watch(state, (newValue, oldValue) => {
       }
     }
     if (state.replaceText != null) {
-      replaceText = state.replaceText.replace(/[^a-zA-Z0-9\s_\.\-]/g, '')
+      replaceText = state.replaceText.replace(/[^a-zA-Z0-9\s_.-]/g, '')
     }
 
     if (
@@ -510,7 +512,7 @@ watch(state, (newValue, oldValue) => {
       state.toUpper ||
       state.findText
     ) {
-      console.log('test with prefix or suffix')
+      console.debug('test with prefix or suffix')
       let numDigits = 0
       numDigits = list.length
       numDigits = Math.floor(Math.log10(numDigits) + 1)
@@ -573,7 +575,7 @@ watch(state, (newValue, oldValue) => {
         textLines.push(finalname)
       })
     } else {
-      console.log('No prefix/suffix')
+      console.debug('No prefix/suffix')
       textLines = list.map((item) => item.newfullname)
     }
     newText = textLines.join('\n')
@@ -582,12 +584,6 @@ watch(state, (newValue, oldValue) => {
   text.prevText = newText
 })
 
-watch(text, (newValue, oldValue) => {})
-
-onUpdated(() => {
-  // text content should be the same as current `count.value`
-  console.log('Content got updated')
-})
 // Equivalent to Ember computed / tracked+getters:
 
 const filteredFiles = computed(() => {
@@ -673,21 +669,6 @@ function toggleToUpper() {
   state.toLower = false
 }
 
-function sortById(a, b) {
-  let aID = a.id
-  let bID = b.id
-
-  if (aID > bID) {
-    return 1
-  }
-  if (aID == bID) {
-    return 0
-  }
-  if (aID < bID) {
-    return -1
-  }
-}
-
 function niceDate(date) {
   if (date) {
     return dayjs(date).format('YYYY/MM/DD, HH:mm:ss')
@@ -697,9 +678,8 @@ function niceDate(date) {
 }
 
 // Keydown checks:
-function backupText(event) {
+function backupText() {
   if (!text.isKeydown) {
-    // console.log(event);
     let textLines = textRef.value.innerText.trim().split(/\n/).length
 
     let prevLines = text.prevText.split(/\n/).length
@@ -726,7 +706,7 @@ function getText() {
   let restore = false
 
   if (textLines.length < backupLines || textLines.length > backupLines) {
-    //console.log('You deleted the wrong thing!');
+    //console.debug('You deleted the wrong thing!');
     textRef.value.textContent = text.prevText
 
     let selectedText = window.getSelection()
@@ -769,7 +749,6 @@ function openFolder() {
             let pathInfo = await invoke('get_path_info', { filePath: file.path })
             if (!pathInfo.is_folder) {
               let modified = pathInfo.modified.secs_since_epoch * 1000
-              let filedata = file.path.split('\\')
               let fullfilename = file.name
               let filepath = file.path.replace(fullfilename, '')
               let extension = ''
@@ -887,8 +866,8 @@ async function saveFiles() {
   let tooLong = modified.length > selected.length
   let targetLength = Number(selected.length)
 
-  console.log('Too much text?: ', tooLong)
-  console.log('Duplicates: ', haveDuplicates)
+  console.debug('Too much text?: ', tooLong)
+  console.debug('Duplicates: ', haveDuplicates)
 
   if (haveDuplicates.length == 0 && !tooLong) {
     if (targetLength == modified.length) {
@@ -920,23 +899,24 @@ async function saveFiles() {
         if (updating.newfullname != updating.fullname) {
           await renameFile(initialPath, newPath).then(
             (success) => {
+              console.debug(success)
               updated = true
-              console.log('Initial: ', initialPath)
-              console.log('Newpath: ', newPath)
+              console.debug('Initial: ', initialPath)
+              console.debug('Newpath: ', newPath)
               updating.fullname = newFullName
               updating.name = newName
               updating.extension = newExtension
               updating.saved = true
               state.selectedFiles.push(updating)
-              console.log('File renamed successfully')
+              console.debug('File renamed successfully')
             },
             (error) => {
-              console.log('Initial: ', initialPath)
-              console.log('Newpath: ', newPath)
+              console.debug('Initial: ', initialPath)
+              console.debug('Newpath: ', newPath)
               updating.saved = false
               state.selectedFiles.push(updating)
               state.renameErrors.push(error)
-              console.log(error)
+              console.debug(error)
             }
           )
         } else {
@@ -968,10 +948,10 @@ async function saveFiles() {
     }
 
     if (state.renameErrors.length > 0) {
-      console.log(state.renameErrors)
+      console.debug(state.renameErrors)
     } else {
       if (updated) {
-        console.log('Updating files array')
+        console.debug('Updating files array')
         state.prefix = ''
         state.suffix = ''
         state.findText = ''
@@ -1004,13 +984,13 @@ async function saveFiles() {
 async function delFile(removed) {
   let prevText = textRef.value.innerText.trim()
   prevText = prevText.split(/\r?\n/)
-  let updatedText = ''
+  /*let updatedText = ''
   let removedText = ''
   if (removed.extension) {
     removedText = removed.name + '.' + removed.extension + '\n'
   } else {
     removedText = removed.name + '\n'
-  }
+  }*/
 
   let selectedFiles = toRaw(filteredFiles.value)
   let i = 0

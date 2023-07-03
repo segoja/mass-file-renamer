@@ -8,7 +8,9 @@
         class="mr-0 pr-0"
         :elevation="3"
       >
-        <span class="text-grey-lighten-5">Mass File Renamer {{ appVersion }}</span>
+        <span class="text-grey-lighten-2 pl-2 font-weight-bold text-uppercase"
+          >Mass File Renamer {{ appVersion }}</span
+        >
 
         <v-spacer></v-spacer>
         <v-btn
@@ -26,6 +28,7 @@
           btnIcon="mdi-help-box-outline"
           btnVariant="flat"
           btnColor="default"
+          :isDark="isDark"
           version="appVersion"
           :btnClass="isDark ? 'bg-grey-darken-4' : 'bg-grey-darken-3'"
         />
@@ -78,17 +81,14 @@
 import AboutModal from './components/AboutModal.vue'
 import FileManager from './components/FileManager.vue'
 import { useTheme } from 'vuetify'
-import { appWindow, getCurrent } from '@tauri-apps/api/window'
-import { ref } from 'vue'
+import { getCurrent } from '@tauri-apps/api/window'
 import { configStore } from '@/stores/config'
 import { storeToRefs } from 'pinia'
 
 const store = configStore()
 const { isDark } = storeToRefs(store)
-const { toggleMode } = store
 
 const theme = useTheme()
-
 
 theme.name.value = isDark.value ? 'dark' : 'light'
 
@@ -103,6 +103,7 @@ async function minimizeWindow() {
   let currentWindow = getCurrent()
   currentWindow.minimize()
 }
+
 async function maximizeWindow() {
   let currentWindow = getCurrent()
   let isMaxed = await currentWindow.isMaximized()
@@ -112,16 +113,10 @@ async function maximizeWindow() {
     currentWindow.maximize()
   }
 }
+
 async function closeWindow() {
   let currentWindow = getCurrent()
   currentWindow.close()
-}
-function dragWindow(event) {
-  event.preventDefault()
-  appWindow.startDragging()
-}
-function dropWindow(event) {
-  event.preventDefault()
 }
 </script>
 
@@ -152,8 +147,16 @@ main {
 }
 
 main.light {
-  background-color: rgba(0, 0, 0, 0.075);
+  background-color: rgba(0, 0, 0, 0.1);
 }
+
+main .files {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+main.light .files {
+  background-color: rgba(255, 255, 255, 0.75);
+}
+
 #app {
   max-width: 100%;
 }

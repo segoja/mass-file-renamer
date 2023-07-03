@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 
 import { mount } from '@vue/test-utils'
-import HelloWorld from '../FileManager.vue'
+import FileManager from '../FileManager.vue'
 
 describe('FileManager', () => {
   it('renders properly', () => {

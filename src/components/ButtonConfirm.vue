@@ -17,12 +17,22 @@
         <v-card-actions>
           <v-row dense no-gutters>
             <v-col class="pr-1">
-              <v-btn color="success" variant="tonal" class="w-100" @click="dialog = false">
+              <v-btn
+                color="cyan-darken-1"
+                :variant="isDark ? 'tonal' : 'elevated'"
+                class="w-100"
+                @click="dialog = false"
+              >
                 No
               </v-btn>
             </v-col>
             <v-col class="pl-1">
-              <v-btn color="error" variant="tonal" class="w-100" @click="confirmAction(action)">
+              <v-btn
+                color="warning"
+                :variant="isDark ? 'tonal' : 'elevated'"
+                class="w-100"
+                @click="confirmAction(action)"
+              >
                 Yes
               </v-btn>
             </v-col>
@@ -47,12 +57,9 @@ const props = defineProps({
   btnColor: String,
   btnClass: String,
   action: Function,
-  msg: String
+  msg: String,
+  isDark: Boolean
 })
-
-function showDialog() {
-  dialog.value = true
-}
 
 function confirmAction(action) {
   action()

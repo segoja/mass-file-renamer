@@ -9,13 +9,8 @@
     v-draggable:disable
   >
     <v-icon :icon="btnIcon" size="x-large"></v-icon>
-    <v-dialog v-model="dialog" activator="parent" :scrim="false" class="ma-14">
+    <v-dialog v-model="dialog" activator="parent" :scrim="true" class="ma-14">
       <v-card class="rounded">
-        <v-toolbar
-          color="teal-darken-4"
-          variant="tonal"
-          title="Mass File Renamer, by Javier Sevilla"
-        ></v-toolbar>
         <v-card-title> About/Help </v-card-title>
         <v-card-text>
           <p>
@@ -41,7 +36,12 @@
         <v-card-actions>
           <v-row dense no-gutters>
             <v-col class="pl-1 text-right">
-              <v-btn color="secondary" variant="tonal" class="px-5" @click="confirmAction(action)">
+              <v-btn
+                color="cyan-darken-1"
+                :variant="isDark ? 'tonal' : 'elevated'"
+                class="px-5"
+                @click="confirmAction(action)"
+              >
                 Close
               </v-btn>
             </v-col>
@@ -63,12 +63,9 @@ const props = defineProps({
   btnIcon: String,
   btnVariant: String,
   btnColor: String,
-  btnClass: String
+  btnClass: String,
+  isDark: Boolean
 })
-
-function showDialog() {
-  dialog.value = true
-}
 
 function confirmAction() {
   dialog.value = false
