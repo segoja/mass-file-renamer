@@ -131,7 +131,9 @@ const messages = {
 
 export default createI18n({
   locale: 'en',
-  fallbackLocale: 'en',
+  fallbackLocale: 'en', 
   legacy: false,
+  globalInjection: true,
+  allowComposition: true, // you need to specify that!
   messages
 })

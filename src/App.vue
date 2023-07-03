@@ -6,23 +6,15 @@
         v-draggable
         :color="isDark ? 'grey-darken-4' : 'grey-darken-3'"
         class="mr-0 pr-0"
-        :elevation="3"
+        elevation="3"
       >
         <span class="text-grey-lighten-2 pl-2 font-weight-bold text-uppercase"
           >Mass File Renamer {{ appVersion }}</span
         >
 
         <v-spacer></v-spacer>
-        <v-btn
-          variant="flat"
-          size="small"
-          rounded="0"
-          v-draggable:disable
-          @click="switchLang"
-          class="bg-transparent text-bold"
-        >
-          {{ locale }}
-        </v-btn>
+        <LangSwitcher />
+
         <v-btn
           variant="flat"
           size="small"
@@ -89,13 +81,14 @@
 </template>
 
 <script setup>
+import { useI18n } from 'vue-i18n'
 import AboutModal from './components/AboutModal.vue'
 import FileManager from './components/FileManager.vue'
+import LangSwitcher from './components/LangSwitcher.vue'
 import { useTheme } from 'vuetify'
 import { getCurrent } from '@tauri-apps/api/window'
 import { configStore } from '@/stores/config'
 import { storeToRefs } from 'pinia'
-import { useI18n } from 'vue-i18n'
 
 const store = configStore()
 const { isDark } = storeToRefs(store)
@@ -110,17 +103,6 @@ locale.value = savedLocale.value
 theme.name.value = isDark.value ? 'dark' : 'light'
 
 const appVersion = 'v' + process.env.APP_VERSION || '0'
-
-function switchLang() {
-  if (savedLocale.value != 'en') {
-    store.switchLang('en')
-  } else {
-    store.switchLang('es')
-  }
-  locale.value = savedLocale.value
-  console.log(locale)
-  console.log(savedLocale)
-}
 
 function toggleLight() {
   store.toggleMode()
