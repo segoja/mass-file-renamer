@@ -17,14 +17,18 @@ const messages = {
       time: 'time'
     },
     titles: {
+      language: 'Change language',
       files: 'Select files',
       folder: 'Select folder',
       restore: 'Restore names',
       rename: 'Apply name changes',
       tolower: 'To lower case',
       toupper: 'To upper case',
+      remove: 'Find and remove text',
       clear: 'Clear template',
+      copy: 'Copy file names to clipboard',
       close: 'Close',
+      done: 'Done!',
       yes: 'Yes',
       no: 'No',
       number: 'number',
@@ -47,7 +51,7 @@ const messages = {
       find: 'Find',
       replace: 'Replace',
       remove: 'Remove',
-      filename: 'File name'
+      filename: 'File names'
     },
     text: {
       confirmtitle: 'Confirm action',
@@ -80,14 +84,18 @@ const messages = {
       time: 'hora'
     },
     titles: {
+      language: 'Cambiar idioma',
       files: 'Seleccionar archivos',
       folder: 'Seleccionar carpeta',
       restore: 'Restaurar nombres',
       rename: 'Aplicar cambios de nombre',
       tolower: 'Convertir a minúsculas',
       toupper: 'Convertir a mayúsculas',
+      remove: 'Buscar y eliminar texto',
       clear: 'Limpiar plantilla',
+      copy: 'Copiar nombres de archivo al portapapeles',
       close: 'Cerrar',
+      done: 'Hecho!',
       yes: 'Si',
       no: 'No',
       number: 'número',
@@ -110,7 +118,7 @@ const messages = {
       find: 'Buscar',
       replace: 'Reemplazar',
       remove: 'Eliminar',
-      filename: 'Nombre de archivo'
+      filename: 'Nombres de archivo'
     },
     text: {
       confirmtitle: 'Confirmar acción',
@@ -131,7 +139,7 @@ const messages = {
 
 export default createI18n({
   locale: 'en',
-  fallbackLocale: 'en', 
+  fallbackLocale: 'en',
   legacy: false,
   globalInjection: true,
   allowComposition: true, // you need to specify that!

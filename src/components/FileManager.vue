@@ -33,9 +33,9 @@
             :variant="isDark ? 'tonal' : 'elevated'"
             :disabled="isDisabled"
             class="w-100 mh-100"
-            :title="t('titles.restore')"
           >
             <v-icon size="large" icon="mdi-restore" />
+            <v-tooltip activator="parent" location="left">{{ t('titles.restore') }}</v-tooltip>
           </v-btn>
         </v-col>
         <v-col class="mh-100">
@@ -76,9 +76,9 @@
             :variant="isDark ? 'tonal' : 'elevated'"
             :disabled="isDisabled"
             class="ml-2 mh-100"
-            :title="t('titles.tolower')"
           >
             <v-icon size="large" icon="mdi-format-letter-case-lower" />
+            <v-tooltip activator="parent" location="left">{{ t('titles.tolower') }}</v-tooltip>
           </v-btn>
         </v-col>
         <v-col class="col-auto mh-100">
@@ -88,9 +88,9 @@
             :variant="isDark ? 'tonal' : 'elevated'"
             :disabled="isDisabled"
             class="ml-2 mh-100"
-            :title="t('titles.toupper')"
           >
             <v-icon size="large" icon="mdi-format-letter-case-upper" />
+            <v-tooltip activator="parent" location="left">{{ t('titles.toupper') }}</v-tooltip>
           </v-btn>
         </v-col>
       </v-row>
@@ -130,12 +130,14 @@
             @click="clearElements"
             :variant="isDark ? 'tonal' : 'elevated'"
             color="cyan-darken-1"
-            :disabled="!state.elements.length"
             class="mh-100 h-100 clear-btn"
-            :title="t('titles.clear')"
+            :disabled="isDisabled ? 'true' : !state.elements.length"
           >
             <span class="mr-0 py-2 mt-1">{{ state.elements.length }}</span>
             <v-icon size="large" icon="mdi-eraser" />
+            <v-tooltip activator="parent" location="top" v-if="state.elements.length">{{
+              t('titles.clear')
+            }}</v-tooltip>
           </v-btn>
         </v-col>
       </v-row>
@@ -242,7 +244,6 @@
           <v-checkbox
             v-model="state.removeText"
             :label="t('labels.remove')"
-            :title="t('labels.remove')"
             density="compact"
             color="cyan-darken-1"
             single-line
@@ -250,29 +251,56 @@
             variant="solo"
             :disabled="isDisabled"
           >
+            <v-tooltip activator="parent" location="top">{{ t('titles.remove') }}</v-tooltip>
           </v-checkbox>
         </v-col>
       </v-row>
     </v-col>
   </v-row>
   <v-row no-gutters class="mx-3">
-    <v-col class="pt-2 my-0 pe-0">
-      <span class="text-grey ml-2">{{ t('labels.filename') }}</span>
+    <v-col class="pt-1 my-0 pe-0">
+      <span class="text-grey ml-2">{{ t('labels.filename') }} ({{ numFiles }}) </span>
+      <v-btn
+        density="compact"
+        @click="copyToClipboard"
+        class="copy-btn pb-1"
+        variant="plain"
+        :color="isDark ? 'cyan-darken-1' : 'cyan-darken-4'"
+        :loading="copying"
+        :ripple="false"
+        :disabled="isDisabled"
+      >
+        <v-icon icon="mdi-clipboard-multiple-outline"></v-icon>
+        <template v-slot:loader>
+          <v-icon icon="mdi-check-bold" class="mb-1"></v-icon>
+        </template>
+        <v-tooltip activator="parent" location="right" class="mini-tooltip">{{
+          t('titles.copy')
+        }}</v-tooltip>
+      </v-btn>
     </v-col>
-    <v-col class="pt-2 my-0 pe-1 text-right">
+    <v-col class="pt-1 my-0 pe-1 text-right">
       <v-row no-gutters class="stripped" justify="end">
         <v-col class="py-0 my-0 pl-1 d-none d-sm-block text-right"> </v-col>
         <v-col class="py-0 my-0 text-end" cols="1" sm="4">
           <v-btn
             density="compact"
-            icon="mdi-close-box-multiple-outline"
             @click="clearAll"
+            class="copy-btn"
             variant="plain"
             color="error"
             :ripple="false"
             :disabled="isDisabled"
-            :title="t('titles.wipe')"
-          />
+          >
+            <v-icon icon="mdi-close-box-multiple-outline"></v-icon>
+            <v-tooltip
+              activator="parent"
+              location="right"
+              class="mini-tooltip"
+              v-if="!isDisabled"
+              >{{ t('titles.wipe') }}</v-tooltip
+            >
+          </v-btn>
         </v-col>
       </v-row>
     </v-col>
@@ -351,10 +379,21 @@
           <pre>{{ niceDate(file.date) }}</pre>
         </v-col>
         <v-col class="py-0 my-0 col-auto">
-          <pre
-            class="prebutton"
-          ><v-btn v-on:click="delFile(file)" density="compact" icon="mdi-close-box-outline"
-              variant="plain" color="error" :ripple="false" :title="t('titles.del')"></v-btn></pre>
+          <v-btn
+            v-on:click="delFile(file)"
+            density="compact"
+            icon
+            size="small"
+            variant="plain"
+            color="error"
+            :ripple="false"
+            class="prebutton ml-1"
+          >
+            <v-icon icon="mdi-close-box-outline"></v-icon>
+            <v-tooltip activator="parent" location="right" class="mini-tooltip">{{
+              t('titles.del')
+            }}</v-tooltip>
+          </v-btn>
         </v-col>
       </v-row>
     </v-col>
@@ -378,6 +417,7 @@ pre {
 }
 
 .prebutton * {
+  padding-top: 1px;
   max-height: 26px !important;
   min-height: 0px !important;
   --v-icon-size-multiplier: 1 !important;
@@ -396,8 +436,16 @@ pre {
 }
 .clear-btn {
   min-width: auto !important;
-  padding-left: 1em !important;
-  padding-right: 1em !important;
+  padding-left: 0.75em !important;
+  padding-right: 0.75em !important;
+}
+.copy-btn {
+  min-width: auto !important;
+  min-height: auto !important;
+  height: auto;
+  line-height: 1px !important;
+  margin: 0em 0em 0em 0em !important;
+  padding: 0em 0.25em 0em 0.25em !important;
 }
 
 .mh-100 {
@@ -475,6 +523,13 @@ const textRef = ref('')
 const progress = ref(0)
 const isLoading = ref(false)
 const isRenaming = ref(false)
+const copying = ref(false)
+const numFiles = ref(0)
+
+watch(copying, (val) => {
+  if (!val) return
+  setTimeout(() => (copying.value = false), 1500)
+})
 
 const items = ['number', 'prefix', 'name', 'suffix', 'date', 'time']
 
@@ -482,13 +537,17 @@ watch(state, () => {
   let list = toRaw(filteredFiles.value)
   // console.debug(filteredFiles);
   // console.debug(list.length);
+  if (list.length != numFiles.value) {
+    numFiles.value = list.length
+  }
+
   let newText = ''
   if (list.length > 0) {
     let textLines = []
-    if (state.fileFilter && state.fileFilter != null) {
+    /*if (state.fileFilter && state.fileFilter != null) {
       let filter = state.fileFilter.toLowerCase()
       list = list.filter((item) => item.name.toLowerCase().includes(filter))
-    }
+    }*/
 
     // Find-replace functionality
     let findText = ''
@@ -600,18 +659,18 @@ watch(state, () => {
 // Equivalent to Ember computed / tracked+getters:
 
 const filteredFiles = computed(() => {
-  if (state.selectedFiles.length > 0) {
+  let list = state.selectedFiles
+  if (list.length > 0) {
     if (state.fileFilter) {
       let filter = state.fileFilter.toLowerCase()
-      return state.selectedFiles.filter((item) => item.name.toLowerCase().includes(filter))
+      list = list.filter((item) => item.name.toLowerCase().includes(filter))
     }
-    return state.selectedFiles
   }
-  return ''
+  return list
 })
 
 const isDisabled = computed(() => {
-  if (state.selectedFiles.length > 0) {
+  if (numFiles.value > 0) {
     return false
   }
   return true
@@ -656,6 +715,11 @@ function clearAll() {
   text.prevText = ''
   text.lastCursor = ''
   text.isKeydown = false
+}
+
+function copyToClipboard() {
+  copying.value = true
+  navigator.clipboard.writeText(text.selectedText)
 }
 
 function clearElements() {

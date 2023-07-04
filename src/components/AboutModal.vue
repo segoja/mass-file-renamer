@@ -1,6 +1,5 @@
 <template>
   <v-btn
-    :title="btnTitle"
     :variant="btnVariant"
     :color="btnColor"
     :class="btnClass"
@@ -8,7 +7,8 @@
     rounded="0"
     v-draggable:disable
   >
-    <v-icon :icon="btnIcon" size="x-large"></v-icon>
+    <v-icon :icon="btnIcon" size="large"></v-icon>
+    <v-tooltip activator="parent" location="bottom">{{btnTitle}}</v-tooltip>
     <v-dialog v-model="dialog" activator="parent" :scrim="true" class="ma-14">
       <v-card class="rounded">
         <v-card-title>{{ t('text.abouttitle') }}</v-card-title>

@@ -10,7 +10,7 @@ import { vuetify } from './plugins/vuetify.js'
 import vueTauriDraggable from 'vue-tauri-draggable'
 import 'vue-tauri-draggable/style.css'
 
-import i18n from "./i18n"
+import i18n from './i18n'
 
 const app = createApp(App)
 

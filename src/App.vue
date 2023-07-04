@@ -22,9 +22,9 @@
           v-draggable:disable
           @click="toggleLight"
           class="bg-transparent"
-          :title="t('titles.mode')"
         >
-          <v-icon icon="mdi-theme-light-dark" size="x-large"></v-icon>
+          <v-icon icon="mdi-theme-light-dark" size="large"></v-icon>
+          <v-tooltip activator="parent" location="bottom">{{ t('titles.mode') }}</v-tooltip>
         </v-btn>
         <AboutModal
           :btnTitle="t('titles.about')"
@@ -169,5 +169,14 @@ main.light .files {
 
 #app {
   max-width: 100%;
+}
+.mini-tooltip > .v-overlay__content {
+  font-size: 0.75em !important;
+  padding: 0.25em 0.5em !important;
+}
+.v-tooltip .v-overlay__content {
+  font-size: 0.75em !important;
+  padding: 0.25em 0.5em !important;
+  background-color: rgba(var(--v-border-color), 0.85) !important;
 }
 </style>

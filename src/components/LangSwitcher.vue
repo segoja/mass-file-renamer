@@ -8,11 +8,11 @@
     class="bg-transparent text-bold"
   >
     {{ locale }}
+    <v-tooltip activator="parent" location="bottom">{{ t('titles.language') }}</v-tooltip>
   </v-btn>
 </template>
 
 <script setup>
-import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { configStore } from '@/stores/config'
 import { storeToRefs } from 'pinia'
@@ -32,5 +32,4 @@ function switchLang() {
   }
   locale.value = savedLocale.value
 }
-
 </script>
