@@ -66,7 +66,8 @@
             single-line
             hide-details
             clearable
-            :disabled="isDisabled"
+            :disabled="disableFilter"
+            @keydown="formDown"
           />
         </v-col>
         <v-col class="col-auto mh-100">
@@ -131,7 +132,7 @@
             :variant="isDark ? 'tonal' : 'elevated'"
             color="cyan-darken-1"
             class="mh-100 h-100 clear-btn"
-            :disabled="isDisabled ? 'true' : !state.elements.length"
+            :disabled="isDisabled ? true : !state.elements.length"
           >
             <span class="mr-0 py-2 mt-1">{{ state.elements.length }}</span>
             <v-icon size="large" icon="mdi-eraser" />
@@ -259,7 +260,7 @@
   </v-row>
   <v-row no-gutters class="mx-3">
     <v-col class="pt-1 my-0 pe-0">
-      <span class="text-grey ml-2">{{ t('labels.filename') }} ({{ numFiles }}) </span>
+      <span class="text-grey ml-2">{{ t('labels.filename') }} ({{ numFiltered }}) </span>
       <v-btn
         density="compact"
         @click="copyToClipboard"
@@ -321,7 +322,13 @@
   </v-row>
   <v-row no-gutters class="mx-3 justify-center">
     <v-col cols="12">
-      <v-dialog v-model="isLoading" persistent transition="dialog-bottom-transition" class="w-100">
+      <v-progress-linear
+        indeterminate
+        color="white"
+        class="mb-0"
+        :active="state.isUpdating"
+      ></v-progress-linear>
+      <v-dialog v-model="state.isLoading" persistent transition="dialog-bottom-transition" class="w-100">
         <v-row no-gutters class="mx-3 justify-center">
           <v-col cols="12" md="6">
             <v-card class="w-100">
@@ -332,9 +339,23 @@
                   height="15"
                   striped
                   color="cyan-darken-1"
-                  :active="isLoading"
+                  :active="state.isLoading"
                 ></v-progress-linear>
               </v-card-text>
+              <v-card-actions>
+                <v-row dense no-gutters justify="center">
+                  <v-col class="col-auto">
+                    <v-btn
+                      color="warning"
+                      :variant="isDark ? 'tonal' : 'elevated'"
+                      @click="cancelLoad()"
+                      :title="t('titles.cancel')"
+                    >
+                      {{ t('buttons.cancel') }}
+                    </v-btn>
+                  </v-col>
+                </v-row>
+              </v-card-actions>
             </v-card>
           </v-col>
         </v-row>
@@ -360,42 +381,35 @@
     </v-col>
   </v-row>
   <v-row
-    class="h-100 overflow-y-auto mb-3 mt-0 mx-3 border-2 justify-center v-field-label files"
-    no-gutters
+    class="h-100 overflow-y-auto mb-3 mt-0 mx-3 border-2 justify-center v-field-label files" no-gutters
   >
-    <v-col class="py-0 my-0 ps-1 overflow-x-auto">
+    <v-col class="py-0 my-0 ps-1 overflow-x-auto" v-if="showData">
       <pre
         ref="textRef"
         @keydown="backupText"
         @keyup="getText"
-        disabled="isLoading"
+        disabled="state.isLoading"
         contenteditable
         >{{ text.selectedText }}</pre
       >
     </v-col>
-    <v-col class="py-0 my-0 text-right col-auto">
-      <v-row no-gutters v-for="file in filteredFiles" :key="file" class="" justify="end">
-        <v-col class="py-0 my-0 ps-1 d-none d-sm-block align-self-end">
-          <pre>{{ niceDate(file.date) }}</pre>
-        </v-col>
-        <v-col class="py-0 my-0 col-auto">
-          <v-btn
-            v-on:click="delFile(file)"
-            density="compact"
-            icon
-            size="small"
-            variant="plain"
-            color="error"
-            :ripple="false"
-            class="prebutton ml-1"
-          >
-            <v-icon icon="mdi-close-box-outline"></v-icon>
-            <v-tooltip activator="parent" location="right" class="mini-tooltip">{{
-              t('titles.del')
-            }}</v-tooltip>
-          </v-btn>
-        </v-col>
-      </v-row>
+    <v-col class="py-0 my-0 ps-1 overflow-x-auto col-auto" v-if="showData">
+      <pre
+        ref="dateRef"
+        >{{ text.selectedDates }}</pre
+      >
+    </v-col>    
+    <v-col class="py-0 my-0 text-right col-auto" v-if="showData">
+      <button 
+        type="button" 
+        v-for="file in filteredFiles" 
+        :key="file" 
+        class="v-btn--variant-plain d-block prebutton" 
+        v-on:click="delFile(file)"
+        :title="t('titles.del')"      
+      >
+        <v-icon icon="mdi-close-box-outline" color="error"></v-icon>
+      </button>
     </v-col>
   </v-row>
 </template>
@@ -416,15 +430,14 @@ pre {
   border-width: 0px !important;
 }
 
-.prebutton * {
-  padding-top: 1px;
-  max-height: 26px !important;
+.prebutton, .prebutton * {
+  padding-bottom: 8px;
+  margin-left: 0.05em;
+  margin-right: 0.1em;
+  max-height: 30px !important;
   min-height: 0px !important;
   --v-icon-size-multiplier: 1 !important;
   font-size: 1.25rem !important;
-}
-.prebutton i.v-icon {
-  top: -1px;
 }
 
 .col-auto {
@@ -495,6 +508,8 @@ const { t } = useI18n()
 // Equivalent to tracked properties:
 const state = reactive({
   selectedFiles: [],
+  previousFiles: [],
+  fileFilter: '',
   renameErrors: [],
   preTime: false,
   preNum: false,
@@ -507,153 +522,179 @@ const state = reactive({
   findText: '',
   replaceText: '',
   removeText: false,
-  fileFilter: '',
   alert: false,
   alertMsg: '',
-  elements: []
+  elements: [],
+  stopLoading: false,
+  isLoading: false,
+  isUpdating: false
 })
+
+const rFiles = reactive({
+  selectedFiles: [],
+  previousFiles: []
+})
+
 const text = reactive({
+  selectedDates: '',
   selectedText: '',
+  backupText: '',
+  prevDates: '',
   prevText: '',
   lastCursor: '',
   isKeydown: false
 })
 
+const dateRef = ref('')
 const textRef = ref('')
 const progress = ref(0)
-const isLoading = ref(false)
 const isRenaming = ref(false)
 const copying = ref(false)
-const numFiles = ref(0)
+const numSelected = ref(0)
+const numFiltered = ref(0)
+
+const stopLoading = ref(false);
+const stopRenaming = ref(false);
 
 watch(copying, (val) => {
-  if (!val) return
-  setTimeout(() => (copying.value = false), 1500)
+  if (val) {
+    setTimeout(() => (copying.value = false), 1500)
+  }
 })
 
 const items = ['number', 'prefix', 'name', 'suffix', 'date', 'time']
 
 watch(state, () => {
-  let list = toRaw(filteredFiles.value)
-  // console.debug(filteredFiles);
-  // console.debug(list.length);
-  if (list.length != numFiles.value) {
-    numFiles.value = list.length
-  }
-
-  let newText = ''
-  if (list.length > 0) {
-    let textLines = []
-    /*if (state.fileFilter && state.fileFilter != null) {
-      let filter = state.fileFilter.toLowerCase()
-      list = list.filter((item) => item.name.toLowerCase().includes(filter))
-    }*/
-
-    // Find-replace functionality
-    let findText = ''
-    let replaceText = ''
-    if (state.findText != null) {
-      findText = state.findText
-      try {
-        findText = new RegExp(findText, 'gi')
-      } catch (error) {
-        if (error instanceof Error) {
-          state.alertMsg = error.message
-          state.alert = true
-        } else {
-          state.alertMsg = ''
-          state.alert = false
-        }
-        findText = ''
-      } finally {
-        if (findText) {
-          state.alertMsg = ''
-          state.alert = false
-        }
-      }
+  if(!state.isLoading && !state.stopLoading){
+    if(filteredFiles.length != numSelected.value){
+      numSelected.value = state.selectedFiles.length
     }
-    if (state.replaceText != null) {
-      replaceText = state.replaceText.replace(/[^a-zA-Z0-9\s_.-]/g, '')
+    
+    let list = toRaw(filteredFiles.value)    
+    if (list.length != numFiltered.value) {
+      numFiltered.value = list.length
     }
 
-    if (
-      state.elements.length > 0 ||
-      state.prefix ||
-      state.suffix ||
-      state.toLower ||
-      state.toUpper ||
-      state.findText
-    ) {
-      console.debug('test with prefix or suffix')
-      let numDigits = 0
-      numDigits = list.length
-      numDigits = Math.floor(Math.log10(numDigits) + 1)
+    let newText = ''
+    if (list.length > 0) {
+      let textLines = []
+      /*if (state.fileFilter && state.fileFilter != null) {
+        let filter = state.fileFilter.toLowerCase()
+        list = list.filter((item) => item.name.toLowerCase().includes(filter))
+      }*/
 
-      let structure = ''
-      if (state.elements.length > 0) {
-        structure = '\\' + state.elements.join('-\\')
+      // Find-replace functionality
+      let findText = ''
+      let replaceText = ''
+      if (state.findText != null) {
+        findText = state.findText
+        try {
+          findText = new RegExp(findText, 'gi')
+        } catch (error) {
+          if (error instanceof Error) {
+            state.alertMsg = error.message
+            state.alert = true
+          } else {
+            state.alertMsg = ''
+            state.alert = false
+          }
+          findText = ''
+        } finally {
+          if (findText) {
+            state.alertMsg = ''
+            state.alert = false
+          }
+        }
+      }
+      if (state.replaceText != null) {
+        replaceText = state.replaceText.replace(/[^a-zA-Z0-9\s_.-]/g, '')
       }
 
-      let listNr = 0
-      list.forEach((item) => {
-        listNr = String(Number(listNr) + 1)
-        let finalname = item.name
-        let finalExtension = item.extension
-        let date = dayjs(item.date).format('YYYYMMDD').toString()
-        let time = dayjs(item.date).format('HHmmss').toString()
-        let numString = listNr.padStart(numDigits, 0)
-        let prefix = state.prefix != null ? state.prefix : ''
-        let suffix = state.suffix != null ? state.suffix : ''
+      if (
+        state.elements.length > 0 ||
+        state.prefix ||
+        state.suffix ||
+        state.toLower ||
+        state.toUpper ||
+        state.findText
+      ) {
+        console.debug('test with prefix or suffix')
+        let numDigits = 0
+        numDigits = list.length
+        numDigits = Math.floor(Math.log10(numDigits) + 1)
 
+        let structure = ''
         if (state.elements.length > 0) {
-          finalname = structure.replaceAll('\\number', numString)
-          finalname = String(finalname).replaceAll('\\date', date)
-          finalname = String(finalname).replaceAll('\\time', time)
-          if (prefix) {
-            finalname = finalname.replaceAll('\\prefix', prefix)
+          structure = '\\' + state.elements.join('-\\')
+        }
+
+        let listNr = 0
+        list.forEach((item) => {
+          listNr = String(Number(listNr) + 1)
+          let finalname = item.name
+          let finalExtension = item.extension
+          let date = dayjs(item.date).format('YYYYMMDD').toString()
+          let time = dayjs(item.date).format('HHmmss').toString()
+          let numString = listNr.padStart(numDigits, 0)
+          let prefix = state.prefix != null ? state.prefix : ''
+          let suffix = state.suffix != null ? state.suffix : ''
+
+          if (state.elements.length > 0) {
+            finalname = structure.replaceAll('\\number', numString)
+            finalname = String(finalname).replaceAll('\\date', date)
+            finalname = String(finalname).replaceAll('\\time', time)
+            if (prefix) {
+              finalname = finalname.replaceAll('\\prefix', prefix)
+            } else {
+              finalname = finalname.replaceAll('-\\prefix', '')
+              finalname = finalname.replaceAll('\\prefix', '')
+            }
+            if (suffix) {
+              finalname = finalname.replaceAll('\\suffix', suffix)
+            } else {
+              finalname = finalname.replaceAll('-\\suffix', '')
+              finalname = finalname.replaceAll('\\suffix', '')
+            }
+            finalname = finalname.replaceAll('\\name', item.name)
+          }
+
+          if (state.toLower) {
+            finalname = finalname.toLowerCase()
+          }
+
+          if (state.toUpper) {
+            finalname = finalname.toUpperCase()
+          }
+
+          if (findText && replaceText && !state.removeText) {
+            finalname = finalname.replaceAll(findText, replaceText)
           } else {
-            finalname = finalname.replaceAll('-\\prefix', '')
-            finalname = finalname.replaceAll('\\prefix', '')
+            if (findText && state.removeText) {
+              finalname = finalname.replaceAll(findText, '')
+            }
           }
-          if (suffix) {
-            finalname = finalname.replaceAll('\\suffix', suffix)
-          } else {
-            finalname = finalname.replaceAll('-\\suffix', '')
-            finalname = finalname.replaceAll('\\suffix', '')
+
+          if (finalExtension) {
+            finalname = finalname + '.' + finalExtension
           }
-          finalname = finalname.replaceAll('\\name', item.name)
-        }
 
-        if (state.toLower) {
-          finalname = finalname.toLowerCase()
-        }
-
-        if (state.toUpper) {
-          finalname = finalname.toUpperCase()
-        }
-
-        if (findText && replaceText && !state.removeText) {
-          finalname = finalname.replaceAll(findText, replaceText)
-        } else {
-          if (findText && state.removeText) {
-            finalname = finalname.replaceAll(findText, '')
-          }
-        }
-
-        if (finalExtension) {
-          finalname = finalname + '.' + finalExtension
-        }
-
-        textLines.push(finalname)
-      })
-    } else {
-      console.debug('No prefix/suffix')
-      textLines = list.map((item) => item.newfullname)
+          textLines.push(finalname)
+        })
+        
+      } else {
+        console.debug('No prefix/suffix')
+        textLines = list.map((item) => item.newfullname)
+      }
+      newText = textLines.join('\n')
     }
-    newText = textLines.join('\n')
+    
+    text.selectedDates = list.map((item) => niceDate(item.date)).join('\n')
+    
+    state.isUpdating = false;
+    text.selectedText = text.backupText || newText
+    text.prevText = text.backupText || newText
+    text.backupText = ''
   }
-  text.selectedText = newText
-  text.prevText = newText
 })
 
 // Equivalent to Ember computed / tracked+getters:
@@ -663,20 +704,38 @@ const filteredFiles = computed(() => {
   if (list.length > 0) {
     if (state.fileFilter) {
       let filter = state.fileFilter.toLowerCase()
-      list = list.filter((item) => item.name.toLowerCase().includes(filter))
+      return list.filter((item) => item.name.toLowerCase().includes(filter))
     }
   }
   return list
 })
 
 const isDisabled = computed(() => {
-  if (numFiles.value > 0) {
+  if (numFiltered.value > 0) {
     return false
   }
   return true
 })
 
+const disableFilter = computed(() => {
+  if (numSelected.value > 0) {
+    return false
+  }
+  return true
+})
+
+const showData = computed(() => {
+  if(state.isLoading || state.isUpdating){
+    return false;
+  }
+  return true
+})
+
 // Equivalent to Ember actions:
+
+function formDown(){
+  state.isUpdating = true;
+}
 
 function restoreNames() {
   state.renameErrors = []
@@ -754,6 +813,10 @@ function niceDate(date) {
   }
 }
 
+function cancelLoad(){
+  state.stopLoading = true;
+}
+
 // Keydown checks:
 function backupText() {
   if (!text.isKeydown) {
@@ -815,52 +878,67 @@ function openFolder() {
   dialog.open({ directory: true }).then((directory) => {
     // console.debug(directory);
     if (directory != null && directory) {
-      readDir(directory, { recursive: false }).then((files) => {
+      readDir(directory, { recursive: false }).then(async (files) => {
         if (files.length > 0) {
+          let prevText = ''
+          if(filteredFiles.value.length > 0){
+            rFiles.previousFiles = toRaw(filteredFiles.value)
+            prevText = toRaw(textRef.value.innerText);
+          }
           clearAll()
           let totalLenght = files.length
-          isLoading.value = true
+          state.isLoading = true
           let filecounter = 0
           let folders = 0
-          files.map(async (file) => {
-            let pathInfo = await invoke('get_path_info', { filePath: file.path })
-            if (!pathInfo.is_folder) {
-              let modified = pathInfo.modified.secs_since_epoch * 1000
-              let fullfilename = file.name
-              let filepath = file.path.replace(fullfilename, '')
-              let extension = ''
-              if (fullfilename.includes('.')) {
-                extension = fullfilename.split('.').slice(-1).toString()
-              }
-              let filename = fullfilename.replace('.' + extension, '')
-              let newId = 'file' + filecounter
-
-              let newFile = {
-                id: newId,
-                name: filename,
-                extension: extension,
-                path: filepath,
-                date: modified,
-                fullname: fullfilename,
-                newfullname: fullfilename,
-                saved: false
-              }
-
-              await state.selectedFiles.push(newFile)
-
-              filecounter += 1
+          for (var i = 0; i < files.length; i++) {
+            if(state.stopLoading){
+              clearAll()
+              state.isLoading = false
+              state.stopLoading = false
+              state.selectedFiles = toRaw(rFiles.previousFiles)
+              text.backupText = prevText;
+              break; 
             } else {
-              folders += 1
+              let file = files[i];   
+              let pathInfo = await invoke('get_path_info', { filePath: file.path })
+              if (!pathInfo.is_folder) {
+                let modified = pathInfo.modified.secs_since_epoch * 1000
+                let fullfilename = file.name
+                let filepath = file.path.replace(fullfilename, '')
+                let extension = ''
+                if (fullfilename.includes('.')) {
+                  extension = fullfilename.split('.').slice(-1).toString()
+                }
+                let filename = fullfilename.replace('.' + extension, '')
+                let newId = 'file' + filecounter
+
+                let newFile = {
+                  id: newId,
+                  name: filename,
+                  extension: extension,
+                  path: filepath,
+                  date: modified,
+                  fullname: fullfilename,
+                  newfullname: fullfilename,
+                  saved: false
+                }
+
+                await state.selectedFiles.push(newFile)
+
+                filecounter += 1
+              } else {
+                folders += 1
+              }
+              if (filecounter == totalLenght - folders) {
+                setTimeout(() => {
+                  state.isLoading = false
+                  progress.value = 0
+                }, 500)
+              } else {
+                progress.value = Math.ceil((filecounter * 100) / (totalLenght - folders))
+              }
             }
-            if (filecounter == totalLenght - folders) {
-              setTimeout(() => {
-                isLoading.value = false
-                progress.value = 0
-              }, 500)
-            } else {
-              progress.value = Math.ceil((filecounter * 100) / (totalLenght - folders))
-            }
-          })
+          }
         }
       })
     }
@@ -880,10 +958,12 @@ function selectFiles() {
         if (files.length > 0) {
           clearAll()
           let totalLenght = files.length
-          isLoading.value = true
+          state.isLoading = true
           let filecounter = 0
           let folders = 0
-          files.map(async (file) => {
+          //files.map(async (file) => {
+          for (var i = 0; i < files.length; i++) {
+            let file = files[i];   
             let pathInfo = await invoke('get_path_info', { filePath: file })
             if (!pathInfo.is_folder) {
               let modified = pathInfo.modified.secs_since_epoch * 1000
@@ -917,13 +997,13 @@ function selectFiles() {
 
             if (filecounter == totalLenght - folders) {
               setTimeout(() => {
-                isLoading.value = false
+                state.isLoading = false
                 progress.value = 0
               }, 500)
             } else {
               progress.value = Math.ceil((filecounter * 100) / (totalLenght - folders))
             }
-          })
+          }
         }
       }
     })
