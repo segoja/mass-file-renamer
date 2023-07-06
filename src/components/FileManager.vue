@@ -33,9 +33,9 @@
             :variant="isDark ? 'tonal' : 'elevated'"
             :disabled="isDisabled"
             class="w-100 mh-100"
+            :title="t('titles.restore')"
           >
             <v-icon size="large" icon="mdi-restore" />
-            <v-tooltip activator="parent" location="left">{{ t('titles.restore') }}</v-tooltip>
           </v-btn>
         </v-col>
         <v-col class="mh-100">
@@ -77,9 +77,9 @@
             :variant="isDark ? 'tonal' : 'elevated'"
             :disabled="isDisabled"
             class="ml-2 mh-100"
+            :title="t('titles.tolower')"
           >
             <v-icon size="large" icon="mdi-format-letter-case-lower" />
-            <v-tooltip activator="parent" location="left">{{ t('titles.tolower') }}</v-tooltip>
           </v-btn>
         </v-col>
         <v-col class="col-auto mh-100">
@@ -89,9 +89,9 @@
             :variant="isDark ? 'tonal' : 'elevated'"
             :disabled="isDisabled"
             class="ml-2 mh-100"
+            :title="t('titles.toupper')"
           >
             <v-icon size="large" icon="mdi-format-letter-case-upper" />
-            <v-tooltip activator="parent" location="left">{{ t('titles.toupper') }}</v-tooltip>
           </v-btn>
         </v-col>
       </v-row>
@@ -99,16 +99,17 @@
   </v-row>
   <v-row class="mx-2" dense>
     <v-col cols="12" md="6">
-      <v-row dense align="center" justify="space-around">
-        <v-col justify="end">
+      <v-row dense justify="space-around" no-gutters>
+        <v-col class="mh-100 align-end">
           <v-chip-group
             :class="
               isDisabled
-                ? 'v-field v-field--variant-solo v-theme--high-contrast d-block v-input rounded py-0 px-1 v-input__control v-field--disabled'
-                : 'v-field v-field--variant-solo v-theme--high-contrast d-block v-input rounded py-0 px-1 v-input__control'
+                ? 'v-field v-field--variant-solo d-block rounded py-0 my-0 px-1 v-field--disabled'
+                : 'v-field v-field--variant-solo d-block rounded py-0 my-0 px-1'
             "
             :disabled="isDisabled"
             justify="space-around"
+            selected-class="none"
           >
             <v-chip variant="text" label draggable class="v-label my-1 pr-0">
               {{ t('labels.elements') }}
@@ -127,19 +128,19 @@
           </v-chip-group>
         </v-col>
         <v-col class="col-auto mh-100">
-          <v-btn
-            @click="clearElements"
-            :variant="isDark ? 'tonal' : 'elevated'"
-            color="cyan-darken-1"
-            class="mh-100 h-100 clear-btn"
-            :disabled="isDisabled ? true : !state.elements.length"
-          >
-            <span class="mr-0 py-2 mt-1">{{ state.elements.length }}</span>
-            <v-icon size="large" icon="mdi-eraser" />
-            <v-tooltip activator="parent" location="top" v-if="state.elements.length">{{
-              t('titles.clear')
-            }}</v-tooltip>
-          </v-btn>
+            <v-btn 
+              label
+              draggable
+              class="my-0 py-0 px-3 ml-2 mh-100"
+              @click="clearElements"
+              :variant="isDark ? 'tonal' : 'elevated'"
+              color="cyan-darken-1"
+              :disabled="isDisabled ? true : !state.elements.length"
+              :title="t('titles.clear')"
+              append-icon="mdi-delete-outline"
+            >
+                {{ state.elements.length }}
+            </v-btn>
         </v-col>
       </v-row>
       <v-row dense>
@@ -147,8 +148,8 @@
           <v-chip-group
             :class="
               isDisabled
-                ? 'v-field v-field--variant-solo v-theme--high-contrast d-block v-input rounded  py-0 px-1 d-block w-100 h-100 v-field--disabled'
-                : 'v-field v-field--variant-solo v-theme--high-contrast d-block v-input rounded py-0 px-1 d-block w-100 h-100'
+                ? 'v-field v-field--variant-solo d-block rounded  py-0 px-1 d-block w-100 h-100 v-field--disabled'
+                : 'v-field v-field--variant-solo d-block rounded py-0 px-1 d-block w-100 h-100'
             "
             :disabled="isDisabled"
           >
@@ -238,8 +239,8 @@
           md="auto"
           :class="
             isDisabled
-              ? 'v-field v-field--variant-solo v-theme--high-contrast d-block v-input rounded  py-0 my-1 mx-0 mr-1 v-field--disabled'
-              : 'v-field v-field--variant-solo v-theme--high-contrast d-block v-input rounded py-0 my-1 mx-0 mr-1'
+              ? 'v-field v-field--variant-solo d-block rounded  py-0 my-1 mx-1 v-field--disabled'
+              : 'v-field v-field--variant-solo d-block rounded py-0 my-1 mx-1'
           "
         >
           <v-checkbox
@@ -251,6 +252,7 @@
             hide-details
             variant="solo"
             :disabled="isDisabled"
+            class="mx-2 mr-3"
           >
             <v-tooltip activator="parent" location="top">{{ t('titles.remove') }}</v-tooltip>
           </v-checkbox>
@@ -270,14 +272,16 @@
         :loading="copying"
         :ripple="false"
         :disabled="isDisabled"
+        :title="t('titles.copy')" 
       >
         <v-icon icon="mdi-clipboard-multiple-outline"></v-icon>
         <template v-slot:loader>
-          <v-icon icon="mdi-check-bold" class="mb-1"></v-icon>
+          <v-icon icon="mdi-check-bold" class="mb-1">       
+          </v-icon>
+          <v-tooltip v-model="copying" activator="parent" location="top" class="mini-tooltip">{{
+            t('titles.copied')
+          }}</v-tooltip>   
         </template>
-        <v-tooltip activator="parent" location="right" class="mini-tooltip">{{
-          t('titles.copy')
-        }}</v-tooltip>
       </v-btn>
     </v-col>
     <v-col class="pt-1 my-0 pe-1 text-right">
@@ -292,15 +296,9 @@
             color="error"
             :ripple="false"
             :disabled="isDisabled"
+            :title="t('titles.wipe')" 
           >
             <v-icon icon="mdi-close-box-multiple-outline"></v-icon>
-            <v-tooltip
-              activator="parent"
-              location="right"
-              class="mini-tooltip"
-              v-if="!isDisabled"
-              >{{ t('titles.wipe') }}</v-tooltip
-            >
           </v-btn>
         </v-col>
       </v-row>
@@ -324,7 +322,7 @@
     <v-col cols="12">
       <v-progress-linear
         indeterminate
-        color="white"
+        color="warning"
         class="mb-0"
         :active="state.isUpdating"
       ></v-progress-linear>
@@ -360,7 +358,7 @@
           </v-col>
         </v-row>
       </v-dialog>
-      <v-dialog v-model="isRenaming" persistent transition="dialog-bottom-transition" class="w-100">
+      <v-dialog v-model="state.isRenaming" persistent transition="dialog-bottom-transition" class="w-100">
         <v-row no-gutters class="mx-3 justify-center">
           <v-col cols="12" md="6">
             <v-card class="w-100">
@@ -371,9 +369,23 @@
                   height="15"
                   striped
                   color="warning"
-                  :active="isRenaming"
+                  :active="state.isRenaming"
                 ></v-progress-linear>
               </v-card-text>
+              <v-card-actions>
+                <v-row dense no-gutters justify="center">
+                  <v-col class="col-auto">
+                    <v-btn
+                      color="warning"
+                      :variant="isDark ? 'tonal' : 'elevated'"
+                      @click="cancelRename()"
+                      :title="t('titles.cancel')"
+                    >
+                      {{ t('buttons.cancel') }}
+                    </v-btn>
+                  </v-col>
+                </v-row>
+              </v-card-actions>
             </v-card>
           </v-col>
         </v-row>
@@ -383,6 +395,9 @@
   <v-row
     class="h-100 overflow-y-auto mb-3 mt-0 mx-3 border-2 justify-center v-field-label files" no-gutters
   >
+    <v-col class="py-0 my-0 ps-1 overflow-x-auto" v-if="!showData || !numFiltered">
+      <pre>No files selected</pre>
+    </v-col>
     <v-col class="py-0 my-0 ps-1 overflow-x-auto" v-if="showData">
       <pre
         ref="textRef"
@@ -393,7 +408,7 @@
         >{{ text.selectedText }}</pre
       >
     </v-col>
-    <v-col class="py-0 my-0 ps-1 overflow-x-auto col-auto" v-if="showData">
+    <v-col class="py-0 my-0 ps-1 col-auto" v-if="showData">
       <pre
         ref="dateRef"
         >{{ text.selectedDates }}</pre
@@ -489,6 +504,12 @@ pre.selectable {
   color: rgba(var(--v-border-color), 0.7);
   background-color: rgba(var(--v-bg-color), var(--v-border-opacity));
 }
+
+::selection {
+  color: rgb(var(--v-theme-on-background))!important;
+  background: rgba(var(--v-theme-warning), var(--v-disabled-opacity))!important;
+}
+
 </style>
 
 <script setup>
@@ -526,13 +547,16 @@ const state = reactive({
   alertMsg: '',
   elements: [],
   stopLoading: false,
+  stopRenaming: false,
+  isRenaming: false,
   isLoading: false,
   isUpdating: false
 })
 
 const rFiles = reactive({
   selectedFiles: [],
-  previousFiles: []
+  previousFiles: [],
+  loadingTimeout: ''
 })
 
 const text = reactive({
@@ -548,13 +572,9 @@ const text = reactive({
 const dateRef = ref('')
 const textRef = ref('')
 const progress = ref(0)
-const isRenaming = ref(false)
 const copying = ref(false)
 const numSelected = ref(0)
 const numFiltered = ref(0)
-
-const stopLoading = ref(false);
-const stopRenaming = ref(false);
 
 watch(copying, (val) => {
   if (val) {
@@ -565,7 +585,7 @@ watch(copying, (val) => {
 const items = ['number', 'prefix', 'name', 'suffix', 'date', 'time']
 
 watch(state, () => {
-  if(!state.isLoading && !state.stopLoading){
+  if(!state.isLoading && !state.stopLoading && !state.stopRenaming && !state.isRenaming){
     if(filteredFiles.length != numSelected.value){
       numSelected.value = state.selectedFiles.length
     }
@@ -573,20 +593,30 @@ watch(state, () => {
     let list = toRaw(filteredFiles.value)    
     if (list.length != numFiltered.value) {
       numFiltered.value = list.length
-    }
+    }    
+    
+    let newText = filterText(list)    
+    text.selectedText = text.backupText || newText
+    text.prevText = text.backupText || newText
+    text.backupText = ''
+    
+    text.selectedDates = list.map((item) => niceDate(item.date)).join('\n')
+    
 
+    clearTimeout(rFiles.loadingTimeout)
+    rFiles.loadingTimeout = setTimeout(() => { state.isUpdating = false; }, 500)
+  }
+})
+
+function filterText(list){
     let newText = ''
     if (list.length > 0) {
       let textLines = []
-      /*if (state.fileFilter && state.fileFilter != null) {
-        let filter = state.fileFilter.toLowerCase()
-        list = list.filter((item) => item.name.toLowerCase().includes(filter))
-      }*/
 
       // Find-replace functionality
       let findText = ''
       let replaceText = ''
-      if (state.findText != null) {
+      if (state.findText != null && state.findText) {
         findText = state.findText
         try {
           findText = new RegExp(findText, 'gi')
@@ -606,7 +636,7 @@ watch(state, () => {
           }
         }
       }
-      if (state.replaceText != null) {
+      if (state.replaceText != null && state.replaceText) {
         replaceText = state.replaceText.replace(/[^a-zA-Z0-9\s_.-]/g, '')
       }
 
@@ -618,7 +648,6 @@ watch(state, () => {
         state.toUpper ||
         state.findText
       ) {
-        console.debug('test with prefix or suffix')
         let numDigits = 0
         numDigits = list.length
         numDigits = Math.floor(Math.log10(numDigits) + 1)
@@ -682,20 +711,12 @@ watch(state, () => {
         })
         
       } else {
-        console.debug('No prefix/suffix')
         textLines = list.map((item) => item.newfullname)
       }
       newText = textLines.join('\n')
     }
-    
-    text.selectedDates = list.map((item) => niceDate(item.date)).join('\n')
-    
-    state.isUpdating = false;
-    text.selectedText = text.backupText || newText
-    text.prevText = text.backupText || newText
-    text.backupText = ''
-  }
-})
+    return newText
+}
 
 // Equivalent to Ember computed / tracked+getters:
 
@@ -758,22 +779,47 @@ function restoreNames() {
 
 function clearAll() {
   state.selectedFiles = []
+  state.previousFiles = []
+  state.fileFilter = ''
   state.renameErrors = []
+  state.preTime = false
+  state.preNum = false
   state.prefix = ''
   state.suffix = ''
+  state.posNum = false
+  state.posTime = false
   state.toLower = false
   state.toUpper = false
   state.findText = ''
   state.replaceText = ''
   state.removeText = false
-  state.fileFilter = ''
   state.alert = false
   state.alertMsg = ''
   state.elements = []
+  state.stopLoading = false
+  state.stopRenaming = false
+  state.isRenaming = false
+  state.isLoading = false
+  state.isUpdating = false
+
+  rFiles.selectedFiles = []
+  rFiles.previousFiles = []
+  rFiles.loadingTimeout = ''
+
+  text.selectedDates = ''
   text.selectedText = ''
+  text.backupText = ''
+  text.prevDates = ''
   text.prevText = ''
   text.lastCursor = ''
   text.isKeydown = false
+
+  dateRef.value = ''
+  textRef.value = ''
+  progress.value = 0
+  copying.value = false
+  numSelected.value = 0
+  numFiltered.value = 0
 }
 
 function copyToClipboard() {
@@ -815,6 +861,9 @@ function niceDate(date) {
 
 function cancelLoad(){
   state.stopLoading = true;
+}
+function cancelRename(){
+  state.stopRenaming = true;
 }
 
 // Keydown checks:
@@ -895,8 +944,9 @@ function openFolder() {
               clearAll()
               state.isLoading = false
               state.stopLoading = false
+              process.value = 0
               state.selectedFiles = toRaw(rFiles.previousFiles)
-              text.backupText = prevText;
+              text.backupText = prevText
               break; 
             } else {
               let file = files[i];   
@@ -931,8 +981,8 @@ function openFolder() {
               }
               if (filecounter == totalLenght - folders) {
                 setTimeout(() => {
-                  state.isLoading = false
                   progress.value = 0
+                  state.isLoading = false
                 }, 500)
               } else {
                 progress.value = Math.ceil((filecounter * 100) / (totalLenght - folders))
@@ -956,6 +1006,11 @@ function selectFiles() {
       // console.debug(files);
       if (files) {
         if (files.length > 0) {
+          let prevText = ''
+          if(filteredFiles.value.length > 0){
+            rFiles.previousFiles = toRaw(filteredFiles.value)
+            prevText = toRaw(textRef.value.innerText);
+          }
           clearAll()
           let totalLenght = files.length
           state.isLoading = true
@@ -963,45 +1018,55 @@ function selectFiles() {
           let folders = 0
           //files.map(async (file) => {
           for (var i = 0; i < files.length; i++) {
-            let file = files[i];   
-            let pathInfo = await invoke('get_path_info', { filePath: file })
-            if (!pathInfo.is_folder) {
-              let modified = pathInfo.modified.secs_since_epoch * 1000
-              let filedata = file.split('\\')
-              let fullfilename = filedata.pop().toString()
-              let filepath = file.replace(fullfilename, '')
-              let extension = ''
-              if (fullfilename.includes('.')) {
-                extension = fullfilename.split('.').slice(-1).toString()
-              }
-              let filename = fullfilename.replace('.' + extension, '')
-              let newId = 'file' + filecounter
-
-              let newFile = {
-                id: newId,
-                name: filename,
-                extension: extension,
-                path: filepath,
-                date: modified,
-                fullname: fullfilename,
-                newfullname: fullfilename,
-                saved: false
-              }
-
-              await state.selectedFiles.push(newFile)
-
-              filecounter += 1
+            if(state.stopLoading){
+              clearAll()
+              state.isLoading = false
+              state.stopLoading = false
+              process.value = 0
+              state.selectedFiles = toRaw(rFiles.previousFiles)
+              text.backupText = prevText
+              break; 
             } else {
-              folders += 1
-            }
+              let file = files[i];   
+              let pathInfo = await invoke('get_path_info', { filePath: file })
+              if (!pathInfo.is_folder) {
+                let modified = pathInfo.modified.secs_since_epoch * 1000
+                let filedata = file.split('\\')
+                let fullfilename = filedata.pop().toString()
+                let filepath = file.replace(fullfilename, '')
+                let extension = ''
+                if (fullfilename.includes('.')) {
+                  extension = fullfilename.split('.').slice(-1).toString()
+                }
+                let filename = fullfilename.replace('.' + extension, '')
+                let newId = 'file' + filecounter
 
-            if (filecounter == totalLenght - folders) {
-              setTimeout(() => {
-                state.isLoading = false
-                progress.value = 0
-              }, 500)
-            } else {
-              progress.value = Math.ceil((filecounter * 100) / (totalLenght - folders))
+                let newFile = {
+                  id: newId,
+                  name: filename,
+                  extension: extension,
+                  path: filepath,
+                  date: modified,
+                  fullname: fullfilename,
+                  newfullname: fullfilename,
+                  saved: false
+                }
+
+                await state.selectedFiles.push(newFile)
+
+                filecounter += 1
+              } else {
+                folders += 1
+              }
+
+              if (filecounter == totalLenght - folders) {
+                setTimeout(() => {
+                  progress.value = 0
+                  state.isLoading = false
+                }, 500)
+              } else {
+                progress.value = Math.ceil((filecounter * 100) / (totalLenght - folders))
+              }
             }
           }
         }
@@ -1028,80 +1093,85 @@ async function saveFiles() {
 
   if (haveDuplicates.length == 0 && !tooLong) {
     if (targetLength == modified.length) {
-      isRenaming.value = true
+      let prevText = ''
+      if(filteredFiles.value.length > 0){
+        rFiles.previousFiles = toRaw(filteredFiles.value)
+        prevText = toRaw(textRef.value.innerText);
+      }
+      state.isRenaming = true
       let filecounter = 0
       let i = 0
-      state.selectedFiles = []
+      /*state.selectedFiles = []*/
       state.prefix = ''
       state.suffix = ''
       state.findText = ''
       state.replaceText = ''
-      state.fileFilter = ''
       state.elements = []
       state.removeText = false
       state.toLower = false
       state.toUpper = false
-
-      do {
-        //if(selected[i].id == 'file'+i){
-        let newFullName = modified[i]
-        let newExtension = newFullName.split('.').slice(-1).toString()
-        let newName = newFullName.replace('.' + newExtension, '')
-        let initialPath = selected[i].path + selected[i].fullname
-        let newPath = selected[i].path + modified[i]
-        let updating = selected[i]
-
-        updating.newfullname = newFullName
-
-        if (updating.newfullname != updating.fullname) {
-          await renameFile(initialPath, newPath).then(
-            (success) => {
-              console.debug(success)
-              updated = true
-              console.debug('Initial: ', initialPath)
-              console.debug('Newpath: ', newPath)
-              updating.fullname = newFullName
-              updating.name = newName
-              updating.extension = newExtension
-              updating.saved = true
-              state.selectedFiles.push(updating)
-              console.debug('File renamed successfully')
-            },
-            (error) => {
-              console.debug('Initial: ', initialPath)
-              console.debug('Newpath: ', newPath)
-              updating.saved = false
-              state.selectedFiles.push(updating)
-              state.renameErrors.push(error)
-              console.debug(error)
-            }
-          )
+      
+      while (i < targetLength) {
+        if(state.stopRenaming){
+          //clearAll()
+          process.value = 0
+          state.isRenaming = false
+          state.stopRenaming = false
+          // state.selectedFiles = toRaw(rFiles.previousFiles)
+          // text.backupText = prevText
+          break; 
         } else {
-          updating.saved = false
-          state.selectedFiles.push(updating)
-        }
+          //if(selected[i].id == 'file'+i){
+          let newFullName = modified[i]
+          let newExtension = newFullName.split('.').slice(-1).toString()
+          let newName = newFullName.replace('.' + newExtension, '')
+          let initialPath = selected[i].path + selected[i].fullname
+          let newPath = selected[i].path + modified[i]
+          let updating = selected[i]
 
-        filecounter++
+          updating.newfullname = newFullName
 
-        if (filecounter + 1 == targetLength) {
-          setTimeout(() => {
-            isRenaming.value = false
-            progress.value = 0
-          }, 500)
-        } else {
-          progress.value = Math.ceil(((filecounter + 1) * 100) / targetLength)
+          if (updating.newfullname != updating.fullname) {
+            await renameFile(initialPath, newPath).then(
+              (success) => {
+                console.debug(success)
+                updated = true
+                console.debug('Initial: ', initialPath)
+                console.debug('Newpath: ', newPath)
+                updating.fullname = newFullName
+                updating.name = newName
+                updating.extension = newExtension
+                updating.saved = true
+                filteredFiles.value[i] = updating
+                console.debug('File renamed successfully')
+              },
+              (error) => {
+                console.debug('Initial: ', initialPath)
+                console.debug('Newpath: ', newPath)
+                updating.saved = false
+                filteredFiles.value[i] = updating;
+                state.renameErrors.push(error)
+                console.debug(error)
+              }
+            )
+          } else {
+            updating.saved = false
+            filteredFiles.value[i] = updating
+          }
+
+          filecounter++
+
+          if (filecounter + 1 == targetLength) {
+            setTimeout(() => {
+              progress.value = 0
+              state.isRenaming = false
+            }, 500)
+          } else {
+            progress.value = Math.ceil(((filecounter + 1) * 100) / targetLength)
+          }
+          i++
         }
-        i++
-      } while (i < targetLength)
-      /*state.selectedFiles = state.selectedFiles.sort((a, b)=>{
-        if (a.id < b.id) {
-          return -1;
-        }
-        if (a.id > b.id) {
-          return 1;
-        }
-        return 0;
-      })*/
+      }
     }
 
     if (state.renameErrors.length > 0) {
@@ -1123,7 +1193,7 @@ async function saveFiles() {
     }
   } else {
     setTimeout(() => {
-      isRenaming.value = false
+      state.isRenaming = false
       progress.value = 0
     }, 1000)
     if (haveDuplicates.length > 0) {
