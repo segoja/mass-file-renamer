@@ -68,7 +68,8 @@ const messages = {
         p5: 'Additionally you can also upper case or lowercase file names.'
       },
       loading: 'Loading files...',
-      renaming: 'Renaming files...'
+      renaming: 'Renaming files...',
+      nofiles: 'No files selected.'
     }
   },
   es: {
@@ -138,7 +139,8 @@ const messages = {
         p5: 'Además, también puedes convertir los nombres de archivo a minúsculas o mayúsculas.'
       },
       loading: 'Cargando archivos...',
-      renaming: 'Renombrando archivos...'
+      renaming: 'Renombrando archivos...',
+      nofiles: 'No hay archivos seleccionados.'
     }
   }
 }

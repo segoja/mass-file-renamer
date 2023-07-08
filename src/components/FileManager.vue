@@ -67,7 +67,7 @@
             hide-details
             clearable
             :disabled="disableFilter"
-            @keydown="formDown"
+            @keydown="filterDown"
           />
         </v-col>
         <v-col class="col-auto mh-100">
@@ -79,7 +79,9 @@
             class="ml-2 mh-100"
             :title="t('titles.tolower')"
           >
-            <v-icon size="large" icon="mdi-format-letter-case-lower" />
+            <span class="text-h6">A</span>
+            <v-icon size="large" icon="mdi-arrow-right" />
+            <span class="text-lowercase text-h6">a</span>
           </v-btn>
         </v-col>
         <v-col class="col-auto mh-100">
@@ -91,7 +93,9 @@
             class="ml-2 mh-100"
             :title="t('titles.toupper')"
           >
-            <v-icon size="large" icon="mdi-format-letter-case-upper" />
+            <span class="text-lowercase text-h6">a</span>
+            <v-icon size="large" icon="mdi-arrow-right" />
+            <span class="text-h6">A</span>
           </v-btn>
         </v-col>
       </v-row>
@@ -219,6 +223,7 @@
             single-line
             hide-details
             clearable
+            bg-color="blue-grey-darken-4"
             :disabled="isDisabled"
           ></v-text-field>
         </v-col>
@@ -231,6 +236,7 @@
             single-line
             hide-details
             clearable
+            bg-color="blue-grey-darken-4"
             :disabled="state.removeText || isDisabled"
           ></v-text-field>
         </v-col>
@@ -396,7 +402,7 @@
     class="h-100 overflow-y-auto mb-3 mt-0 mx-3 border-2 justify-center v-field-label files" no-gutters
   >
     <v-col class="py-0 my-0 ps-1 overflow-x-auto" v-if="!showData || !numFiltered">
-      <pre>No files selected</pre>
+      <pre>{{t("text.nofiles")}}</pre>
     </v-col>
     <v-col class="py-0 my-0 ps-1 overflow-x-auto" v-if="showData">
       <pre
@@ -538,8 +544,6 @@ const state = reactive({
   suffix: '',
   posNum: false,
   posTime: false,
-  toLower: false,
-  toUpper: false,
   findText: '',
   replaceText: '',
   removeText: false,
@@ -644,8 +648,6 @@ function filterText(list){
         state.elements.length > 0 ||
         state.prefix ||
         state.suffix ||
-        state.toLower ||
-        state.toUpper ||
         state.findText
       ) {
         let numDigits = 0
@@ -687,21 +689,13 @@ function filterText(list){
             finalname = finalname.replaceAll('\\name', item.name)
           }
 
-          if (state.toLower) {
-            finalname = finalname.toLowerCase()
-          }
-
-          if (state.toUpper) {
-            finalname = finalname.toUpperCase()
-          }
-
           if (findText && replaceText && !state.removeText) {
             finalname = finalname.replaceAll(findText, replaceText)
           } else {
             if (findText && state.removeText) {
               finalname = finalname.replaceAll(findText, '')
             }
-          }
+          }          
 
           if (finalExtension) {
             finalname = finalname + '.' + finalExtension
@@ -724,8 +718,30 @@ const filteredFiles = computed(() => {
   let list = state.selectedFiles
   if (list.length > 0) {
     if (state.fileFilter) {
-      let filter = state.fileFilter.toLowerCase()
-      return list.filter((item) => item.name.toLowerCase().includes(filter))
+      // Find-replace functionality
+      let findText = ''
+      if (state.fileFilter != null && state.fileFilter) {
+        findText = state.fileFilter
+        try {
+          findText = new RegExp(state.fileFilter, 'gi')
+        } catch (error) {
+          if (error instanceof Error) {
+            state.alertMsg = error.message
+            state.alert = true
+          } else {
+            state.alertMsg = ''
+            state.alert = false
+          }
+          findText = ''
+        } finally {
+          if (findText) {
+            state.alertMsg = ''
+            state.alert = false
+          }
+        }
+      }
+      let filter = state.alert ? state.fileFilter.toLowerCase(): findText;
+      list = list.filter((item) => item.name.toLowerCase().match(filter))
     }
   }
   return list
@@ -754,20 +770,30 @@ const showData = computed(() => {
 
 // Equivalent to Ember actions:
 
-function formDown(){
-  state.isUpdating = true;
+function filterDown(event){
+  let keycode = event.keyCode;
+
+  let valid = 
+      (keycode > 47 && keycode < 58)   || // number keys
+      keycode == 32 || keycode == 13   || // spacebar & return key(s) (if you want to allow carriage returns)
+      (keycode > 64 && keycode < 91)   || // letter keys
+      (keycode > 95 && keycode < 112)  || // numpad keys
+      (keycode > 185 && keycode < 193) || // ;=,-./` (in order)
+      (keycode > 218 && keycode < 223);   // [\]' (in order)
+  if (valid){
+    restoreNames();
+    state.isUpdating = true;
+  }
 }
 
 function restoreNames() {
   state.renameErrors = []
   state.prefix = ''
   state.suffix = ''
-  state.toLower = false
-  state.toUpper = false
   state.findText = ''
   state.replaceText = ''
   state.removeText = false
-  state.fileFilter = ''
+  // state.fileFilter = ''
   state.alert = false
   state.alertMsg = ''
   state.elements = []
@@ -788,8 +814,6 @@ function clearAll() {
   state.suffix = ''
   state.posNum = false
   state.posTime = false
-  state.toLower = false
-  state.toUpper = false
   state.findText = ''
   state.replaceText = ''
   state.removeText = false
@@ -842,13 +866,41 @@ function removeElement(index) {
 }
 
 function toggleToLower() {
-  state.toLower = true
-  state.toUpper = false
+  let textLines = textRef.value.innerText.trim().split(/\n/)
+  let lowercased = []
+  let i = 0
+  while(i < textLines.length){
+    let fullName = textLines[i]
+    let newExtension = fullName.split('.').slice(-1).toString()
+    let newName = fullName.replace('.' + newExtension, '').toLowerCase()
+    if(!newExtension || !newName){
+      lowercased.push(fullName.toLowerCase())
+    } else {
+      lowercased.push(newName+'.'+newExtension)
+    }
+    i++
+  }
+  text.prevText = text.selectedText
+  text.selectedText = lowercased.join('\n')
 }
 
 function toggleToUpper() {
-  state.toUpper = true
-  state.toLower = false
+  let textLines = textRef.value.innerText.trim().split(/\n/)
+  let lowercased = []
+  let i = 0
+  while(i < textLines.length){
+    let fullName = textLines[i]
+    let newExtension = fullName.split('.').slice(-1).toString()
+    let newName = fullName.replace('.' + newExtension, '').toUpperCase()
+    if(!newExtension || !newName){
+      lowercased.push(fullName.toUpperCase())
+    } else {
+      lowercased.push(newName+'.'+newExtension)
+    }
+    i++
+  }
+  text.prevText = text.selectedText
+  text.selectedText = lowercased.join('\n')
 }
 
 function niceDate(date) {
@@ -1108,8 +1160,6 @@ async function saveFiles() {
       state.replaceText = ''
       state.elements = []
       state.removeText = false
-      state.toLower = false
-      state.toUpper = false
       
       while (i < targetLength) {
         if(state.stopRenaming){
@@ -1164,6 +1214,7 @@ async function saveFiles() {
           if (filecounter + 1 == targetLength) {
             setTimeout(() => {
               progress.value = 0
+              state.fileFilter = ''
               state.isRenaming = false
             }, 500)
           } else {
@@ -1183,11 +1234,8 @@ async function saveFiles() {
         state.suffix = ''
         state.findText = ''
         state.replaceText = ''
-        state.fileFilter = ''
         state.elements = []
         state.removeText = false
-        state.toLower = false
-        state.toUpper = false
         // state.selectedFiles = selected;
       }
     }
