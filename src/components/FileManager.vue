@@ -132,19 +132,19 @@
           </v-chip-group>
         </v-col>
         <v-col class="col-auto mh-100">
-            <v-btn 
-              label
-              draggable
-              class="my-0 py-0 px-3 ml-2 mh-100"
-              @click="clearElements"
-              :variant="isDark ? 'tonal' : 'elevated'"
-              color="cyan-darken-1"
-              :disabled="isDisabled ? true : !state.elements.length"
-              :title="t('titles.clear')"
-              append-icon="mdi-delete-outline"
-            >
-                {{ state.elements.length }}
-            </v-btn>
+          <v-btn
+            label
+            draggable
+            class="my-0 py-0 px-3 ml-2 mh-100"
+            @click="clearElements"
+            :variant="isDark ? 'tonal' : 'elevated'"
+            color="cyan-darken-1"
+            :disabled="isDisabled ? true : !state.elements.length"
+            :title="t('titles.clear')"
+            append-icon="mdi-delete-outline"
+          >
+            {{ state.elements.length }}
+          </v-btn>
         </v-col>
       </v-row>
       <v-row dense>
@@ -223,7 +223,6 @@
             single-line
             hide-details
             clearable
-            bg-color="blue-grey-darken-4"
             :disabled="isDisabled"
           ></v-text-field>
         </v-col>
@@ -236,7 +235,6 @@
             single-line
             hide-details
             clearable
-            bg-color="blue-grey-darken-4"
             :disabled="state.removeText || isDisabled"
           ></v-text-field>
         </v-col>
@@ -278,15 +276,14 @@
         :loading="copying"
         :ripple="false"
         :disabled="isDisabled"
-        :title="t('titles.copy')" 
+        :title="t('titles.copy')"
       >
         <v-icon icon="mdi-clipboard-multiple-outline"></v-icon>
         <template v-slot:loader>
-          <v-icon icon="mdi-check-bold" class="mb-1">       
-          </v-icon>
+          <v-icon icon="mdi-check-bold" class="mb-1"> </v-icon>
           <v-tooltip v-model="copying" activator="parent" location="top" class="mini-tooltip">{{
             t('titles.copied')
-          }}</v-tooltip>   
+          }}</v-tooltip>
         </template>
       </v-btn>
     </v-col>
@@ -302,7 +299,7 @@
             color="error"
             :ripple="false"
             :disabled="isDisabled"
-            :title="t('titles.wipe')" 
+            :title="t('titles.wipe')"
           >
             <v-icon icon="mdi-close-box-multiple-outline"></v-icon>
           </v-btn>
@@ -332,7 +329,12 @@
         class="mb-0"
         :active="state.isUpdating"
       ></v-progress-linear>
-      <v-dialog v-model="state.isLoading" persistent transition="dialog-bottom-transition" class="w-100">
+      <v-dialog
+        v-model="state.isLoading"
+        persistent
+        transition="dialog-bottom-transition"
+        class="w-100"
+      >
         <v-row no-gutters class="mx-3 justify-center">
           <v-col cols="12" md="6">
             <v-card class="w-100">
@@ -364,7 +366,12 @@
           </v-col>
         </v-row>
       </v-dialog>
-      <v-dialog v-model="state.isRenaming" persistent transition="dialog-bottom-transition" class="w-100">
+      <v-dialog
+        v-model="state.isRenaming"
+        persistent
+        transition="dialog-bottom-transition"
+        class="w-100"
+      >
         <v-row no-gutters class="mx-3 justify-center">
           <v-col cols="12" md="6">
             <v-card class="w-100">
@@ -399,10 +406,11 @@
     </v-col>
   </v-row>
   <v-row
-    class="h-100 overflow-y-auto mb-3 mt-0 mx-3 border-2 justify-center v-field-label files" no-gutters
+    class="h-100 overflow-y-auto mb-3 mt-0 mx-3 border-2 justify-center v-field-label files"
+    no-gutters
   >
     <v-col class="py-0 my-0 ps-1 overflow-x-auto" v-if="!showData || !numFiltered">
-      <pre>{{t("text.nofiles")}}</pre>
+      <pre>{{ t('text.nofiles') }}</pre>
     </v-col>
     <v-col class="py-0 my-0 ps-1 overflow-x-auto" v-if="showData">
       <pre
@@ -415,19 +423,16 @@
       >
     </v-col>
     <v-col class="py-0 my-0 ps-1 col-auto" v-if="showData">
-      <pre
-        ref="dateRef"
-        >{{ text.selectedDates }}</pre
-      >
-    </v-col>    
+      <pre ref="dateRef">{{ text.selectedDates }}</pre>
+    </v-col>
     <v-col class="py-0 my-0 text-right col-auto" v-if="showData">
-      <button 
-        type="button" 
-        v-for="file in filteredFiles" 
-        :key="file" 
-        class="v-btn--variant-plain d-block prebutton" 
+      <button
+        type="button"
+        v-for="file in filteredFiles"
+        :key="file"
+        class="v-btn--variant-plain d-block prebutton"
         v-on:click="delFile(file)"
-        :title="t('titles.del')"      
+        :title="t('titles.del')"
       >
         <v-icon icon="mdi-close-box-outline" color="error"></v-icon>
       </button>
@@ -451,7 +456,8 @@ pre {
   border-width: 0px !important;
 }
 
-.prebutton, .prebutton * {
+.prebutton,
+.prebutton * {
   padding-bottom: 8px;
   margin-left: 0.05em;
   margin-right: 0.1em;
@@ -512,10 +518,9 @@ pre.selectable {
 }
 
 ::selection {
-  color: rgb(var(--v-theme-on-background))!important;
-  background: rgba(var(--v-theme-warning), var(--v-disabled-opacity))!important;
+  color: rgb(var(--v-theme-on-background)) !important;
+  background: rgba(var(--v-theme-warning), var(--v-disabled-opacity)) !important;
 }
-
 </style>
 
 <script setup>
@@ -526,11 +531,11 @@ import dayjs from 'dayjs'
 import ButtonConfirm from './ButtonConfirm.vue'
 import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
+
 const props = defineProps({
   isDark: Boolean
 })
-
-const { t } = useI18n()
 
 // Equivalent to tracked properties:
 const state = reactive({
@@ -560,6 +565,7 @@ const state = reactive({
 const rFiles = reactive({
   selectedFiles: [],
   previousFiles: [],
+  fileFilterRegex: '',
   loadingTimeout: ''
 })
 
@@ -589,127 +595,127 @@ watch(copying, (val) => {
 const items = ['number', 'prefix', 'name', 'suffix', 'date', 'time']
 
 watch(state, () => {
-  if(!state.isLoading && !state.stopLoading && !state.stopRenaming && !state.isRenaming){
-    if(filteredFiles.length != numSelected.value){
+  if (!state.isLoading && !state.stopLoading && !state.stopRenaming && !state.isRenaming) {
+
+    if (filteredFiles.value.length != numSelected.value) {
       numSelected.value = state.selectedFiles.length
     }
-    
-    let list = toRaw(filteredFiles.value)    
+
+    let list = toRaw(filteredFiles.value)
     if (list.length != numFiltered.value) {
       numFiltered.value = list.length
-    }    
-    
-    let newText = filterText(list)    
+    }
+
+    let newText = filterText(list)
     text.selectedText = text.backupText || newText
     text.prevText = text.backupText || newText
     text.backupText = ''
-    
+
     text.selectedDates = list.map((item) => niceDate(item.date)).join('\n')
-    
 
     clearTimeout(rFiles.loadingTimeout)
-    rFiles.loadingTimeout = setTimeout(() => { state.isUpdating = false; }, 500)
+    rFiles.loadingTimeout = setTimeout(() => {
+      state.isUpdating = false
+    }, 500)
   }
 })
 
-function filterText(list){
-    let newText = ''
-    if (list.length > 0) {
-      let textLines = []
+function filterText(list) {
+  let newText = ''
+  if (list.length > 0) {
+    let textLines = []
 
-      // Find-replace functionality
-      let findText = ''
-      let replaceText = ''
-      if (state.findText != null && state.findText) {
-        findText = state.findText
-        try {
-          findText = new RegExp(findText, 'gi')
-        } catch (error) {
-          if (error instanceof Error) {
-            state.alertMsg = error.message
-            state.alert = true
-          } else {
-            state.alertMsg = ''
-            state.alert = false
-          }
-          findText = ''
-        } finally {
-          if (findText) {
-            state.alertMsg = ''
-            state.alert = false
-          }
+    // Find-replace functionality
+    let findText = ''
+    let replaceText = ''
+    if (state.findText != null && state.findText) {
+      findText = state.findText
+      try {
+        findText = new RegExp(findText, 'gi')
+      } catch (error) {
+        if (error instanceof Error) {
+          state.alertMsg = error.message
+          state.alert = true
+        } else {
+          state.alertMsg = ''
+          state.alert = false
+        }
+        findText = ''
+      } finally {
+        if (findText) {
+          state.alertMsg = ''
+          state.alert = false
         }
       }
-      if (state.replaceText != null && state.replaceText) {
-        replaceText = state.replaceText.replace(/[^a-zA-Z0-9\s_.-]/g, '')
-      }
-
-      if (
-        state.elements.length > 0 ||
-        state.prefix ||
-        state.suffix ||
-        state.findText
-      ) {
-        let numDigits = 0
-        numDigits = list.length
-        numDigits = Math.floor(Math.log10(numDigits) + 1)
-
-        let structure = ''
-        if (state.elements.length > 0) {
-          structure = '\\' + state.elements.join('-\\')
-        }
-
-        let listNr = 0
-        list.forEach((item) => {
-          listNr = String(Number(listNr) + 1)
-          let finalname = item.name
-          let finalExtension = item.extension
-          let date = dayjs(item.date).format('YYYYMMDD').toString()
-          let time = dayjs(item.date).format('HHmmss').toString()
-          let numString = listNr.padStart(numDigits, 0)
-          let prefix = state.prefix != null ? state.prefix : ''
-          let suffix = state.suffix != null ? state.suffix : ''
-
-          if (state.elements.length > 0) {
-            finalname = structure.replaceAll('\\number', numString)
-            finalname = String(finalname).replaceAll('\\date', date)
-            finalname = String(finalname).replaceAll('\\time', time)
-            if (prefix) {
-              finalname = finalname.replaceAll('\\prefix', prefix)
-            } else {
-              finalname = finalname.replaceAll('-\\prefix', '')
-              finalname = finalname.replaceAll('\\prefix', '')
-            }
-            if (suffix) {
-              finalname = finalname.replaceAll('\\suffix', suffix)
-            } else {
-              finalname = finalname.replaceAll('-\\suffix', '')
-              finalname = finalname.replaceAll('\\suffix', '')
-            }
-            finalname = finalname.replaceAll('\\name', item.name)
-          }
-
-          if (findText && replaceText && !state.removeText) {
-            finalname = finalname.replaceAll(findText, replaceText)
-          } else {
-            if (findText && state.removeText) {
-              finalname = finalname.replaceAll(findText, '')
-            }
-          }          
-
-          if (finalExtension) {
-            finalname = finalname + '.' + finalExtension
-          }
-
-          textLines.push(finalname)
-        })
-        
-      } else {
-        textLines = list.map((item) => item.newfullname)
-      }
-      newText = textLines.join('\n')
     }
-    return newText
+    if (state.replaceText != null && state.replaceText) {
+      replaceText = state.replaceText.replace(/[^a-zA-Z0-9\s_.-]/g, '')
+    }
+
+    if (state.elements.length > 0 || state.prefix || state.suffix || state.findText) {
+      let numDigits = 0
+      numDigits = list.length
+      numDigits = Math.floor(Math.log10(numDigits) + 1)
+
+      let structure = ''
+      if (state.elements.length > 0) {
+        structure = '\\' + state.elements.join('-\\')
+      }
+
+      let listNr = 0
+      list.forEach((item) => {
+        listNr = String(Number(listNr) + 1)
+        let finalname = item.name
+        let finalExtension = item.extension
+        let date = dayjs(item.date).format('YYYYMMDD').toString()
+        let time = dayjs(item.date).format('HHmmss').toString()
+        let numString = listNr.padStart(numDigits, 0)
+        let prefix = state.prefix != null ? state.prefix : ''
+        let suffix = state.suffix != null ? state.suffix : ''
+
+        if (state.elements.length > 0) {
+          finalname = structure.replaceAll('\\number', numString)
+          finalname = String(finalname).replaceAll('\\date', date)
+          finalname = String(finalname).replaceAll('\\time', time)
+          if (prefix) {
+            finalname = finalname.replaceAll('\\prefix', prefix)
+          } else {
+            finalname = finalname.replaceAll('-\\prefix', '')
+            finalname = finalname.replaceAll('\\prefix', '')
+          }
+          if (suffix) {
+            finalname = finalname.replaceAll('\\suffix', suffix)
+          } else {
+            finalname = finalname.replaceAll('-\\suffix', '')
+            finalname = finalname.replaceAll('\\suffix', '')
+          }
+          finalname = finalname.replaceAll('\\name', item.name)
+        }
+
+        if (findText && replaceText && !state.removeText) {
+          finalname = finalname.replaceAll(findText, replaceText)
+        } else {
+          if (findText && state.removeText) {
+            finalname = finalname.replaceAll(findText, '')
+          }
+        }
+
+        if (finalExtension) {
+          finalname = finalname + '.' + finalExtension
+        }
+
+        textLines.push(finalname)
+      })
+    } else {
+      textLines = list.map((item) => item.newfullname)
+    }
+    newText = textLines.join('\n')
+  }
+  return newText
+}
+
+function filterFiles(){
+  
 }
 
 // Equivalent to Ember computed / tracked+getters:
@@ -719,29 +725,13 @@ const filteredFiles = computed(() => {
   if (list.length > 0) {
     if (state.fileFilter) {
       // Find-replace functionality
-      let findText = ''
-      if (state.fileFilter != null && state.fileFilter) {
-        findText = state.fileFilter
-        try {
-          findText = new RegExp(state.fileFilter, 'gi')
-        } catch (error) {
-          if (error instanceof Error) {
-            state.alertMsg = error.message
-            state.alert = true
-          } else {
-            state.alertMsg = ''
-            state.alert = false
-          }
-          findText = ''
-        } finally {
-          if (findText) {
-            state.alertMsg = ''
-            state.alert = false
-          }
-        }
+      let filterRegex = rFiles.fileFilterRegex;
+      let filter = state.alert ? state.fileFilter.toLowerCase() : filterRegex
+      if(filterRegex){
+        list = list.filter((item) => item.name.toLowerCase().match(filter))
+      } else {        
+        list = list.filter((item) => item.name.toLowerCase().includes(filter))
       }
-      let filter = state.alert ? state.fileFilter.toLowerCase(): findText;
-      list = list.filter((item) => item.name.toLowerCase().match(filter))
     }
   }
   return list
@@ -762,27 +752,56 @@ const disableFilter = computed(() => {
 })
 
 const showData = computed(() => {
-  if(state.isLoading || state.isUpdating){
-    return false;
+  if (state.isLoading || state.isUpdating) {
+    return false
   }
   return true
 })
 
 // Equivalent to Ember actions:
 
-function filterDown(event){
-  let keycode = event.keyCode;
+/**
+ * Filters down the event.
+ *
+ * @param {Event} event - The event to filter down.
+ * @return {void} No return value.
+ */
+function filterDown(event) {
+  let keycode = event.keyCode
 
-  let valid = 
-      (keycode > 47 && keycode < 58)   || // number keys
-      keycode == 32 || keycode == 13   || // spacebar & return key(s) (if you want to allow carriage returns)
-      (keycode > 64 && keycode < 91)   || // letter keys
-      (keycode > 95 && keycode < 112)  || // numpad keys
-      (keycode > 185 && keycode < 193) || // ;=,-./` (in order)
-      (keycode > 218 && keycode < 223);   // [\]' (in order)
-  if (valid){
-    restoreNames();
-    state.isUpdating = true;
+  let valid =
+    (keycode > 47 && keycode < 58) || // number keys
+    keycode == 8 || // backspace
+    keycode == 32 ||
+    keycode == 13 || // spacebar & return key(s) (if you want to allow carriage returns)
+    (keycode > 64 && keycode < 91) || // letter keys
+    (keycode > 95 && keycode < 112) || // numpad keys
+    (keycode > 185 && keycode < 193) || // ;=,-./` (in order)
+    (keycode > 218 && keycode < 223) // [\]' (in order)
+  if (valid) {
+    restoreNames()
+    state.isUpdating = true
+    if (state.fileFilter != null && state.fileFilter) {
+      let regexFilter = state.fileFilter       
+      try {
+        regexFilter = new RegExp(state.fileFilter, 'gi')
+      } catch (error) {
+        if (error instanceof Error) {
+          state.alertMsg = error.message
+          state.alert = true
+        } else {
+          state.alertMsg = ''
+          state.alert = false
+        }
+        regexFilter = ''
+      } finally {
+        if (regexFilter) {
+          state.alertMsg = ''
+          state.alert = false
+        }
+      }
+      rFiles.fileFilterRegex = regexFilter
+    }
   }
 }
 
@@ -869,14 +888,14 @@ function toggleToLower() {
   let textLines = textRef.value.innerText.trim().split(/\n/)
   let lowercased = []
   let i = 0
-  while(i < textLines.length){
+  while (i < textLines.length) {
     let fullName = textLines[i]
     let newExtension = fullName.split('.').slice(-1).toString()
     let newName = fullName.replace('.' + newExtension, '').toLowerCase()
-    if(!newExtension || !newName){
+    if (!newExtension || !newName) {
       lowercased.push(fullName.toLowerCase())
     } else {
-      lowercased.push(newName+'.'+newExtension)
+      lowercased.push(newName + '.' + newExtension)
     }
     i++
   }
@@ -888,14 +907,14 @@ function toggleToUpper() {
   let textLines = textRef.value.innerText.trim().split(/\n/)
   let lowercased = []
   let i = 0
-  while(i < textLines.length){
+  while (i < textLines.length) {
     let fullName = textLines[i]
     let newExtension = fullName.split('.').slice(-1).toString()
     let newName = fullName.replace('.' + newExtension, '').toUpperCase()
-    if(!newExtension || !newName){
+    if (!newExtension || !newName) {
       lowercased.push(fullName.toUpperCase())
     } else {
-      lowercased.push(newName+'.'+newExtension)
+      lowercased.push(newName + '.' + newExtension)
     }
     i++
   }
@@ -911,11 +930,11 @@ function niceDate(date) {
   }
 }
 
-function cancelLoad(){
-  state.stopLoading = true;
+function cancelLoad() {
+  state.stopLoading = true
 }
-function cancelRename(){
-  state.stopRenaming = true;
+function cancelRename() {
+  state.stopRenaming = true
 }
 
 // Keydown checks:
@@ -982,9 +1001,9 @@ function openFolder() {
       readDir(directory, { recursive: false }).then(async (files) => {
         if (files.length > 0) {
           let prevText = ''
-          if(filteredFiles.value.length > 0){
+          if (filteredFiles.value.length > 0) {
             rFiles.previousFiles = toRaw(filteredFiles.value)
-            prevText = toRaw(textRef.value.innerText);
+            prevText = toRaw(textRef.value.innerText)
           }
           clearAll()
           let totalLenght = files.length
@@ -992,16 +1011,16 @@ function openFolder() {
           let filecounter = 0
           let folders = 0
           for (var i = 0; i < files.length; i++) {
-            if(state.stopLoading){
+            if (state.stopLoading) {
               clearAll()
               state.isLoading = false
               state.stopLoading = false
               process.value = 0
               state.selectedFiles = toRaw(rFiles.previousFiles)
               text.backupText = prevText
-              break; 
+              break
             } else {
-              let file = files[i];   
+              let file = files[i]
               let pathInfo = await invoke('get_path_info', { filePath: file.path })
               if (!pathInfo.is_folder) {
                 let modified = pathInfo.modified.secs_since_epoch * 1000
@@ -1059,9 +1078,9 @@ function selectFiles() {
       if (files) {
         if (files.length > 0) {
           let prevText = ''
-          if(filteredFiles.value.length > 0){
+          if (filteredFiles.value.length > 0) {
             rFiles.previousFiles = toRaw(filteredFiles.value)
-            prevText = toRaw(textRef.value.innerText);
+            prevText = toRaw(textRef.value.innerText)
           }
           clearAll()
           let totalLenght = files.length
@@ -1070,16 +1089,16 @@ function selectFiles() {
           let folders = 0
           //files.map(async (file) => {
           for (var i = 0; i < files.length; i++) {
-            if(state.stopLoading){
+            if (state.stopLoading) {
               clearAll()
               state.isLoading = false
               state.stopLoading = false
               process.value = 0
               state.selectedFiles = toRaw(rFiles.previousFiles)
               text.backupText = prevText
-              break; 
+              break
             } else {
-              let file = files[i];   
+              let file = files[i]
               let pathInfo = await invoke('get_path_info', { filePath: file })
               if (!pathInfo.is_folder) {
                 let modified = pathInfo.modified.secs_since_epoch * 1000
@@ -1146,9 +1165,9 @@ async function saveFiles() {
   if (haveDuplicates.length == 0 && !tooLong) {
     if (targetLength == modified.length) {
       let prevText = ''
-      if(filteredFiles.value.length > 0){
+      if (filteredFiles.value.length > 0) {
         rFiles.previousFiles = toRaw(filteredFiles.value)
-        prevText = toRaw(textRef.value.innerText);
+        prevText = toRaw(textRef.value.innerText)
       }
       state.isRenaming = true
       let filecounter = 0
@@ -1160,16 +1179,16 @@ async function saveFiles() {
       state.replaceText = ''
       state.elements = []
       state.removeText = false
-      
+
       while (i < targetLength) {
-        if(state.stopRenaming){
+        if (state.stopRenaming) {
           //clearAll()
           process.value = 0
           state.isRenaming = false
           state.stopRenaming = false
           // state.selectedFiles = toRaw(rFiles.previousFiles)
           // text.backupText = prevText
-          break; 
+          break
         } else {
           //if(selected[i].id == 'file'+i){
           let newFullName = modified[i]
@@ -1199,7 +1218,7 @@ async function saveFiles() {
                 console.debug('Initial: ', initialPath)
                 console.debug('Newpath: ', newPath)
                 updating.saved = false
-                filteredFiles.value[i] = updating;
+                filteredFiles.value[i] = updating
                 state.renameErrors.push(error)
                 console.debug(error)
               }
