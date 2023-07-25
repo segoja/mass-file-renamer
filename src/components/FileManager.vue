@@ -67,7 +67,7 @@
             hide-details
             clearable
             :disabled="disableFilter"
-            @keydown="filterDown"
+            @update:modelValue="filterDown"
           />
         </v-col>
         <v-col class="col-auto mh-100">
@@ -616,7 +616,7 @@ watch(state, () => {
     clearTimeout(rFiles.loadingTimeout)
     rFiles.loadingTimeout = setTimeout(() => {
       state.isUpdating = false
-    }, 500)
+    }, 250)
   }
 })
 
@@ -726,11 +726,11 @@ const filteredFiles = computed(() => {
     if (state.fileFilter) {
       // Find-replace functionality
       let filterRegex = rFiles.fileFilterRegex;
-      let filter = state.alert ? state.fileFilter.toLowerCase() : filterRegex
+      let filter = state.alert ? state.fileFilter : filterRegex
       if(filterRegex){
-        list = list.filter((item) => item.name.toLowerCase().match(filter))
+        list = list.filter((item) => item.fullname.match(filter))
       } else {        
-        list = list.filter((item) => item.name.toLowerCase().includes(filter))
+        list = list.filter((item) => item.fullnameincludes(filter))
       }
     }
   }
@@ -763,12 +763,12 @@ const showData = computed(() => {
 /**
  * Filters down the event.
  *
- * @param {Event} event - The event to filter down.
+ * @param {Event} event - The key event to filter down.
  * @return {void} No return value.
  */
 function filterDown(event) {
-  let keycode = event.keyCode
-
+ /* let keycode = event.keyCode
+  console.log('keycode: ',keycode);
   let valid =
     (keycode > 47 && keycode < 58) || // number keys
     keycode == 8 || // backspace
@@ -778,7 +778,7 @@ function filterDown(event) {
     (keycode > 95 && keycode < 112) || // numpad keys
     (keycode > 185 && keycode < 193) || // ;=,-./` (in order)
     (keycode > 218 && keycode < 223) // [\]' (in order)
-  if (valid) {
+  if (valid) {*/
     restoreNames()
     state.isUpdating = true
     if (state.fileFilter != null && state.fileFilter) {
@@ -802,7 +802,7 @@ function filterDown(event) {
       }
       rFiles.fileFilterRegex = regexFilter
     }
-  }
+  // }
 }
 
 function restoreNames() {

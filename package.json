@@ -1,6 +1,6 @@
 {
   "name": "mass-file-renamer",
-  "version": "0.5.1",
+  "version": "0.5.3",
   "private": true,
   "scripts": {
     "dev": "vite",
@@ -26,8 +26,8 @@
     "@mdi/font": "^7.2.96",
     "@playwright/test": "^1.33.0",
     "@rushstack/eslint-patch": "^1.2.0",
-    "@tauri-apps/api": "^1.3.0",
-    "@tauri-apps/cli": "^1.3.1",
+    "@tauri-apps/api": "^1.4.0",
+    "@tauri-apps/cli": "^1.4.0",
     "@vitejs/plugin-vue": "^4.2.3",
     "@vue/eslint-config-prettier": "^7.1.0",
     "@vue/test-utils": "^2.3.2",

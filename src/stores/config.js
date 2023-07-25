@@ -2,7 +2,7 @@ import { ref, watch } from 'vue'
 import { defineStore } from 'pinia'
 
 export const configStore = defineStore('config', () => {
-  const isDark = ref(false)
+  const isDark = ref(true)
   const savedLocale = ref('en')
 
   if (localStorage.getItem('isDark')) {
