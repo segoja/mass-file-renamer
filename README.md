@@ -1,14 +1,12 @@
-![GitHub package.json version](https://img.shields.io/github/package-json/v/segoja/mass-file-renamer)
-![GitHub](https://img.shields.io/github/license/segoja/mass-file-renamer)
-![Made With Vue](https://img.shields.io/badge/made_with-vue_3-dark_green)
+![GitHub package.json dynamic](https://img.shields.io/github/package-json/v/segoja/mass-file-renamer)
+![Made With Vue](https://img.shields.io/badge/made_with-vue_3-darkcyan)
 ![Made With Tauri](https://img.shields.io/badge/made_with-tauri-blue?logo=rust)
 
 # Mass File Renamer
 
 Rename your files as if you were editing a text file.
 
-![screenshots](https://github.com/segoja/mass-file-renamer/assets/51286289/7e821c0c-eccc-4914-9172-1bb89e0e3aad)
-
+![mfr](https://github.com/segoja/mass-file-renamer/assets/51286289/fe8840ed-5d8c-4dc2-89ed-9b1970b42f44)
 
 ## Features
 
