@@ -33,7 +33,7 @@
           btnVariant="flat"
           btnColor="default"
           :isDark="isDark"
-          version="appVersion"
+          :version="appVersion"
           btnClass="bg-transparent"
         />
 
