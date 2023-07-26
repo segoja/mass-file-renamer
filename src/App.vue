@@ -7,7 +7,8 @@
         :color="isDark ? 'grey-darken-4' : 'grey-darken-3'"
         class="mr-0 pr-0"
         elevation="3"
-      >
+      >    
+        <img src="./assets/logo.svg" class="logo" />
         <span class="text-grey-lighten-2 pl-2 font-weight-bold text-uppercase"
           >Mass File Renamer {{ appVersion }}</span
         >
@@ -57,14 +58,15 @@
           <v-icon icon="mdi-window-maximize" size="x-large"></v-icon>
         </v-btn>
         <v-btn
+          color="red-accent-4"
           variant="flat"
           size="small"
           rounded="0"
           v-draggable:disable
           @click="closeWindow"
-          class="bg-transparent"
+          class="close-app"
         >
-          <v-icon icon="mdi-window-close" size="x-large" color="red"></v-icon>
+          <v-icon icon="mdi-window-close" size="x-large"></v-icon>
         </v-btn>
       </v-system-bar>
     </header>
@@ -142,14 +144,14 @@ html {
   background-color: transparent;
 }
 body {
-  border: 5px solid rgba(0, 0, 0, 0.5) !important;
+  border: 2px solid rgba(64, 64, 64, 0.5) !important;
 }
 
 header .v-system-bar {
-  /*border-top: 4px solid rgba(0, 0, 0, 0.5) !important;
-  border-left: 4px solid rgba(0, 0, 0, 0.5) !important;
-  border-right: 4px solid rgba(0, 0, 0, 0.5) !important;
-  border-bottom: 4px solid rgba(0, 0, 0, 0.5) !important;*/
+  padding: 16px 10px;
+  border-top: 2px solid rgba(64, 64, 64, 0.5) !important;
+  border-left: 2px solid rgba(64, 64, 64, 0.5) !important;
+  border-right: 2px solid rgba(64, 64, 64, 0.5) !important;
 }
 
 main {
@@ -178,5 +180,16 @@ main.light .files {
   font-size: 0.75em !important;
   padding: 0.25em 0.5em !important;
   background-color: rgba(var(--v-border-color), 0.85) !important;
+}
+header button.close-app {
+  background-color: transparent!important;
+}
+header button.close-app:hover {
+  background-color: #D50000!important;
+  color: white!important;
+}
+header img.logo { 
+  height: 1.5em!important; 
+  margin-right: -3px; 
 }
 </style>
