@@ -8,11 +8,19 @@
   },
   "package": {
     "productName": "Mass File Renamer",
-    "version": "0.1.0"
+    "version": "0.5.4"
   },
   "tauri": {
     "allowlist": {
       "all": false,
+      "dialog": {
+        "all": true,
+        "ask": true,
+        "confirm": true,
+        "message": true,
+        "open": true,
+        "save": true
+      },    
       "fs": {
         "scope": ["*"],
         "all": true,
@@ -24,7 +32,13 @@
         "removeDir": true,
         "removeFile": true,
         "renameFile": true
-      }, 
+      },
+      "shell": {
+        "open": true
+      },
+      "path": {
+        "all": true
+      },
       "window": {
         "all": true,
         "create": true,
@@ -61,8 +75,9 @@
     },
     "bundle": {
       "active": true,
-      "category": "DeveloperTool",
-      "copyright": "",
+      "category": "Utility",
+      "identifier": "com.Segoja.MFR",
+      "copyright": "MIT",
       "deb": {
         "depends": []
       },
@@ -74,8 +89,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "com.tauri.dev",
-      "longDescription": "",
+      "longDescription": "Mass File Renamer",
       "macOS": {
         "entitlements": null,
         "exceptionDomain": "",
@@ -105,8 +119,8 @@
         "title": "Mass File Renamer",
         "width": 1080,
         "height": 800,
-        "minWidth": 450,
-        "minHeight": 600,
+        "minWidth": 1024,
+        "minHeight": 768,
         "decorations": false
       }
     ]

@@ -1,10 +1,10 @@
 [package]
 name = "app"
-version = "0.1.0"
-description = "A Tauri App"
-authors = ["you"]
-license = ""
-repository = ""
+version = "0.5.4"
+description = "Mass File Renamer"
+authors = ["Javier Sevilla"]
+license = "MIT"
+repository = "https://github.com/segoja/mass-file-renamer"
 default-run = "app"
 edition = "2021"
 rust-version = "1.60"
@@ -17,7 +17,7 @@ tauri-build = { version = "1.3.0", features = [] }
 [dependencies]
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
-tauri = { version = "1.3.0", features = ["fs-all", "window-all"] }
+tauri = { version = "1.3.0", features = [ "shell-open", "dialog-all", "fs-all", "path-all", "window-all"] }
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem and the built-in dev server is disabled.

@@ -1,5 +1,9 @@
 <template>
-  <article>
-    <h1>This is the main page</h1>
+  <article class="d-flex flex-column h-100 flex-fill">
+    <FileManager />
   </article>
 </template>
+
+<script setup>
+import FileManager from '../components/FileManager.vue'
+</script>
