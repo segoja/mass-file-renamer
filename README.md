@@ -1,4 +1,5 @@
 ![GitHub package.json dynamic](https://img.shields.io/github/package-json/v/segoja/mass-file-renamer)
+![GitHub](https://img.shields.io/github/license/segoja/mass-file-renamer)
 ![Made With Vue](https://img.shields.io/badge/made_with-vue_3-darkcyan)
 ![Made With Tauri](https://img.shields.io/badge/made_with-tauri-blue?logo=rust)
 
