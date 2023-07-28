@@ -185,77 +185,98 @@
     </v-col>
     <v-col cols="12" md="6">
       <v-row dense>
-        <v-col cols="12" md="6">
-          <v-text-field
-            v-model="state.prefix"
-            :label="t('labels.prefix')"
-            density="compact"
-            variant="solo"
-            single-line
-            hide-details
-            clearable
-            :disabled="isDisabled"
-          >
-          </v-text-field>
-        </v-col>
-        <v-col cols="12" md="6">
-          <v-text-field
-            v-model="state.suffix"
-            :label="t('labels.suffix')"
-            density="compact"
-            variant="solo"
-            single-line
-            hide-details
-            clearable
-            :disabled="isDisabled"
-          >
-          </v-text-field>
-        </v-col>
-      </v-row>
-      <v-row dense>
-        <v-col cols="12" :md="state.removeText ? '' : '5'">
-          <v-text-field
-            v-model="state.findText"
-            :label="t('labels.find')"
-            density="compact"
-            variant="solo"
-            single-line
-            hide-details
-            clearable
-            :disabled="isDisabled"
-          >
-            <template v-slot:append-inner>
-              <v-icon icon="mdi-keyboard-return" v-if="state.removeText" tabindex color="cyan-darken-1" role="button" @click="keepReplacedText" :title="t('titles.replace')" />
-              <v-icon icon="mdi-magnify" v-if="!state.removeText" />
-            </template>        
-          </v-text-field>
-        </v-col>
-        <v-col :class="{ 'd-none': state.removeText }">
-          <v-text-field
-            v-model="state.replaceText"
-            :label="t('labels.replace')"
-            density="compact"
-            variant="solo"
-            single-line
-            hide-details
-            clearable
-            :disabled="state.removeText || isDisabled"
-          >
-            <template v-slot:append-inner>
-              <v-icon icon="mdi-keyboard-return" @click="keepReplacedText" tabindex color="cyan-darken-1" role="button" aria-hidden="false" :title="t('titles.replace')"  />
-            </template>
-          </v-text-field>
+        <v-col>
+          <v-row dense>
+            <v-col cols="12" md="6">
+              <v-text-field
+                v-model="state.prefix"
+                :label="t('labels.prefix')"
+                density="compact"
+                variant="solo"
+                single-line
+                hide-details
+                clearable
+                :disabled="isDisabled"
+              >
+              </v-text-field>
+            </v-col>
+            <v-col cols="12" md="6">
+              <v-text-field
+                v-model="state.suffix"
+                :label="t('labels.suffix')"
+                density="compact"
+                variant="solo"
+                single-line
+                hide-details
+                clearable
+                :disabled="isDisabled"
+              >
+              </v-text-field>
+            </v-col>
+          </v-row>
+          <v-row dense>
+            <v-col cols="12" :md="state.removeText? '12':'6'">
+              <v-text-field
+                v-model="state.findText"
+                :label="state.removeText? t('titles.remove'):t('labels.find')"
+                density="compact"
+                variant="solo"
+                single-line
+                hide-details
+                :disabled="isDisabled"
+              > 
+                <template v-slot:append-inner>
+                  <v-icon 
+                    v-if="state.removeText"
+                    icon="mdi-eraser-variant"
+                    @click="toggleDestructive" 
+                    variant="tonal"
+                    color="warning" 
+                    role="button" 
+                    aria-hidden="false"
+                    :title="t('titles.remove')"
+                  />
+                  <v-icon 
+                    v-if="!state.removeText"
+                    icon="mdi-magnify"
+                  />
+                </template>     
+              </v-text-field>
+            </v-col>
+            <v-col cols="6" v-if="!state.removeText">
+              <v-text-field
+                v-model="state.replaceText"
+                :label="t('labels.replace')"
+                density="compact"
+                variant="solo"
+                single-line
+                hide-details
+                :disabled="isDisabled"
+              >
+                <template v-slot:append-inner>
+                  <v-icon icon="mdi-eraser"
+                    @click="toggleDestructive" 
+                    variant="tonal"
+                    color="cyan-darken-1" 
+                    role="button" 
+                    aria-hidden="false"
+                    :title="t('titles.remove')"
+                  />
+                </template>
+              </v-text-field>
+            </v-col>
+          </v-row>
         </v-col>
         <v-col class="col-auto mh-100">
           <v-btn
-            @click="toggleDestructive"
+            @click="keepReplacedText"
             :variant="isDark ? 'tonal' : 'elevated'"
             :disabled="isDisabled"
             class="mh-100"
-            :title="t('titles.remove')"
-            :prepend-icon="state.removeText ? 'mdi-checkbox-marked-outline' : 'mdi-checkbox-blank-outline'"
+            color="cyan-darken-1"
+            :title="t('titles.replace')"
           >
-            {{t('labels.remove')}}
+            <v-icon icon="mdi-keyboard-return" size="x-large"/>
           </v-btn>
         </v-col>
       </v-row>
@@ -302,20 +323,6 @@
           </v-btn>
         </v-col>
       </v-row>
-    </v-col>
-  </v-row>
-  <v-row no-gutters class="mx-3">
-    <v-col class="m-0 p-0">
-      <v-alert
-        closable
-        v-model="state.alert"
-        density="compact"
-        type="error"
-        :variant="isDark ? 'tonal' : 'elevated'"
-        title="Error"
-      >
-        <pre>{{ state.alertMsg }}</pre>
-      </v-alert>
     </v-col>
   </v-row>
   <v-row no-gutters class="mx-3 justify-center">
@@ -416,13 +423,17 @@
         @keyup="getText"
         disabled="state.isLoading"
         contenteditable
+        class="rowable"
         >{{ text.selectedText }}</pre
       >
     </v-col>
-    <v-col class="py-0 my-0 ps-1 col-auto" v-if="showData">
-      <pre ref="dateRef">{{ text.selectedDates }}</pre>
+    <v-col class="py-0 my-0 overflow-x-hidden d-md-none d-lg-flex" v-if="showData">
+      <pre ref="initialRef" disabled :class="isDark? 'text-grey-darken-3 rowable':'text-grey rowable'">{{ text.initialText }}</pre>
     </v-col>
-    <v-col class="py-0 my-0 text-right col-auto" v-if="showData">
+    <v-col class="py-0 my-0 ps-0 col-auto" v-if="showData">
+      <pre ref="dateRef" disabled :class="isDark? 'text-grey-darken-3 rowable':'text-grey rowable'">{{ text.selectedDates }}</pre>
+    </v-col>
+    <v-col class="py-0 my-0 text-right col-auto rowable" v-if="showData">
       <button
         type="button"
         v-for="file in filteredFiles"
@@ -433,6 +444,19 @@
       >
         <v-icon icon="mdi-close-box-outline" color="error"></v-icon>
       </button>
+    </v-col>
+  </v-row>
+  <v-row no-gutters class="maxh-25 mx-3 mb-3" v-if="errorSystem.alert">
+    <v-col class="h-100 overflow-y-auto rounded"> 
+      <v-alert
+        closable
+        v-model="errorSystem.alert"
+        variant="tonal"
+        type="error"
+        title="Error"
+      >
+        <pre class="text-caption h-100" style="white-space: pre-wrap;">{{ errorSystem.alertMsg }}</pre>
+      </v-alert>
     </v-col>
   </v-row>
 </template>
@@ -447,6 +471,13 @@ pre {
   padding: 0px;
   min-width: 100%;
 }
+
+.rowable{
+  background: linear-gradient(transparent 50%, rgba(64,64,64, 0.05) 50%);
+  background-size: 100% 4em; /* Adjust the height of the stripes here */
+  background-position: 0em 2em;
+}
+
 [contenteditable] {
   outline: 0px solid transparent;
   border-color: black !important;
@@ -488,6 +519,11 @@ pre {
 .mh-100 {
   min-height: 100%;
 }
+
+.maxh-25 {
+  max-height: 25%;
+}
+
 pre.selectable {
   pointer-events: stroke;
 }
@@ -518,6 +554,7 @@ pre.selectable {
   color: rgb(var(--v-theme-on-background)) !important;
   background: rgba(var(--v-theme-warning), var(--v-disabled-opacity)) !important;
 }
+
 </style>
 
 <script setup>
@@ -539,7 +576,6 @@ const state = reactive({
   selectedFiles: [],
   previousFiles: [],
   fileFilter: '',
-  renameErrors: [],
   preTime: false,
   preNum: false,
   prefix: '',
@@ -549,8 +585,6 @@ const state = reactive({
   findText: '',
   replaceText: '',
   removeText: false,
-  alert: false,
-  alertMsg: '',
   elements: [],
   stopLoading: false,
   stopRenaming: false,
@@ -559,6 +593,11 @@ const state = reactive({
   isUpdating: false
 })
 
+const errorSystem = reactive({
+  alert: false,
+  alertMsg: '',
+  renameErrors: []
+})
 const rFiles = reactive({
   selectedFiles: [],
   previousFiles: [],
@@ -569,6 +608,7 @@ const rFiles = reactive({
 const text = reactive({
   selectedDates: '',
   selectedText: '',
+  initialText: '',
   backupText: '',
   prevDates: '',
   prevText: '',
@@ -578,6 +618,7 @@ const text = reactive({
 
 const dateRef = ref('')
 const textRef = ref('')
+const initialRef = ref('')
 const progress = ref(0)
 const copying = ref(false)
 const numSelected = ref(0)
@@ -590,6 +631,21 @@ watch(copying, (val) => {
 })
 
 const items = ['number', 'prefix', 'name', 'suffix', 'date', 'time']
+
+// We use a getter to watch the a property of errorSystem reactive object.
+watch(() => errorSystem.renameErrors,
+  (renameErrors) => {
+    if(renameErrors.length > 0){
+      errorSystem.alertMsg = renameErrors.join('\n');
+      errorSystem.alert = true;
+    } else {
+      errorSystem.alertMsg = '';
+      errorSystem.alert = false;
+    }
+    //console.debug('Errors: ', renameErrors.length)
+    //console.debug('Alert: ', errorSystem.alert)
+  }
+)
 
 watch(state, () => {
   if (!state.isLoading && !state.stopLoading && !state.stopRenaming && !state.isRenaming) {
@@ -607,13 +663,24 @@ watch(state, () => {
     text.selectedText = text.backupText || newText
     text.prevText = text.backupText || newText
     text.backupText = ''
-
-    text.selectedDates = list.map((item) => niceDate(item.date)).join('\n')
+    
+    text.initialText = ''
+    text.selectedDates = ''
+    for (var i = 0; i < list.length; i++) {
+      if(i < list.length - 1){
+        text.initialText += list[i].fullName+'\n'
+        text.selectedDates += niceDate(list[i].date)+'\n'
+      } else {
+        text.initialText += list[i].fullName
+        text.selectedDates += niceDate(list[i].date)
+      }
+    }
+    // text.selectedDates = list.map((item) => { niceDate(item.date) }).join('\n')
 
     clearTimeout(rFiles.loadingTimeout)
     rFiles.loadingTimeout = setTimeout(() => {
       state.isUpdating = false
-    }, 250)
+    }, 500)
   }
 })
 
@@ -625,26 +692,26 @@ function filterText(list) {
     // Find-replace functionality
     let findText = ''
     let replaceText = ''
-    if (state.findText != null && state.findText) {
+    if (state.findText) {
       findText = state.findText
       try {
         findText = new RegExp(findText, 'gi')
       } catch (error) {
         if (error instanceof Error) {
-          state.alertMsg = error.message
-          state.alert = true
-        } else {
-          state.alertMsg = ''
-          state.alert = false
+          errorSystem.renameErrors = [error.message]
         }
         findText = ''
-      } finally {
-        if (findText) {
-          state.alertMsg = ''
-          state.alert = false
-        }
+      }
+    } else {
+      if(errorSystem.renameErrors.length > 0){
+        errorSystem.renameErrors = []
       }
     }
+
+    if(findText && errorSystem.renameErrors.length > 0) {
+      errorSystem.renameErrors = []
+    }
+
     if (state.replaceText != null && state.replaceText) {
       replaceText = state.replaceText.replace(/[^a-zA-Z0-9\s_.-]/g, '')
     }
@@ -656,7 +723,7 @@ function filterText(list) {
 
       let structure = ''
       if (state.elements.length > 0) {
-        structure = '\\' + state.elements.join('-\\')
+        structure = '\\' + state.elements.join('\\')
       }
 
       let listNr = 0
@@ -722,7 +789,7 @@ const filteredFiles = computed(() => {
     if (state.fileFilter) {
       // Find-replace functionality
       let filterRegex = rFiles.fileFilterRegex;
-      let filter = state.alert ? state.fileFilter : filterRegex
+      let filter = errorSystem.alert ? state.fileFilter : filterRegex
       if(filterRegex){
         list = list.filter((item) => item.fullName.match(filter))
       } else {        
@@ -771,18 +838,9 @@ function filterDown(event) {
         regexFilter = new RegExp(state.fileFilter, 'gi')
       } catch (error) {
         if (error instanceof Error) {
-          state.alertMsg = error.message
-          state.alert = true
-        } else {
-          state.alertMsg = ''
-          state.alert = false
+          errorSystem.renameErrors = [error.message]
         }
         regexFilter = ''
-      } finally {
-        if (regexFilter) {
-          state.alertMsg = ''
-          state.alert = false
-        }
       }
       rFiles.fileFilterRegex = regexFilter
     }
@@ -805,15 +863,15 @@ function restoreNames() {
 }
 
 function resetChanges() {
-  state.renameErrors = []
+  errorSystem.renameErrors = []
   state.prefix = ''
   state.suffix = ''
   state.findText = ''
   state.replaceText = ''
   state.removeText = false
   // state.fileFilter = ''
-  state.alert = false
-  state.alertMsg = ''
+  errorSystem.alert = false
+  errorSystem.alertMsg = ''
   state.elements = []
   text.lastCursor = ''
   text.isKeydown = false
@@ -827,7 +885,7 @@ function clearAll() {
   state.selectedFiles = []
   state.previousFiles = []
   state.fileFilter = ''
-  state.renameErrors = []
+  errorSystem.renameErrors = []
   state.preTime = false
   state.preNum = false
   state.prefix = ''
@@ -837,8 +895,8 @@ function clearAll() {
   state.findText = ''
   state.replaceText = ''
   state.removeText = false
-  state.alert = false
-  state.alertMsg = ''
+  errorSystem.alert = false
+  errorSystem.alertMsg = ''
   state.elements = []
   state.stopLoading = false
   state.stopRenaming = false
@@ -1179,9 +1237,9 @@ async function saveFiles() {
   // We need to save the status of each file: if it has been saved or not, and update it after saving it.
 
   let updated = false
-  state.renameErrors = []
-  state.alertMsg = ''
-  state.alert = false
+  errorSystem.renameErrors = []
+  errorSystem.alertMsg = ''
+  errorSystem.alert = false
 
   var selected = toRaw(filteredFiles.value)
   var modified = textRef.value.innerText.trim().split(/\n/)
@@ -1201,7 +1259,6 @@ async function saveFiles() {
       }
       state.isRenaming = true
       let filecounter = 0
-      let i = 0
       /*state.selectedFiles = []*/
       state.prefix = ''
       state.suffix = ''
@@ -1210,7 +1267,7 @@ async function saveFiles() {
       state.elements = []
       state.removeText = false
 
-      while (i < targetLength) {
+      for (var i = 0; i < targetLength; i++) {
         if (state.stopRenaming) {
           //clearAll()
           process.value = 0
@@ -1251,7 +1308,7 @@ async function saveFiles() {
                 console.debug('Newpath: ', newPath)
                 updating.saved = false
                 filteredFiles.value[i] = updating
-                state.renameErrors.push(error)
+                errorSystem.renameErrors.push(error)
                 console.debug(error)
               }
             )
@@ -1261,24 +1318,24 @@ async function saveFiles() {
           }
 
           filecounter++
-
-          if (filecounter + 1 == targetLength) {
+          //console.debug('Files processed: ', filecounter); 
+          //console.debug('Index: ', i);  
+          //console.debug('Target: ', targetLength);  
+          if (filecounter == targetLength) {
+            progress.value = 100
             setTimeout(() => {
-              progress.value = 0
               state.fileFilter = ''
               state.isRenaming = false
+              progress.value = 0
             }, 500)
           } else {
-            progress.value = Math.ceil(((filecounter + 1) * 100) / targetLength)
+            progress.value = Math.ceil(((filecounter) * 100) / targetLength)
           }
-          i++
         }
       }
     }
 
-    if (state.renameErrors.length > 0) {
-      console.debug(state.renameErrors)
-    } else {
+    if (errorSystem.renameErrors.length == 0) {
       if (updated) {
         console.debug('Updating files array')
         state.prefix = ''
@@ -1296,14 +1353,13 @@ async function saveFiles() {
       progress.value = 0
     }, 1000)
     if (haveDuplicates.length > 0) {
-      haveDuplicates.forEach((fileErr) => {
-        state.alertMsg += 'The file name ' + fileErr + ' is duplicated.\n'
+      haveDuplicates.forEach((dupeErr) => {
+        errorSystem.renameErrors.push('The file name ' + dupeErr + ' is duplicated.')
       })
     }
     if (tooLong) {
-      state.alertMsg += 'There are more names than files!.\n'
+      errorSystem.renameErrors.push('There are more names than files!.')
     }
-    state.alert = true
   }
 }
 
