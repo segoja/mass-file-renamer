@@ -219,12 +219,16 @@
             :label="t('labels.find')"
             density="compact"
             variant="solo"
-            append-inner-icon="mdi-magnify"
             single-line
             hide-details
             clearable
             :disabled="isDisabled"
-          ></v-text-field>
+          >
+            <template v-slot:append-inner>
+              <v-icon icon="mdi-keyboard-return" v-if="state.removeText" tabindex color="cyan-darken-1" role="button" @click="keepReplacedText" :title="t('titles.replace')" />
+              <v-icon icon="mdi-magnify" v-if="!state.removeText" />
+            </template>        
+          </v-text-field>
         </v-col>
         <v-col :class="{ 'd-none': state.removeText }">
           <v-text-field
@@ -236,30 +240,23 @@
             hide-details
             clearable
             :disabled="state.removeText || isDisabled"
-          ></v-text-field>
-        </v-col>
-        <v-col
-          cols="auto"
-          md="auto"
-          :class="
-            isDisabled
-              ? 'v-field v-field--variant-solo d-block rounded  py-0 my-1 mx-1 v-field--disabled'
-              : 'v-field v-field--variant-solo d-block rounded py-0 my-1 mx-1'
-          "
-        >
-          <v-checkbox
-            v-model="state.removeText"
-            :label="t('labels.remove')"
-            density="compact"
-            color="cyan-darken-1"
-            single-line
-            hide-details
-            variant="solo"
-            :disabled="isDisabled"
-            class="mx-2 mr-3"
           >
-            <v-tooltip activator="parent" location="top">{{ t('titles.remove') }}</v-tooltip>
-          </v-checkbox>
+            <template v-slot:append-inner>
+              <v-icon icon="mdi-keyboard-return" @click="keepReplacedText" tabindex color="cyan-darken-1" role="button" aria-hidden="false" :title="t('titles.replace')"  />
+            </template>
+          </v-text-field>
+        </v-col>
+        <v-col class="col-auto mh-100">
+          <v-btn
+            @click="toggleDestructive"
+            :variant="isDark ? 'tonal' : 'elevated'"
+            :disabled="isDisabled"
+            class="mh-100"
+            :title="t('titles.remove')"
+            :prepend-icon="state.removeText ? 'mdi-checkbox-marked-outline' : 'mdi-checkbox-blank-outline'"
+          >
+            {{t('labels.remove')}}
+          </v-btn>
         </v-col>
       </v-row>
     </v-col>
@@ -665,8 +662,10 @@ function filterText(list) {
       let listNr = 0
       list.forEach((item) => {
         listNr = String(Number(listNr) + 1)
-        let finalname = item.name
-        let finalExtension = item.extension
+
+        let finalExtension = item.newExtension
+        let finalName = item.newName   
+
         let date = dayjs(item.date).format('YYYYMMDD').toString()
         let time = dayjs(item.date).format('HHmmss').toString()
         let numString = listNr.padStart(numDigits, 0)
@@ -674,49 +673,46 @@ function filterText(list) {
         let suffix = state.suffix != null ? state.suffix : ''
 
         if (state.elements.length > 0) {
-          finalname = structure.replaceAll('\\number', numString)
-          finalname = String(finalname).replaceAll('\\date', date)
-          finalname = String(finalname).replaceAll('\\time', time)
+          finalName = structure.replaceAll('\\number', numString)
+          finalName = String(finalName).replaceAll('\\date', date)
+          finalName = String(finalName).replaceAll('\\time', time)
           if (prefix) {
-            finalname = finalname.replaceAll('\\prefix', prefix)
+            finalName = finalName.replaceAll('\\prefix', prefix)
           } else {
-            finalname = finalname.replaceAll('-\\prefix', '')
-            finalname = finalname.replaceAll('\\prefix', '')
+            finalName = finalName.replaceAll('-\\prefix', '')
+            finalName = finalName.replaceAll('\\prefix', '')
           }
           if (suffix) {
-            finalname = finalname.replaceAll('\\suffix', suffix)
+            finalName = finalName.replaceAll('\\suffix', suffix)
           } else {
-            finalname = finalname.replaceAll('-\\suffix', '')
-            finalname = finalname.replaceAll('\\suffix', '')
+            finalName = finalName.replaceAll('-\\suffix', '')
+            finalName = finalName.replaceAll('\\suffix', '')
           }
-          finalname = finalname.replaceAll('\\name', item.name)
+          finalName = finalName.replaceAll('\\name', item.newName)
         }
 
         if (findText && replaceText && !state.removeText) {
-          finalname = finalname.replaceAll(findText, replaceText)
+          finalName = finalName.replaceAll(findText, replaceText)
         } else {
           if (findText && state.removeText) {
-            finalname = finalname.replaceAll(findText, '')
+            finalName = finalName.replaceAll(findText, '')
           }
         }
 
         if (finalExtension) {
-          finalname = finalname + '.' + finalExtension
+          finalName = finalName + '.' + finalExtension
         }
 
-        textLines.push(finalname)
+        textLines.push(finalName)
       })
     } else {
-      textLines = list.map((item) => item.newfullname)
+      textLines = list.map((item) => item.newFullName)
     }
     newText = textLines.join('\n')
   }
   return newText
 }
 
-function filterFiles(){
-  
-}
 
 // Equivalent to Ember computed / tracked+getters:
 
@@ -728,9 +724,9 @@ const filteredFiles = computed(() => {
       let filterRegex = rFiles.fileFilterRegex;
       let filter = state.alert ? state.fileFilter : filterRegex
       if(filterRegex){
-        list = list.filter((item) => item.fullname.match(filter))
+        list = list.filter((item) => item.fullName.match(filter))
       } else {        
-        list = list.filter((item) => item.fullnameincludes(filter))
+        list = list.filter((item) => item.fullName.includes(filter))
       }
     }
   }
@@ -767,19 +763,7 @@ const showData = computed(() => {
  * @return {void} No return value.
  */
 function filterDown(event) {
- /* let keycode = event.keyCode
-  console.log('keycode: ',keycode);
-  let valid =
-    (keycode > 47 && keycode < 58) || // number keys
-    keycode == 8 || // backspace
-    keycode == 32 ||
-    keycode == 13 || // spacebar & return key(s) (if you want to allow carriage returns)
-    (keycode > 64 && keycode < 91) || // letter keys
-    (keycode > 95 && keycode < 112) || // numpad keys
-    (keycode > 185 && keycode < 193) || // ;=,-./` (in order)
-    (keycode > 218 && keycode < 223) // [\]' (in order)
-  if (valid) {*/
-    restoreNames()
+    resetChanges()
     state.isUpdating = true
     if (state.fileFilter != null && state.fileFilter) {
       let regexFilter = state.fileFilter       
@@ -802,10 +786,25 @@ function filterDown(event) {
       }
       rFiles.fileFilterRegex = regexFilter
     }
-  // }
 }
 
 function restoreNames() {
+  const list = filteredFiles.value
+  list.forEach((item) => {
+    item.newName = item.name
+    item.newExtension = item.extension
+    item.newFullName = item.fullName
+  })
+  resetChanges()
+  /*let newText = filterText(toRaw(list))
+  resetChanges()
+  textRef.value.innerText = newText
+  text.selectedText = newText*/
+  text.prevText = ''
+  text.backupText = ''
+}
+
+function resetChanges() {
   state.renameErrors = []
   state.prefix = ''
   state.suffix = ''
@@ -816,10 +815,12 @@ function restoreNames() {
   state.alert = false
   state.alertMsg = ''
   state.elements = []
-  text.selectedText = ''
-  text.prevText = ''
   text.lastCursor = ''
   text.isKeydown = false
+
+  text.backupText = ''
+  text.selectedText = ''
+  text.prevText = ''
 }
 
 function clearAll() {
@@ -937,6 +938,31 @@ function cancelRename() {
   state.stopRenaming = true
 }
 
+function toggleDestructive(){
+  state.removeText = !state.removeText
+}
+
+function keepReplacedText(){
+  const latestText = toRaw(textRef.value.innerText)
+  const latestReplaced = latestText.trim().split(/\n/)
+  const selectedFiles = filteredFiles.value
+
+  if(latestReplaced.length === selectedFiles.length){
+    for (var i = 0; i < selectedFiles.length; i++) {
+      let newFullName = latestReplaced[i]
+      let newExtension = newFullName.split('.').slice(-1).toString()
+      let newName = newFullName.replace('.' + newExtension, '')
+
+      selectedFiles[i].newFullName = newFullName
+      selectedFiles[i].newName = newName
+      selectedFiles[i].newExtension = newExtension
+    }
+    state.findText = '';
+    state.replaceText = '';
+    resetChanges()
+  }
+}
+
 // Keydown checks:
 function backupText() {
   if (!text.isKeydown) {
@@ -981,7 +1007,7 @@ function getText() {
       if (!textLines[i]) {
         restore = true
         if (selected[i]) {
-          textLines[i] = selected[i].newfullname
+          textLines[i] = selected[i].newFullName
         }
       }
       i = i + 1
@@ -1037,13 +1063,15 @@ function openFolder() {
                   id: newId,
                   name: filename,
                   extension: extension,
+                  fullName: fullfilename,
                   path: filepath,
                   date: modified,
-                  fullname: fullfilename,
-                  newfullname: fullfilename,
+                  newName: filename,
+                  newExtension: extension,
+                  newFullName: fullfilename,
                   saved: false
                 }
-
+                
                 await state.selectedFiles.push(newFile)
 
                 filecounter += 1
@@ -1116,10 +1144,12 @@ function selectFiles() {
                   id: newId,
                   name: filename,
                   extension: extension,
+                  fullName: fullfilename,
                   path: filepath,
                   date: modified,
-                  fullname: fullfilename,
-                  newfullname: fullfilename,
+                  newName: filename,
+                  newExtension: extension,
+                  newFullName: fullfilename,
                   saved: false
                 }
 
@@ -1194,20 +1224,22 @@ async function saveFiles() {
           let newFullName = modified[i]
           let newExtension = newFullName.split('.').slice(-1).toString()
           let newName = newFullName.replace('.' + newExtension, '')
-          let initialPath = selected[i].path + selected[i].fullname
+          let initialPath = selected[i].path + selected[i].fullName
           let newPath = selected[i].path + modified[i]
           let updating = selected[i]
 
-          updating.newfullname = newFullName
+          updating.newFullName = newFullName
+          updating.newName = newName
+          updating.newExtension = newExtension
 
-          if (updating.newfullname != updating.fullname) {
+          if (updating.newFullName != updating.fullName) {
             await renameFile(initialPath, newPath).then(
               (success) => {
                 console.debug(success)
                 updated = true
                 console.debug('Initial: ', initialPath)
                 console.debug('Newpath: ', newPath)
-                updating.fullname = newFullName
+                updating.fullName = newFullName
                 updating.name = newName
                 updating.extension = newExtension
                 updating.saved = true
@@ -1278,13 +1310,6 @@ async function saveFiles() {
 async function delFile(removed) {
   let prevText = textRef.value.innerText.trim()
   prevText = prevText.split(/\r?\n/)
-  /*let updatedText = ''
-  let removedText = ''
-  if (removed.extension) {
-    removedText = removed.name + '.' + removed.extension + '\n'
-  } else {
-    removedText = removed.name + '\n'
-  }*/
 
   let selectedFiles = toRaw(filteredFiles.value)
   let i = 0
@@ -1305,7 +1330,9 @@ async function delFile(removed) {
         extension = modified.split('.').slice(-1).toString()
         name = modified.split('.')[0].toString()
       }
-      selectedFiles[i].newfullname = name + '.' + extension
+      selectedFiles[i].newFullName = name + '.' + extension
+      selectedFiles[i].newName = name
+      selectedFiles[i].newExtension = extension
       selectedFiles[i].saved = false
     }
 
