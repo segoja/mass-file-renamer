@@ -7,7 +7,7 @@
         :color="isDark ? 'grey-darken-4' : 'grey-darken-3'"
         class="mr-0 pr-0"
         elevation="3"
-      >    
+      >
         <img src="./assets/logo.svg" class="logo" />
         <span class="text-grey-lighten-2 pl-2 font-weight-bold text-uppercase"
           >Mass File Renamer {{ appVersion }}</span
@@ -182,14 +182,14 @@ main.light .files {
   background-color: rgba(var(--v-border-color), 0.85) !important;
 }
 header button.close-app {
-  background-color: transparent!important;
+  background-color: transparent !important;
 }
 header button.close-app:hover {
-  background-color: #D50000!important;
-  color: white!important;
+  background-color: #d50000 !important;
+  color: white !important;
 }
-header img.logo { 
-  height: 1.5em!important; 
-  margin-right: -3px; 
+header img.logo {
+  height: 1.5em !important;
+  margin-right: -3px;
 }
 </style>

@@ -22,7 +22,7 @@ const messages = {
       files: 'Select files',
       folder: 'Select folder',
       restore: 'Restore names',
-      rename: 'Apply name changes',
+      rename: 'Rename files',
       tolower: 'To lower case',
       toupper: 'To upper case',
       remove: 'Find and remove text',
@@ -47,7 +47,7 @@ const messages = {
       del: 'Exclude file'
     },
     labels: {
-      filter: 'Filter',
+      filter: 'Filter files',
       elements: 'Elements:',
       template: 'Template:',
       prefix: 'Prefix',
@@ -106,7 +106,7 @@ const messages = {
       files: 'Seleccionar archivos',
       folder: 'Seleccionar carpeta',
       restore: 'Restaurar nombres',
-      rename: 'Aplicar cambios de nombre',
+      rename: 'Renombrar archivos',
       tolower: 'Convertir a minúsculas',
       toupper: 'Convertir a mayúsculas',
       remove: 'Buscar y eliminar texto',
@@ -131,7 +131,7 @@ const messages = {
       del: 'Excluir archivo'
     },
     labels: {
-      filter: 'Filtrar',
+      filter: 'Filtrar archivos',
       elements: 'Elementos:',
       template: 'Plantilla:',
       prefix: 'Prefijo',

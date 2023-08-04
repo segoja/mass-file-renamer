@@ -215,32 +215,29 @@
             </v-col>
           </v-row>
           <v-row dense>
-            <v-col cols="12" :md="state.removeText? '12':'6'">
+            <v-col cols="12" :md="state.removeText ? '12' : '6'">
               <v-text-field
                 v-model="state.findText"
-                :label="state.removeText? t('titles.remove'):t('labels.find')"
+                :label="state.removeText ? t('titles.remove') : t('labels.find')"
                 density="compact"
                 variant="solo"
                 single-line
                 hide-details
                 :disabled="isDisabled"
-              > 
+              >
                 <template v-slot:append-inner>
-                  <v-icon 
+                  <v-icon
                     v-if="state.removeText"
                     icon="mdi-eraser-variant"
-                    @click="toggleDestructive" 
+                    @click="toggleDestructive"
                     variant="tonal"
-                    color="warning" 
-                    role="button" 
+                    color="warning"
+                    role="button"
                     aria-hidden="false"
                     :title="t('titles.remove')"
                   />
-                  <v-icon 
-                    v-if="!state.removeText"
-                    icon="mdi-magnify"
-                  />
-                </template>     
+                  <v-icon v-if="!state.removeText" icon="mdi-magnify" />
+                </template>
               </v-text-field>
             </v-col>
             <v-col cols="6" v-if="!state.removeText">
@@ -254,11 +251,12 @@
                 :disabled="isDisabled"
               >
                 <template v-slot:append-inner>
-                  <v-icon icon="mdi-eraser"
-                    @click="toggleDestructive" 
+                  <v-icon
+                    icon="mdi-eraser"
+                    @click="toggleDestructive"
                     variant="tonal"
-                    color="cyan-darken-1" 
-                    role="button" 
+                    color="cyan-darken-1"
+                    role="button"
                     aria-hidden="false"
                     :title="t('titles.remove')"
                   />
@@ -276,7 +274,7 @@
             color="cyan-darken-1"
             :title="t('titles.replace')"
           >
-            <v-icon icon="mdi-keyboard-return" size="x-large"/>
+            <v-icon icon="mdi-keyboard-return" size="x-large" />
           </v-btn>
         </v-col>
       </v-row>
@@ -416,7 +414,7 @@
     <v-col class="py-0 my-0 ps-1 overflow-x-auto" v-if="!showData || !numFiltered">
       <pre>{{ t('text.nofiles') }}</pre>
     </v-col>
-    <v-col class="py-0 my-0 ps-1 overflow-x-auto" v-if="showData">
+    <v-col :class="text.selectedText ? 'py-0 my-0 ps-1 overflow-x-auto' : 'd-none'" v-if="showData">
       <pre
         ref="textRef"
         @keydown="backupText"
@@ -427,13 +425,29 @@
         >{{ text.selectedText }}</pre
       >
     </v-col>
-    <v-col class="py-0 my-0 overflow-x-hidden d-md-none d-lg-flex" v-if="showData">
-      <pre ref="initialRef" disabled :class="isDark? 'text-grey-darken-3 rowable':'text-grey rowable'">{{ text.initialText }}</pre>
+    <v-col
+      :class="text.selectedText ? 'py-0 my-0 overflow-x-hidden d-md-none d-lg-flex' : 'd-none'"
+      v-if="showData"
+    >
+      <pre
+        ref="initialRef"
+        disabled
+        :class="isDark ? 'text-grey-darken-3 rowable' : 'text-grey rowable'"
+        >{{ text.initialText }}</pre
+      >
     </v-col>
-    <v-col class="py-0 my-0 ps-0 col-auto" v-if="showData">
-      <pre ref="dateRef" disabled :class="isDark? 'text-grey-darken-3 rowable':'text-grey rowable'">{{ text.selectedDates }}</pre>
+    <v-col :class="text.selectedText ? 'py-0 my-0 ps-0 col-auto' : 'd-none'" v-if="showData">
+      <pre
+        ref="dateRef"
+        disabled
+        :class="isDark ? 'text-grey-darken-3 rowable' : 'text-grey rowable'"
+        >{{ text.selectedDates }}</pre
+      >
     </v-col>
-    <v-col class="py-0 my-0 text-right col-auto rowable" v-if="showData">
+    <v-col
+      :class="text.selectedText ? 'py-0 my-0 text-right col-auto rowable' : 'd-none'"
+      v-if="showData"
+    >
       <button
         type="button"
         v-for="file in filteredFiles"
@@ -447,15 +461,11 @@
     </v-col>
   </v-row>
   <v-row no-gutters class="maxh-25 mx-3 mb-3" v-if="errorSystem.alert">
-    <v-col class="h-100 overflow-y-auto rounded"> 
-      <v-alert
-        closable
-        v-model="errorSystem.alert"
-        variant="tonal"
-        type="error"
-        title="Error"
-      >
-        <pre class="text-caption h-100" style="white-space: pre-wrap;">{{ errorSystem.alertMsg }}</pre>
+    <v-col class="h-100 overflow-y-auto rounded">
+      <v-alert closable v-model="errorSystem.alert" variant="tonal" type="error" title="Error">
+        <pre class="text-caption h-100" style="white-space: pre-wrap">{{
+          errorSystem.alertMsg
+        }}</pre>
       </v-alert>
     </v-col>
   </v-row>
@@ -472,8 +482,8 @@ pre {
   min-width: 100%;
 }
 
-.rowable{
-  background: linear-gradient(transparent 50%, rgba(64,64,64, 0.05) 50%);
+.rowable {
+  background: linear-gradient(transparent 50%, rgba(64, 64, 64, 0.05) 50%);
   background-size: 100% 4em; /* Adjust the height of the stripes here */
   background-position: 0em 2em;
 }
@@ -554,7 +564,6 @@ pre.selectable {
   color: rgb(var(--v-theme-on-background)) !important;
   background: rgba(var(--v-theme-warning), var(--v-disabled-opacity)) !important;
 }
-
 </style>
 
 <script setup>
@@ -633,14 +642,15 @@ watch(copying, (val) => {
 const items = ['number', 'prefix', 'name', 'suffix', 'date', 'time']
 
 // We use a getter to watch the a property of errorSystem reactive object.
-watch(() => errorSystem.renameErrors,
+watch(
+  () => errorSystem.renameErrors,
   (renameErrors) => {
-    if(renameErrors.length > 0){
-      errorSystem.alertMsg = renameErrors.join('\n');
-      errorSystem.alert = true;
+    if (renameErrors.length > 0) {
+      errorSystem.alertMsg = renameErrors.join('\n')
+      errorSystem.alert = true
     } else {
-      errorSystem.alertMsg = '';
-      errorSystem.alert = false;
+      errorSystem.alertMsg = ''
+      errorSystem.alert = false
     }
     //console.debug('Errors: ', renameErrors.length)
     //console.debug('Alert: ', errorSystem.alert)
@@ -649,7 +659,6 @@ watch(() => errorSystem.renameErrors,
 
 watch(state, () => {
   if (!state.isLoading && !state.stopLoading && !state.stopRenaming && !state.isRenaming) {
-
     if (filteredFiles.value.length != numSelected.value) {
       numSelected.value = state.selectedFiles.length
     }
@@ -663,13 +672,13 @@ watch(state, () => {
     text.selectedText = text.backupText || newText
     text.prevText = text.backupText || newText
     text.backupText = ''
-    
+
     text.initialText = ''
     text.selectedDates = ''
     for (var i = 0; i < list.length; i++) {
-      if(i < list.length - 1){
-        text.initialText += list[i].fullName+'\n'
-        text.selectedDates += niceDate(list[i].date)+'\n'
+      if (i < list.length - 1) {
+        text.initialText += list[i].fullName + '\n'
+        text.selectedDates += niceDate(list[i].date) + '\n'
       } else {
         text.initialText += list[i].fullName
         text.selectedDates += niceDate(list[i].date)
@@ -703,12 +712,12 @@ function filterText(list) {
         findText = ''
       }
     } else {
-      if(errorSystem.renameErrors.length > 0){
+      if (errorSystem.renameErrors.length > 0) {
         errorSystem.renameErrors = []
       }
     }
 
-    if(findText && errorSystem.renameErrors.length > 0) {
+    if (findText && errorSystem.renameErrors.length > 0) {
       errorSystem.renameErrors = []
     }
 
@@ -731,7 +740,7 @@ function filterText(list) {
         listNr = String(Number(listNr) + 1)
 
         let finalExtension = item.newExtension
-        let finalName = item.newName   
+        let finalName = item.newName
 
         let date = dayjs(item.date).format('YYYYMMDD').toString()
         let time = dayjs(item.date).format('HHmmss').toString()
@@ -758,16 +767,16 @@ function filterText(list) {
           finalName = finalName.replaceAll('\\name', item.newName)
         }
 
+        if (finalExtension) {
+          finalName = finalName + '.' + finalExtension
+        }
+
         if (findText && replaceText && !state.removeText) {
           finalName = finalName.replaceAll(findText, replaceText)
         } else {
           if (findText && state.removeText) {
             finalName = finalName.replaceAll(findText, '')
           }
-        }
-
-        if (finalExtension) {
-          finalName = finalName + '.' + finalExtension
         }
 
         textLines.push(finalName)
@@ -780,7 +789,6 @@ function filterText(list) {
   return newText
 }
 
-
 // Equivalent to Ember computed / tracked+getters:
 
 const filteredFiles = computed(() => {
@@ -788,11 +796,11 @@ const filteredFiles = computed(() => {
   if (list.length > 0) {
     if (state.fileFilter) {
       // Find-replace functionality
-      let filterRegex = rFiles.fileFilterRegex;
+      let filterRegex = rFiles.fileFilterRegex
       let filter = errorSystem.alert ? state.fileFilter : filterRegex
-      if(filterRegex){
+      if (filterRegex) {
         list = list.filter((item) => item.fullName.match(filter))
-      } else {        
+      } else {
         list = list.filter((item) => item.fullName.includes(filter))
       }
     }
@@ -823,27 +831,21 @@ const showData = computed(() => {
 
 // Equivalent to Ember actions:
 
-/**
- * Filters down the event.
- *
- * @param {Event} event - The key event to filter down.
- * @return {void} No return value.
- */
-function filterDown(event) {
-    resetChanges()
-    state.isUpdating = true
-    if (state.fileFilter != null && state.fileFilter) {
-      let regexFilter = state.fileFilter       
-      try {
-        regexFilter = new RegExp(state.fileFilter, 'gi')
-      } catch (error) {
-        if (error instanceof Error) {
-          errorSystem.renameErrors = [error.message]
-        }
-        regexFilter = ''
+function filterDown() {
+  resetChanges()
+  state.isUpdating = true
+  if (state.fileFilter != null && state.fileFilter) {
+    let regexFilter = state.fileFilter
+    try {
+      regexFilter = new RegExp(state.fileFilter, 'gi')
+    } catch (error) {
+      if (error instanceof Error) {
+        errorSystem.renameErrors = [error.message]
       }
-      rFiles.fileFilterRegex = regexFilter
+      regexFilter = ''
     }
+    rFiles.fileFilterRegex = regexFilter
+  }
 }
 
 function restoreNames() {
@@ -996,16 +998,16 @@ function cancelRename() {
   state.stopRenaming = true
 }
 
-function toggleDestructive(){
+function toggleDestructive() {
   state.removeText = !state.removeText
 }
 
-function keepReplacedText(){
+function keepReplacedText() {
   const latestText = toRaw(textRef.value.innerText)
   const latestReplaced = latestText.trim().split(/\n/)
   const selectedFiles = filteredFiles.value
 
-  if(latestReplaced.length === selectedFiles.length){
+  if (latestReplaced.length === selectedFiles.length) {
     for (var i = 0; i < selectedFiles.length; i++) {
       let newFullName = latestReplaced[i]
       let newExtension = newFullName.split('.').slice(-1).toString()
@@ -1015,8 +1017,8 @@ function keepReplacedText(){
       selectedFiles[i].newName = newName
       selectedFiles[i].newExtension = newExtension
     }
-    state.findText = '';
-    state.replaceText = '';
+    state.findText = ''
+    state.replaceText = ''
     resetChanges()
   }
 }
@@ -1099,7 +1101,7 @@ function openFolder() {
               clearAll()
               state.isLoading = false
               state.stopLoading = false
-              process.value = 0
+              progress.value = 0
               state.selectedFiles = toRaw(rFiles.previousFiles)
               text.backupText = prevText
               break
@@ -1129,7 +1131,7 @@ function openFolder() {
                   newFullName: fullfilename,
                   saved: false
                 }
-                
+
                 await state.selectedFiles.push(newFile)
 
                 filecounter += 1
@@ -1179,7 +1181,7 @@ function selectFiles() {
               clearAll()
               state.isLoading = false
               state.stopLoading = false
-              process.value = 0
+              progress.value = 0
               state.selectedFiles = toRaw(rFiles.previousFiles)
               text.backupText = prevText
               break
@@ -1252,10 +1254,10 @@ async function saveFiles() {
 
   if (haveDuplicates.length == 0 && !tooLong) {
     if (targetLength == modified.length) {
-      let prevText = ''
+      //let prevText = ''
       if (filteredFiles.value.length > 0) {
         rFiles.previousFiles = toRaw(filteredFiles.value)
-        prevText = toRaw(textRef.value.innerText)
+        //prevText = toRaw(textRef.value.innerText)
       }
       state.isRenaming = true
       let filecounter = 0
@@ -1270,9 +1272,10 @@ async function saveFiles() {
       for (var i = 0; i < targetLength; i++) {
         if (state.stopRenaming) {
           //clearAll()
-          process.value = 0
+          progress.value = 0
           state.isRenaming = false
           state.stopRenaming = false
+          restoreNames()
           // state.selectedFiles = toRaw(rFiles.previousFiles)
           // text.backupText = prevText
           break
@@ -1318,9 +1321,9 @@ async function saveFiles() {
           }
 
           filecounter++
-          //console.debug('Files processed: ', filecounter); 
-          //console.debug('Index: ', i);  
-          //console.debug('Target: ', targetLength);  
+          //console.debug('Files processed: ', filecounter);
+          //console.debug('Index: ', i);
+          //console.debug('Target: ', targetLength);
           if (filecounter == targetLength) {
             progress.value = 100
             setTimeout(() => {
@@ -1329,7 +1332,7 @@ async function saveFiles() {
               progress.value = 0
             }, 500)
           } else {
-            progress.value = Math.ceil(((filecounter) * 100) / targetLength)
+            progress.value = Math.ceil((filecounter * 100) / targetLength)
           }
         }
       }
