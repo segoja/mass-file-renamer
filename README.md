@@ -7,7 +7,7 @@
 
 Rename your files as if you were editing a text file.
 
-![mfr](https://github.com/segoja/mass-file-renamer/assets/51286289/fe8840ed-5d8c-4dc2-89ed-9b1970b42f44)
+![Mass File Renamer](https://github.com/segoja/mass-file-renamer/assets/51286289/272cc3a6-6b31-490e-b2d6-1c9b9f4d5a72)
 
 ## Features
 
