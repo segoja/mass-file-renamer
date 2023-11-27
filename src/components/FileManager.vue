@@ -722,7 +722,7 @@ function filterText(list) {
     }
 
     if (state.replaceText != null && state.replaceText) {
-      replaceText = state.replaceText.replace(/[^a-zA-Z0-9\s_.-]/g, '')
+      replaceText = state.replaceText // 
     }
 
     if (state.elements.length > 0 || state.prefix || state.suffix || state.findText) {
@@ -778,7 +778,8 @@ function filterText(list) {
             finalName = finalName.replaceAll(findText, '')
           }
         }
-
+        // Remove non valid characters for files:
+        finalName = finalName.replace(/[^a-zA-Z0-9\s_.-]/g, '')
         textLines.push(finalName)
       })
     } else {
