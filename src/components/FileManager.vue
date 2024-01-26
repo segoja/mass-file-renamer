@@ -115,11 +115,11 @@
             justify="space-around"
             selected-class="none"
           >
-            <v-chip variant="text" label draggable class="v-label my-1 pr-0">
+            <v-chip variant="text" label draggable class="v-label my-2 pr-0">
               {{ t('labels.elements') }}
             </v-chip>
             <v-chip
-              class="my-0 mx-0 mr-1 py-0 px-2"
+              class="my-2 mx-0 mr-1 py-0 px-2"
               v-for="item in items"
               draggable
               label
@@ -152,8 +152,8 @@
           <v-chip-group
             :class="
               isDisabled
-                ? 'v-field v-field--variant-solo d-block rounded  py-0 px-1 d-block w-100 h-100 v-field--disabled'
-                : 'v-field v-field--variant-solo d-block rounded py-0 px-1 d-block w-100 h-100'
+                ? 'v-field v-field--variant-solo d-block rounded my-0 py-1 px-1 d-block w-100 h-100 v-field--disabled'
+                : 'v-field v-field--variant-solo d-block rounded my-0 py-1 px-1 d-block w-100 h-100'
             "
             :disabled="isDisabled"
           >
@@ -408,25 +408,26 @@
     </v-col>
   </v-row>
   <v-row
-    class="h-100 overflow-y-auto mb-3 mt-0 mx-3 border-2 justify-center v-field-label files"
+    class="h-100 overflow-y-auto mb-3 mt-0 mx-3 border-2 h-auto justify-center v-field-label files"
     no-gutters
+    align="start"
   >
     <v-col class="py-0 my-0 ps-1 overflow-x-auto" v-if="!showData || !numFiltered">
       <pre>{{ t('text.nofiles') }}</pre>
     </v-col>
-    <v-col :class="text.selectedText ? 'py-0 my-0 ps-1 overflow-x-auto' : 'd-none'" v-if="showData">
+    <v-col :class="text.selectedText ? 'py-0 my-0 ps-1 overflow-x-hidden' : 'd-none'" v-if="showData">
       <pre
         ref="textRef"
         @keydown="backupText"
         @keyup="getText"
-        disabled="state.isLoading"
+        :disabled="state.isLoading"
         contenteditable
         class="rowable"
         >{{ text.selectedText }}</pre
       >
     </v-col>
     <v-col
-      :class="text.selectedText ? 'py-0 my-0 overflow-x-hidden d-md-none d-lg-flex' : 'd-none'"
+      :class="text.selectedText ? 'py-0 my-0 overflow-x-hidden d-md-none d-lg-block' : 'd-none'"
       v-if="showData"
     >
       <pre
@@ -445,7 +446,7 @@
       >
     </v-col>
     <v-col
-      :class="text.selectedText ? 'py-0 my-0 text-right col-auto rowable' : 'd-none'"
+      :class="text.selectedText ? 'py-0 my-0 text-right col-auto rowable mh-0' : 'd-none'"
       v-if="showData"
     >
       <button
@@ -573,6 +574,8 @@ import { ref, computed, reactive, watch, toRaw } from 'vue'
 import dayjs from 'dayjs'
 import ButtonConfirm from './ButtonConfirm.vue'
 import { useI18n } from 'vue-i18n'
+import filenameReservedRegex, {windowsReservedNameRegex} from 'filename-reserved-regex';
+
 
 const { t } = useI18n()
 
@@ -778,8 +781,10 @@ function filterText(list) {
             finalName = finalName.replaceAll(findText, '')
           }
         }
-        // Remove non valid characters for files:
-        finalName = finalName.replace(/[^a-zA-Z0-9\s_.-]/g, '')
+
+        finalName = finalName.replace(filenameReservedRegex(), '');
+        finalName = finalName.replace(windowsReservedNameRegex(), '');
+
         textLines.push(finalName)
       })
     } else {
@@ -856,11 +861,11 @@ function restoreNames() {
     item.newExtension = item.extension
     item.newFullName = item.fullName
   })
-  resetChanges()
-  /*let newText = filterText(toRaw(list))
+  
+  let newText = filterText(toRaw(list))
   resetChanges()
   textRef.value.innerText = newText
-  text.selectedText = newText*/
+  text.selectedText = newText 
   text.prevText = ''
   text.backupText = ''
 }

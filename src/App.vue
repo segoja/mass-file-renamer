@@ -1,6 +1,6 @@
 <template>
   <v-layout full-height full-width density="compact" class="h-100 w-100 flex-fill">
-    <header class="bg-grey-darken-4">
+  <header class="bg-grey-darken-4">
       <v-system-bar
         window
         v-draggable
