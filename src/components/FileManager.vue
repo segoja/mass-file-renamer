@@ -323,6 +323,7 @@
       </v-row>
     </v-col>
   </v-row>
+
   <v-row no-gutters class="mx-3 justify-center">
     <v-col cols="12">
       <v-progress-linear
@@ -407,6 +408,7 @@
       </v-dialog>
     </v-col>
   </v-row>
+
   <v-row
     class="h-100 overflow-y-auto mb-3 mt-0 mx-3 border-2 h-auto justify-center v-field-label files"
     no-gutters
@@ -460,7 +462,8 @@
         <v-icon icon="mdi-close-box-outline" color="error"></v-icon>
       </button>
     </v-col>
-  </v-row>
+  </v-row> 
+
   <v-row no-gutters class="maxh-25 mx-3 mb-3" v-if="errorSystem.alert">
     <v-col class="h-100 overflow-y-auto rounded">
       <v-alert closable v-model="errorSystem.alert" variant="tonal" type="error" title="Error">
@@ -1148,7 +1151,7 @@ function openFolder() {
                 setTimeout(() => {
                   progress.value = 0
                   state.isLoading = false
-                }, 500)
+                }, 1000)
               } else {
                 progress.value = Math.ceil((filecounter * 100) / (totalLenght - folders))
               }
