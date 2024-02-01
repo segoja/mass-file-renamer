@@ -4,7 +4,8 @@
     "beforeBuildCommand": "npm run build",
     "beforeDevCommand": "npm run dev",
     "devPath": "http://localhost:5173",
-    "distDir": "../dist"
+    "distDir": "../dist",
+    "withGlobalTauri": true
   },
   "package": {
     "productName": "Mass File Renamer",
@@ -23,15 +24,7 @@
       },    
       "fs": {
         "scope": ["*"],
-        "all": true,
-        "readFile": true,
-        "writeFile": true,
-        "readDir": true,
-        "copyFile": true,
-        "createDir": true,
-        "removeDir": true,
-        "removeFile": true,
-        "renameFile": true
+        "all": true
       },
       "shell": {
         "open": true
@@ -41,36 +34,7 @@
       },
       "window": {
         "all": true,
-        "create": true,
-        "center": true,
-        "requestUserAttention": true,
-        "setResizable": true,
-        "setTitle": true,
-        "maximize": true,
-        "unmaximize": true,
-        "minimize": true,
-        "unminimize": true,
-        "show": true,
-        "hide": true,
-        "close": true,
-        "setDecorations": true,
-        "setAlwaysOnTop": true,
-        "setContentProtected": true,
-        "setSize": true,
-        "setMinSize": true,
-        "setMaxSize": true,
-        "setPosition": true,
-        "setFullscreen": true,
-        "setFocus": true,
-        "setIcon": true,
-        "setSkipTaskbar": true,
-        "setCursorGrab": true,
-        "setCursorVisible": true,
-        "setCursorIcon": true,
-        "setCursorPosition": true,
-        "setIgnoreCursorEvents": true,
-        "startDragging": true,
-        "print": true
+        "startDragging": true
       }
     },
     "bundle": {
@@ -121,7 +85,8 @@
         "height": 800,
         "minWidth": 1024,
         "minHeight": 768,
-        "decorations": false
+        "decorations": false,
+        "fileDropEnabled": true 
       }
     ]
   }

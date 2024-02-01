@@ -12,7 +12,8 @@
     "tauri": "tauri"
   },
   "dependencies": {
-    "@intlify/unplugin-vue-i18n": "^0.12.3",
+    "@intlify/unplugin-vue-i18n": "^0.12.3",    
+    "@tauri-apps/api": "^1.5.2",
     "dayjs": "^1.11.8",
     "pinia": "^2.0.36",
     "vue": "^3.3.2",
@@ -24,8 +25,7 @@
   "devDependencies": {
     "@mdi/font": "^7.2.96",
     "@rushstack/eslint-patch": "^1.2.0",
-    "@tauri-apps/api": "^1.5.3",
-    "@tauri-apps/cli": "^1.5.9",
+    "@tauri-apps/cli": "^1.5.8",
     "@vitejs/plugin-vue": "^4.6.2",
     "@vue/eslint-config-prettier": "^7.1.0",
     "@vue/test-utils": "^2.3.2",

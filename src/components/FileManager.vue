@@ -115,13 +115,13 @@
             justify="space-around"
             selected-class="none"
           >
-            <v-chip variant="text" label draggable class="v-label my-2 pr-0">
+            <v-chip variant="text" label class="v-label my-2 pr-0">
               {{ t('labels.elements') }}
             </v-chip>
             <v-chip
               class="my-2 mx-0 mr-1 py-0 px-2"
               v-for="item in items"
-              draggable
+             
               label
               :key="item"
               @click="addElement(item)"
@@ -134,7 +134,7 @@
         <v-col class="col-auto mh-100">
           <v-btn
             label
-            draggable
+           
             class="my-0 py-0 px-3 ml-2 mh-100"
             @click="clearElements"
             :variant="isDark ? 'tonal' : 'elevated'"
@@ -159,7 +159,7 @@
           >
             <v-row no-gutters dense align="center" justify="start">
               <v-col class="col-auto">
-                <v-chip variant="text" label draggable class="v-label my-1 pr-0">
+                <v-chip variant="text" label class="v-label my-1 pr-0">
                   {{ t('labels.template') }}
                 </v-chip>
               </v-col>
@@ -168,7 +168,7 @@
                   <v-slide-group-item v-for="(item, index) in state.elements" :key="item">
                     <v-chip
                       label
-                      draggable
+                     
                       class="my-0 mx-0 mr-1 px-2 py-0 text-warning"
                       size="small"
                       @click="removeElement(index)"
@@ -579,6 +579,48 @@ import ButtonConfirm from './ButtonConfirm.vue'
 import { useI18n } from 'vue-i18n'
 import filenameReservedRegex, {windowsReservedNameRegex} from 'filename-reserved-regex';
 
+import { listen } from '@tauri-apps/api/event'
+
+listen('tauri://file-drop', async(event) => {
+  if(event.payload){
+    let items = event.payload;
+    //console.log('Number of items dropped:'+ items.length);
+    if(items.length > 0){
+      let dropped = true;
+      let droppedFiles = []; 
+      let droppedFolders = [];
+      let numItems = 0;
+      for (let i = 0; i < items.length; i++) {
+        await invoke('is_folder', { filePath: items[i] }).then((isFolder)=>{
+          if(isFolder){
+            numItems +=1
+            droppedFolders.push(items[i]);
+          } else {
+            numItems +=1
+            droppedFiles.push(items[i]);
+          }
+        })
+      }
+
+      if(items.length === (droppedFiles.length + droppedFolders.length)){
+        //console.debug('droppedFiles ' + droppedFiles)
+        //console.debug('droppedFolders '  +  droppedFolders)
+        await clearAll();
+
+        if(droppedFolders.length > 0){
+          //console.debug('Folders dropped to read: ' + droppedFolders.length)
+          droppedFolders.forEach(async(folder)=>{
+            await readFolder(folder, dropped);
+          })
+        }
+        if(droppedFiles.length > 0){
+          //console.debug('Files dropped to read: ' + droppedFiles.length)
+          readFiles(droppedFiles, dropped);
+        }
+      }
+    }
+  }
+})
 
 const { t } = useI18n()
 
@@ -641,7 +683,7 @@ const numFiltered = ref(0)
 
 watch(copying, (val) => {
   if (val) {
-    setTimeout(() => (copying.value = false), 1500)
+    setTimeout(() => (copying.value = false), 1500);
   }
 })
 
@@ -801,7 +843,7 @@ function filterText(list) {
 // Equivalent to Ember computed / tracked+getters:
 
 const filteredFiles = computed(() => {
-  let list = state.selectedFiles
+  let list = state.selectedFiles;  
   if (list.length > 0) {
     if (state.fileFilter) {
       // Find-replace functionality
@@ -814,6 +856,11 @@ const filteredFiles = computed(() => {
       }
     }
   }
+  // sort by name
+  // list = list.sort((a, b) => a.name.localeCompare(b.name));
+  // sort by path
+  list = list.sort((a, b) => a.path.localeCompare(b.path));
+  // console.log('List: ', list)
   return list
 })
 
@@ -1091,77 +1138,91 @@ function getText() {
 
 function openFolder() {
   dialog.open({ directory: true }).then((directory) => {
-    // console.debug(directory);
+    //console.debug(directory);
     if (directory != null && directory) {
-      readDir(directory, { recursive: false }).then(async (files) => {
-        if (files.length > 0) {
-          let prevText = ''
-          if (filteredFiles.value.length > 0) {
-            rFiles.previousFiles = toRaw(filteredFiles.value)
-            prevText = toRaw(textRef.value.innerText)
-          }
-          clearAll()
-          let totalLenght = files.length
-          state.isLoading = true
-          let filecounter = 0
-          let folders = 0
-          for (var i = 0; i < files.length; i++) {
-            if (state.stopLoading) {
-              clearAll()
-              state.isLoading = false
-              state.stopLoading = false
-              progress.value = 0
-              state.selectedFiles = toRaw(rFiles.previousFiles)
-              text.backupText = prevText
-              break
-            } else {
-              let file = files[i]
-              let pathInfo = await invoke('get_path_info', { filePath: file.path })
-              if (!pathInfo.is_folder) {
-                let modified = pathInfo.modified.secs_since_epoch * 1000
-                let fullfilename = file.name
-                let filepath = file.path.replace(fullfilename, '')
-                let extension = ''
-                if (fullfilename.includes('.')) {
-                  extension = fullfilename.split('.').slice(-1).toString()
-                }
-                let filename = fullfilename.replace('.' + extension, '')
-                let newId = 'file' + filecounter
-
-                let newFile = {
-                  id: newId,
-                  name: filename,
-                  extension: extension,
-                  fullName: fullfilename,
-                  path: filepath,
-                  date: modified,
-                  newName: filename,
-                  newExtension: extension,
-                  newFullName: fullfilename,
-                  saved: false
-                }
-
-                await state.selectedFiles.push(newFile)
-
-                filecounter += 1
-              } else {
-                folders += 1
-              }
-              if (filecounter == totalLenght - folders) {
-                setTimeout(() => {
-                  progress.value = 0
-                  state.isLoading = false
-                }, 1000)
-              } else {
-                progress.value = Math.ceil((filecounter * 100) / (totalLenght - folders))
-              }
-            }
-          }
-        }
-      })
+      let dropped = false;
+      readFolder(directory, dropped)
     }
   })
 }
+
+async function readFolder(directory = '', dropped = false){
+  state.isLoading = true
+  return await readDir(directory, { recursive: false }).then(async (files) => {
+    if (files.length > 0) {
+
+      let prevText = ''
+      if (filteredFiles.value.length > 0) {
+        rFiles.previousFiles = toRaw(filteredFiles.value)
+        if(textRef.value){
+          prevText = toRaw(textRef.value.innerText)
+        }
+      }
+      if(!dropped){
+        await clearAll()
+      }
+      let totalLenght = files.length
+      state.isLoading = true
+      let filecounter = 0
+      let folders = 0
+      for (var i = 0; i < files.length; i++) {
+        if (state.stopLoading) {
+          clearAll()
+          state.isLoading = false
+          state.stopLoading = false
+          progress.value = 0
+          state.selectedFiles = toRaw(rFiles.previousFiles)
+          text.backupText = prevText
+          break
+        } else {
+          let file = files[i]
+          let pathInfo = await invoke('get_path_info', { filePath: file.path })
+          if (!pathInfo.is_folder) {
+            let modified = pathInfo.modified.secs_since_epoch * 1000
+            let fullfilename = file.name
+            let filepath = file.path.replace(fullfilename, '')
+            let extension = ''
+            if (fullfilename.includes('.')) {
+              extension = fullfilename.split('.').slice(-1).toString()
+            }
+            let filename = fullfilename.replace('.' + extension, '')
+            let newId = 'file' + pathInfo.uniqueid + new Date().getTime();
+            
+            let newFile = {
+              id: newId,
+              name: filename,
+              extension: extension,
+              fullName: fullfilename,
+              path: filepath,
+              date: modified,
+              newName: filename,
+              newExtension: extension,
+              newFullName: fullfilename,
+              saved: false
+            }
+
+            await state.selectedFiles.push(newFile)
+
+            filecounter += 1
+          } else {
+            folders += 1
+          }
+          if (filecounter == totalLenght - folders) {
+            setTimeout(() => {
+              progress.value = 0
+              state.isLoading = false
+            }, 1000)
+          } else {
+            progress.value = Math.ceil((filecounter * 100) / (totalLenght - folders))
+          }
+        }
+      }
+    } else {
+      state.isLoading = false
+    }
+  })
+}
+
 
 function selectFiles() {
   dialog
@@ -1172,76 +1233,85 @@ function selectFiles() {
     })
     .then(async (files) => {
       // console.debug(files);
-      if (files) {
-        if (files.length > 0) {
-          let prevText = ''
-          if (filteredFiles.value.length > 0) {
-            rFiles.previousFiles = toRaw(filteredFiles.value)
-            prevText = toRaw(textRef.value.innerText)
-          }
+      let dropped = false;
+      readFiles(files, dropped);
+    })
+}
+
+async function readFiles(files, dropped = false){
+  if (files) {
+    if (files.length > 0) {
+      let prevText = ''
+      if (filteredFiles.value.length > 0) {
+        rFiles.previousFiles = toRaw(filteredFiles.value)
+        if(textRef.value){
+          prevText = toRaw(textRef.value.innerText)
+        }
+      }
+      if(!dropped){
+        await clearAll()
+      }
+      let totalLenght = files.length
+      state.isLoading = true
+      let filecounter = 0
+      let folders = 0
+      //files.map(async (file) => {
+      for (var i = 0; i < files.length; i++) {
+        if (state.stopLoading) {
           clearAll()
-          let totalLenght = files.length
-          state.isLoading = true
-          let filecounter = 0
-          let folders = 0
-          //files.map(async (file) => {
-          for (var i = 0; i < files.length; i++) {
-            if (state.stopLoading) {
-              clearAll()
-              state.isLoading = false
-              state.stopLoading = false
-              progress.value = 0
-              state.selectedFiles = toRaw(rFiles.previousFiles)
-              text.backupText = prevText
-              break
-            } else {
-              let file = files[i]
-              let pathInfo = await invoke('get_path_info', { filePath: file })
-              if (!pathInfo.is_folder) {
-                let modified = pathInfo.modified.secs_since_epoch * 1000
-                let filedata = file.split('\\')
-                let fullfilename = filedata.pop().toString()
-                let filepath = file.replace(fullfilename, '')
-                let extension = ''
-                if (fullfilename.includes('.')) {
-                  extension = fullfilename.split('.').slice(-1).toString()
-                }
-                let filename = fullfilename.replace('.' + extension, '')
-                let newId = 'file' + filecounter
-
-                let newFile = {
-                  id: newId,
-                  name: filename,
-                  extension: extension,
-                  fullName: fullfilename,
-                  path: filepath,
-                  date: modified,
-                  newName: filename,
-                  newExtension: extension,
-                  newFullName: fullfilename,
-                  saved: false
-                }
-
-                await state.selectedFiles.push(newFile)
-
-                filecounter += 1
-              } else {
-                folders += 1
-              }
-
-              if (filecounter == totalLenght - folders) {
-                setTimeout(() => {
-                  progress.value = 0
-                  state.isLoading = false
-                }, 500)
-              } else {
-                progress.value = Math.ceil((filecounter * 100) / (totalLenght - folders))
-              }
+          state.isLoading = false
+          state.stopLoading = false
+          progress.value = 0
+          state.selectedFiles = toRaw(rFiles.previousFiles)
+          text.backupText = prevText
+          break
+        } else {
+          let file = files[i]
+          let pathInfo = await invoke('get_path_info', { filePath: file })
+          if (!pathInfo.is_folder) {
+            let modified = pathInfo.modified.secs_since_epoch * 1000
+            let filedata = file.split('\\')
+            let fullfilename = filedata.pop().toString()
+            let filepath = file.replace(fullfilename, '')
+            let extension = ''
+            if (fullfilename.includes('.')) {
+              extension = fullfilename.split('.').slice(-1).toString()
             }
+            let filename = fullfilename.replace('.' + extension, '')
+            let newId = 'file' + pathInfo.uniqueid + new Date().getTime();
+
+            let newFile = {
+              id: newId,
+              name: filename,
+              extension: extension,
+              fullName: fullfilename,
+              path: filepath,
+              date: modified,
+              newName: filename,
+              newExtension: extension,
+              newFullName: fullfilename,
+              saved: false
+            }
+
+            await state.selectedFiles.push(newFile)
+
+            filecounter += 1
+          } else {
+            folders += 1
+          }
+
+          if (filecounter == totalLenght - folders) {
+            setTimeout(() => {
+              progress.value = 0
+              state.isLoading = false
+            }, 500)
+          } else {
+            progress.value = Math.ceil((filecounter * 100) / (totalLenght - folders))
           }
         }
       }
-    })
+    }
+  }
 }
 
 async function saveFiles() {
