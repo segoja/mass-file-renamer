@@ -44,7 +44,8 @@ const messages = {
       about: 'About/Help',
       mode: 'Light/Dark mode',
       wipe: 'Empty file list',
-      del: 'Exclude file'
+      del: 'Exclude file',
+      more: 'File info'
     },
     labels: {
       filter: 'Filter files',
@@ -55,7 +56,16 @@ const messages = {
       find: 'Find',
       replace: 'Replace',
       remove: 'Remove',
-      filename: 'File names'
+      files: 'files',
+      file_path: 'Path:',
+      file_created: 'Creation date:',
+      file_modified: 'Modified date:',
+      sort: 'Sort:',
+      by_name: 'name',
+      by_extension: 'extension',
+      by_path: 'path',
+      by_created: 'creation date',
+      by_modified: 'modified date'
     },
     text: {
       confirmtitle: 'Confirm action',
@@ -128,7 +138,8 @@ const messages = {
       about: 'Acerca de/Ayuda',
       mode: 'Modo claro/oscuro',
       wipe: 'Vaciar lista de archivos',
-      del: 'Excluir archivo'
+      del: 'Excluir archivo',
+      more: 'Información del archivo'
     },
     labels: {
       filter: 'Filtrar archivos',
@@ -139,7 +150,16 @@ const messages = {
       find: 'Buscar',
       replace: 'Reemplazar',
       remove: 'Eliminar',
-      filename: 'Nombres de archivo'
+      files: 'archivos',
+      file_path: 'Ruta',
+      file_created: 'Fecha de creación:',
+      file_modified: 'Fecha de modificación:',
+      sort: 'Ordenar:',
+      by_name: 'nombre',
+      by_extension: 'extensión',
+      by_path: 'ruta',
+      by_created: 'fecha de creación',
+      by_modified: 'fecha de modificación'
     },
     text: {
       confirmtitle: 'Confirmar acción',

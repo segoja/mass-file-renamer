@@ -280,50 +280,6 @@
       </v-row>
     </v-col>
   </v-row>
-  <v-row no-gutters class="mx-3">
-    <v-col class="pt-1 my-0 pe-0">
-      <span class="text-grey ml-2">{{ t('labels.filename') }} ({{ numFiltered }}) </span>
-      <v-btn
-        density="compact"
-        @click="copyToClipboard"
-        class="copy-btn pb-1"
-        variant="plain"
-        :color="isDark ? 'cyan-darken-1' : 'cyan-darken-4'"
-        :loading="copying"
-        :ripple="false"
-        :disabled="isDisabled"
-        :title="t('titles.copy')"
-      >
-        <v-icon icon="mdi-clipboard-multiple-outline"></v-icon>
-        <template v-slot:loader>
-          <v-icon icon="mdi-check-bold" class="mb-1"> </v-icon>
-          <v-tooltip v-model="copying" activator="parent" location="top" class="mini-tooltip">{{
-            t('titles.copied')
-          }}</v-tooltip>
-        </template>
-      </v-btn>
-    </v-col>
-    <v-col class="pt-1 my-0 pe-1 text-right">
-      <v-row no-gutters class="stripped" justify="end">
-        <v-col class="py-0 my-0 pl-1 d-none d-sm-block text-right"> </v-col>
-        <v-col class="py-0 my-0 text-end" cols="1" sm="4">
-          <v-btn
-            density="compact"
-            @click="clearAll"
-            class="copy-btn"
-            variant="plain"
-            color="error"
-            :ripple="false"
-            :disabled="isDisabled"
-            :title="t('titles.wipe')"
-          >
-            <v-icon icon="mdi-close-box-multiple-outline"></v-icon>
-          </v-btn>
-        </v-col>
-      </v-row>
-    </v-col>
-  </v-row>
-
   <v-row no-gutters class="mx-3 justify-center">
     <v-col cols="12">
       <v-progress-linear
@@ -408,7 +364,141 @@
       </v-dialog>
     </v-col>
   </v-row>
-
+  <v-row
+    class="mb-0 mt-2 mx-3 px-0 border-2 h-auto v-field-label files-header"
+    no-gutters
+    align="start"
+  >
+    <v-col class="py-0 my-0 ps-1">
+      <v-row>
+        <v-col>
+          <span class="sorter">
+            <v-btn
+              density="compact"
+              @click="sortBy('name')"
+              class="copy-btn py-0 px-0 mx-0"
+              variant="plain"
+              :color="isDark ? 'cyan-lighten-2' : 'cyan-darken-3'"
+              :ripple="false"
+              :disabled="isDisabled"
+              :title="t('labels.by_name')"
+            >
+              {{ t('labels.by_name') }}
+              <v-icon 
+                :icon="sorting.name ? 'mdi-sort-alphabetical-ascending' : 'mdi-sort-alphabetical-descending'"
+                v-if="sorting.activeSort == 'name' ? true : false"
+              ></v-icon>
+            </v-btn>
+          </span>
+          <span class="sorter">
+            <v-btn
+              density="compact"
+              @click="sortBy('extension')"
+              class="copy-btn py-0 px-0 mx-0"
+              variant="plain"
+              :color="isDark ? 'cyan-lighten-2' : 'cyan-darken-3'"
+              :ripple="false"
+              :disabled="isDisabled"
+              :title="t('labels.by_extension')"
+            >
+              {{ t('labels.by_extension') }}
+              <v-icon 
+                :icon="sorting.extension ? 'mdi-sort-alphabetical-ascending' : 'mdi-sort-alphabetical-descending'"
+                v-if="sorting.activeSort == 'extension' ? true : false"
+              ></v-icon>
+            </v-btn>
+          </span>
+        </v-col>
+        <v-col class="col-auto">
+          <v-chip
+            class="my-0 ms-11 me-11"
+            label
+            :color="isDark ? 'cyan-darken-3' : 'cyan-darken-3'"
+            size="small"
+            variant="text"
+            :disabled="isDisabled"
+          >
+           {{ numFiltered }} {{t('labels.files')}}
+           <v-icon end size="x-small" class="mt-1" icon="mdi-file"></v-icon>
+          </v-chip>
+        </v-col>  
+      </v-row>
+    </v-col>
+    <v-col class="py-0 my-0 d-md-none d-lg-block">
+      <v-btn
+        density="compact"
+        @click="sortBy('path')"
+        class="copy-btn px-0 py-0"
+        variant="plain"
+        :color="isDark ? 'cyan-lighten-2' : 'cyan-darken-3'"
+        :ripple="false"
+        :disabled="isDisabled"
+        :title="t('labels.by_path')"
+      >
+        {{ t('labels.by_path') }}
+        <v-icon 
+          :icon="sorting.path ? 'mdi-sort-alphabetical-ascending' : 'mdi-sort-alphabetical-descending'"
+          v-if="sorting.activeSort == 'path' ? true : false"
+        ></v-icon>
+      </v-btn>
+    </v-col>
+    <v-col class="py-0 my-0 text-left col-auto mh-0">
+      <span :class="sorting.activeSort == 'modified' ? 'pe-1' : 'pe-5'">
+        <v-btn
+          density="compact" 
+          @click="sortBy('modified')"
+          class="copy-btn px-0 py-0"
+          variant="plain"
+          :color="isDark ? 'cyan-lighten-2' : 'cyan-darken-3'"
+          :ripple="false"
+          :disabled="isDisabled"
+          :title="t('labels.by_modified')"
+        >
+          {{ t('labels.by_modified') }}
+          <v-icon 
+            :icon="sorting.modified ? 'mdi-sort-calendar-ascending' : 'mdi-sort-calendar-descending'"
+            :class="sorting.activeSort == 'modified' ? 'ps-1' : ''"
+            v-if="sorting.activeSort == 'modified' ? true : false"
+          ></v-icon>
+        </v-btn>
+      </span>
+    </v-col>
+    <v-col
+      class="py-0 my-0 ps-8 pe-4 text-right col-auto mh-0"
+    >
+      <v-btn
+        density="compact"
+        @click="copyToClipboard"
+        class="copy-btn px-0 py-0"
+        variant="plain"
+        :color="isDark ? 'cyan-darken-1' : 'cyan-darken-3'"
+        :loading="copying"
+        :ripple="false"
+        :disabled="isDisabled"
+        :title="t('titles.copy')"
+      >
+        <v-icon icon="mdi-clipboard-multiple-outline"></v-icon>
+        <template v-slot:loader>
+          <v-icon icon="mdi-check-bold" class="mb-1"></v-icon>
+          <v-tooltip v-model="copying" activator="parent" location="top" class="mini-tooltip">{{
+            t('titles.copied')
+          }}</v-tooltip>
+        </template>
+      </v-btn>
+      <v-btn
+        density="compact"
+        @click="clearAll"
+        class="copy-btn ps-0"
+        variant="plain"
+        color="error"
+        :ripple="false"
+        :disabled="isDisabled"
+        :title="t('titles.wipe')"
+      >
+        <v-icon icon="mdi-close-box-multiple-outline"></v-icon>
+      </v-btn>      
+    </v-col>
+  </v-row>
   <v-row
     class="h-100 overflow-y-auto mb-3 mt-0 mx-3 border-2 h-auto justify-center v-field-label files"
     no-gutters
@@ -455,7 +545,34 @@
         type="button"
         v-for="file in filteredFiles"
         :key="file"
-        class="v-btn--variant-plain d-block prebutton"
+        class="v-btn--variant-plain d-block prebutton more"
+      >
+        <v-tooltip activator="parent" class="p-0 m-0 filetooltip" scroll-strategy="close" open-delay="500">
+          <v-card
+            class="m-0 p-0 v-card--variant-plain"
+            elevation="4"
+            color="cyan-darken-3"
+            variant="flat"
+          >
+            <v-card-item>
+              <div><strong>{{ t('labels.file_path') }}:</strong> {{file.path}}{{file.fullName}}</div>
+              <div><strong>{{ t('labels.file_created') }}:</strong> {{niceDate(file.created)}}</div>
+              <div><strong>{{ t('labels.file_modified') }}:</strong> {{niceDate(file.modified)}}</div>
+            </v-card-item>
+          </v-card>
+        </v-tooltip>
+        <v-icon icon="mdi-more" color="cyan-darken-3"></v-icon>
+      </button>
+    </v-col>
+    <v-col
+      :class="text.selectedText ? 'py-0 my-0 text-right col-auto rowable mh-0' : 'd-none'"
+      v-if="showData"
+    >
+      <button
+        type="button"
+        v-for="file in filteredFiles"
+        :key="file"
+        class="v-btn--variant-plain d-block prebutton del"
         v-on:click="delFile(file)"
         :title="t('titles.del')"
       >
@@ -501,12 +618,28 @@ pre {
 .prebutton,
 .prebutton * {
   padding-bottom: 8px;
-  margin-left: 0.05em;
-  margin-right: 0.1em;
+  margin-left: 0em;
+  margin-right: 0em;
   max-height: 30px !important;
   min-height: 0px !important;
   --v-icon-size-multiplier: 1 !important;
   font-size: 1.25rem !important;
+}
+
+.prebutton.more{
+  margin-left: 0.2em;
+}
+
+.v-overlay-container .filetooltip .v-overlay__content {
+  background-color: transparent!important;
+  border: 0px!important;
+}
+.v-overlay-container .filetooltip .v-card--variant-flat{
+  /*background-color: rgba(64,64,64, 0.75) !important; */
+}
+
+.prebutton.del{
+  margin-right: 0.1em;
 }
 
 .col-auto {
@@ -562,6 +695,29 @@ pre.selectable {
 .files {
   color: rgba(var(--v-border-color), 0.7);
   background-color: rgba(var(--v-bg-color), var(--v-border-opacity));
+  border-top-color: rgba(var(--v-border-color), 0.2)!important;
+}
+
+.files-header {
+  border-bottom: none!important;
+  border-color: rgba(0, 172, 193, 0.1)!important;
+  background-color: rgba(0, 172, 193, 0.1)!important;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  font-weight: 900!Important;
+}
+
+.files-header .sorter {
+  display: inline-block;
+  max-width: 90px!important;
+  min-width: 90px!important;
+  width: 90px!important;
+  text-align: left;
+}
+.files-header .sorter:last-child {
+  max-width: 120px!important;
+  min-width: 120px!important;
+  width: 120px!important;
 }
 
 ::selection {
@@ -571,9 +727,9 @@ pre.selectable {
 </style>
 
 <script setup>
-import { dialog, invoke } from '@tauri-apps/api'
+import { dialog, invoke, path } from '@tauri-apps/api'
 import { readDir, renameFile } from '@tauri-apps/api/fs'
-import { ref, computed, reactive, watch, toRaw } from 'vue'
+import { ref, computed, reactive, watch, toRaw, createHydrationRenderer } from 'vue'
 import dayjs from 'dayjs'
 import ButtonConfirm from './ButtonConfirm.vue'
 import { useI18n } from 'vue-i18n'
@@ -650,6 +806,15 @@ const state = reactive({
   isUpdating: false
 })
 
+const sorting = reactive({
+  name: false,
+  extension: false,
+  path: false,
+  creation: false,
+  modified: false,
+  activeSort: ''
+})
+
 const errorSystem = reactive({
   alert: false,
   alertMsg: '',
@@ -705,6 +870,71 @@ watch(
   }
 )
 
+function sortBy(attribute){
+  resetChanges();
+  const prevStatus = sorting[attribute];
+
+  sorting.name = false,
+  sorting.extension = false,
+  sorting.path = false,
+  sorting.creation = false,
+  sorting.modified = false,
+
+  sorting[attribute] = !prevStatus;
+  sorting['activeSort'] = attribute;
+
+}
+
+
+watch(sorting, () => {
+  if(sorting.activeSort){
+    let list = state.selectedFiles;
+    let attribute = sorting.activeSort;
+
+    let mode = sorting[attribute]? 'asc' : 'desc';
+    console.debug('Sorting by '+ attribute + ' ' + mode + '...');
+
+    switch (attribute) {
+      case 'name':
+      case 'extension':
+        if(sorting[attribute]) {
+          list = list.sort((a, b) => a[attribute].localeCompare(b[attribute]));
+        } else {
+          list = list.sort((a, b) => b[attribute].localeCompare(a[attribute]));
+        }
+        break;
+      case 'path':
+        if(sorting[attribute]) {
+          list = list.sort((a, b) => {
+            let pathA = a.path+a.fullName;
+            let pathB = b.path+b.fullName;
+            return pathA.localeCompare(pathB);
+          });
+        } else {
+          list = list.sort((a, b) => {
+            let pathA = a.path+a.fullName;
+            let pathB = b.path+b.fullName;
+            return pathB.localeCompare(pathA);
+          });
+        }
+        break;
+      case 'created':
+      case 'modified':
+          if(sorting[attribute]) {
+            list = list.sort((a, b) => a[attribute] - b[attribute]);
+          } else {
+            list = list.sort((a, b) => b[attribute] - a[attribute]);
+          }
+        break;
+      default:
+        console.log('No valid attribute to sort by.');
+    }
+    state.selectedFiles = list;
+  } else {
+    console.log('Nothing to sort here');
+  }
+})
+
 watch(state, () => {
   if (!state.isLoading && !state.stopLoading && !state.stopRenaming && !state.isRenaming) {
     if (filteredFiles.value.length != numSelected.value) {
@@ -725,14 +955,14 @@ watch(state, () => {
     text.selectedDates = ''
     for (var i = 0; i < list.length; i++) {
       if (i < list.length - 1) {
-        text.initialText += list[i].fullName + '\n'
-        text.selectedDates += niceDate(list[i].date) + '\n'
+        text.initialText += list[i].path + list[i].fullName + '\n'
+        text.selectedDates += niceDate(list[i].modified) + '\n'
       } else {
-        text.initialText += list[i].fullName
-        text.selectedDates += niceDate(list[i].date)
+        text.initialText += list[i].path + list[i].fullName
+        text.selectedDates += niceDate(list[i].modified)
       }
     }
-    // text.selectedDates = list.map((item) => { niceDate(item.date) }).join('\n')
+    // text.selectedDates = list.map((item) => { niceDate(item.modified) }).join('\n')
 
     clearTimeout(rFiles.loadingTimeout)
     rFiles.loadingTimeout = setTimeout(() => {
@@ -790,8 +1020,8 @@ function filterText(list) {
         let finalExtension = item.newExtension
         let finalName = item.newName
 
-        let date = dayjs(item.date).format('YYYYMMDD').toString()
-        let time = dayjs(item.date).format('HHmmss').toString()
+        let date = dayjs(item.modified).format('YYYYMMDD').toString()
+        let time = dayjs(item.modified).format('HHmmss').toString()
         let numString = listNr.padStart(numDigits, 0)
         let prefix = state.prefix != null ? state.prefix : ''
         let suffix = state.suffix != null ? state.suffix : ''
@@ -856,11 +1086,7 @@ const filteredFiles = computed(() => {
       }
     }
   }
-  // sort by name
-  // list = list.sort((a, b) => a.name.localeCompare(b.name));
-  // sort by path
-  list = list.sort((a, b) => a.path.localeCompare(b.path));
-  // console.log('List: ', list)
+
   return list
 })
 
@@ -1138,10 +1364,13 @@ function getText() {
 
 function openFolder() {
   dialog.open({ directory: true }).then((directory) => {
+    state.isLoading = true
     //console.debug(directory);
     if (directory != null && directory) {
       let dropped = false;
       readFolder(directory, dropped)
+    } else {
+      state.isLoading = false
     }
   })
 }
@@ -1178,6 +1407,7 @@ async function readFolder(directory = '', dropped = false){
           let file = files[i]
           let pathInfo = await invoke('get_path_info', { filePath: file.path })
           if (!pathInfo.is_folder) {
+            let created = pathInfo.created.secs_since_epoch * 1000
             let modified = pathInfo.modified.secs_since_epoch * 1000
             let fullfilename = file.name
             let filepath = file.path.replace(fullfilename, '')
@@ -1194,7 +1424,8 @@ async function readFolder(directory = '', dropped = false){
               extension: extension,
               fullName: fullfilename,
               path: filepath,
-              date: modified,
+              created: created,
+              modified: modified,
               newName: filename,
               newExtension: extension,
               newFullName: fullfilename,
@@ -1269,6 +1500,7 @@ async function readFiles(files, dropped = false){
           let file = files[i]
           let pathInfo = await invoke('get_path_info', { filePath: file })
           if (!pathInfo.is_folder) {
+            let created = pathInfo.created.secs_since_epoch * 1000
             let modified = pathInfo.modified.secs_since_epoch * 1000
             let filedata = file.split('\\')
             let fullfilename = filedata.pop().toString()
@@ -1286,7 +1518,8 @@ async function readFiles(files, dropped = false){
               extension: extension,
               fullName: fullfilename,
               path: filepath,
-              date: modified,
+              created: created,
+              modified: modified,
               newName: filename,
               newExtension: extension,
               newFullName: fullfilename,
