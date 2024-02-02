@@ -127,6 +127,12 @@ async function closeWindow() {
   border-right: 2px solid rgba(64, 64, 64, 0.5) !important;
 }
 
+header {
+  display: block;
+  position: absolute;
+  z-index: 99999;
+}
+
 header button.close-app {
   background-color: transparent !important;
 }

@@ -2,9 +2,9 @@
   <v-row dense class="mx-2 pt-3">
     <v-col cols="12" sm="6">
       <v-row dense no-gutters class="mh-100">
-        <v-col class="mh-100 pr-2">
+        <v-col class="mh-100 pr-0">        
           <v-btn
-            append-icon="mdi-folder"
+            :append-icon="state.recursive? 'mdi-folder-multiple':'mdi-folder'"
             @click="openFolder"
             :variant="isDark ? 'tonal' : 'elevated'"
             color="cyan-darken-1"
@@ -13,6 +13,19 @@
           >
             {{ t('buttons.folder') }}
           </v-btn>
+        </v-col>
+        <v-col class="mh-100 col-auto pr-2 pl-0">
+          <v-btn
+            @click="toggleRecursive"
+            variant="plain"
+            density="compact"
+            color="cyan-darken-1"
+            class="w-100 mh-100 px-0 mx-0"
+            :title="t('titles.recursive')"
+          >
+            <v-icon size="large" :icon="state.recursive? 'mdi-checkbox-outline': 'mdi-checkbox-blank-outline'" />
+            <v-icon size="large" icon="mdi-file-tree" />
+          </v-btn>  
         </v-col>
         <v-col class="mh-100 pr-2">
           <v-btn
@@ -121,7 +134,7 @@
             <v-chip
               class="my-2 mx-0 mr-1 py-0 px-2"
               v-for="item in items"
-             
+              draggable
               label
               :key="item"
               @click="addElement(item)"
@@ -134,7 +147,7 @@
         <v-col class="col-auto mh-100">
           <v-btn
             label
-           
+            draggable
             class="my-0 py-0 px-3 ml-2 mh-100"
             @click="clearElements"
             :variant="isDark ? 'tonal' : 'elevated'"
@@ -152,23 +165,23 @@
           <v-chip-group
             :class="
               isDisabled
-                ? 'v-field v-field--variant-solo d-block rounded my-0 py-1 px-1 d-block w-100 h-100 v-field--disabled'
-                : 'v-field v-field--variant-solo d-block rounded my-0 py-1 px-1 d-block w-100 h-100'
+                ? 'v-field v-field--variant-solo d-block rounded my-0 py-1 px-1 w-100 h-100 v-field--disabled'
+                : 'v-field v-field--variant-solo d-block rounded my-0 py-1 px-1 w-100 h-100'
             "
             :disabled="isDisabled"
           >
             <v-row no-gutters dense align="center" justify="start">
-              <v-col class="col-auto">
-                <v-chip variant="text" label class="v-label my-1 pr-0">
+              <v-col class="col-auto" cols="auto">
+                <v-chip variant="text" label class="v-label my-1 pr-0" draggable>
                   {{ t('labels.template') }}
                 </v-chip>
               </v-col>
-              <v-col class="fancyscroll py-0 my-0" align="center">
-                <v-slide-group show-arrows class="w-100 py-0" compact>
+              <v-col class="py-0 my-0" align="center">
+                <v-slide-group class="py-0 d-flex px-0" show-arrows mobile-breakpoint="xs">
                   <v-slide-group-item v-for="(item, index) in state.elements" :key="item">
                     <v-chip
-                      label
-                     
+                      label                      
+                      draggable
                       class="my-0 mx-0 mr-1 px-2 py-0 text-warning"
                       size="small"
                       @click="removeElement(index)"
@@ -197,6 +210,7 @@
                 hide-details
                 clearable
                 :disabled="isDisabled"
+                @update:modelValue="setUpdating"
               >
               </v-text-field>
             </v-col>
@@ -210,6 +224,7 @@
                 hide-details
                 clearable
                 :disabled="isDisabled"
+                @update:modelValue="setUpdating"
               >
               </v-text-field>
             </v-col>
@@ -224,6 +239,7 @@
                 single-line
                 hide-details
                 :disabled="isDisabled"
+                @update:modelValue="setUpdating"
               >
                 <template v-slot:append-inner>
                   <v-icon
@@ -249,6 +265,7 @@
                 single-line
                 hide-details
                 :disabled="isDisabled"
+                @update:modelValue="setUpdating"
               >
                 <template v-slot:append-inner>
                   <v-icon
@@ -280,12 +297,12 @@
       </v-row>
     </v-col>
   </v-row>
-  <v-row no-gutters class="mx-3 justify-center">
+  <v-row no-gutters class="mx-3 pt-2 justify-center">
     <v-col cols="12">
       <v-progress-linear
         indeterminate
         color="warning"
-        class="mb-0"
+        :class="state.isUpdating? 'mb-0 pt-1':'mb-0 mt-1'"
         :active="state.isUpdating"
       ></v-progress-linear>
       <v-dialog
@@ -293,6 +310,7 @@
         persistent
         transition="dialog-bottom-transition"
         class="w-100"
+        v-if="state.isLoading"
       >
         <v-row no-gutters class="mx-3 justify-center">
           <v-col cols="12" md="6">
@@ -303,6 +321,7 @@
                   :model-value="progress"
                   height="15"
                   striped
+                  :indeterminate="rFiles.isReading? true :!progress"
                   color="cyan-darken-1"
                   :active="state.isLoading"
                 ></v-progress-linear>
@@ -378,7 +397,7 @@
               @click="sortBy('name')"
               class="copy-btn py-0 px-0 mx-0"
               variant="plain"
-              :color="isDark ? 'cyan-lighten-2' : 'cyan-darken-3'"
+              :color="isDark ? 'cyan-lighten-2' : 'cyan-darken-4'"
               :ripple="false"
               :disabled="isDisabled"
               :title="t('labels.by_name')"
@@ -386,7 +405,18 @@
               {{ t('labels.by_name') }}
               <v-icon 
                 :icon="sorting.name ? 'mdi-sort-alphabetical-ascending' : 'mdi-sort-alphabetical-descending'"
+                class="ms-1"
                 v-if="sorting.activeSort == 'name' ? true : false"
+              ></v-icon>
+              <v-icon
+                icon="mdi-sort-alphabetical-ascending"
+                class="sorticon ms-1"
+                v-if="sorting.activeSort == 'name' ? false : true"
+              ></v-icon>
+              <v-icon 
+                icon="mdi-sort-alphabetical-descending"
+                class="sorticon"
+                v-if="sorting.activeSort == 'name' ? false : true"
               ></v-icon>
             </v-btn>
           </span>
@@ -396,7 +426,7 @@
               @click="sortBy('extension')"
               class="copy-btn py-0 px-0 mx-0"
               variant="plain"
-              :color="isDark ? 'cyan-lighten-2' : 'cyan-darken-3'"
+              :color="isDark ? 'cyan-lighten-2' : 'cyan-darken-4'"
               :ripple="false"
               :disabled="isDisabled"
               :title="t('labels.by_extension')"
@@ -404,7 +434,18 @@
               {{ t('labels.by_extension') }}
               <v-icon 
                 :icon="sorting.extension ? 'mdi-sort-alphabetical-ascending' : 'mdi-sort-alphabetical-descending'"
+                class="ms-1"
                 v-if="sorting.activeSort == 'extension' ? true : false"
+              ></v-icon>
+              <v-icon
+                icon="mdi-sort-alphabetical-ascending"
+                class="sorticon ms-1"
+                v-if="sorting.activeSort == 'extension' ? false : true"
+              ></v-icon>
+              <v-icon 
+                icon="mdi-sort-alphabetical-descending"
+                class="sorticon"
+                v-if="sorting.activeSort == 'extension' ? false : true"
               ></v-icon>
             </v-btn>
           </span>
@@ -413,7 +454,7 @@
           <v-chip
             class="my-0 ms-11 me-11"
             label
-            :color="isDark ? 'cyan-darken-3' : 'cyan-darken-3'"
+            :color="isDark ? 'cyan-darken-3' : 'cyan-darken-4'"
             size="small"
             variant="text"
             :disabled="isDisabled"
@@ -430,7 +471,7 @@
         @click="sortBy('path')"
         class="copy-btn px-0 py-0"
         variant="plain"
-        :color="isDark ? 'cyan-lighten-2' : 'cyan-darken-3'"
+        :color="isDark ? 'cyan-lighten-2' : 'cyan-darken-4'"
         :ripple="false"
         :disabled="isDisabled"
         :title="t('labels.by_path')"
@@ -438,18 +479,29 @@
         {{ t('labels.by_path') }}
         <v-icon 
           :icon="sorting.path ? 'mdi-sort-alphabetical-ascending' : 'mdi-sort-alphabetical-descending'"
+          class="ms-1"
           v-if="sorting.activeSort == 'path' ? true : false"
+        ></v-icon>
+        <v-icon
+          icon="mdi-sort-alphabetical-ascending"
+          class="sorticon ms-1"
+          v-if="sorting.activeSort == 'path' ? false : true"
+        ></v-icon>
+        <v-icon 
+          icon="mdi-sort-alphabetical-descending"
+          class="sorticon"
+          v-if="sorting.activeSort == 'path' ? false : true"
         ></v-icon>
       </v-btn>
     </v-col>
     <v-col class="py-0 my-0 text-left col-auto mh-0">
-      <span :class="sorting.activeSort == 'modified' ? 'pe-1' : 'pe-5'">
+      <span class="pe-1">
         <v-btn
           density="compact" 
           @click="sortBy('modified')"
           class="copy-btn px-0 py-0"
           variant="plain"
-          :color="isDark ? 'cyan-lighten-2' : 'cyan-darken-3'"
+          :color="isDark ? 'cyan-lighten-2' : 'cyan-darken-4'"
           :ripple="false"
           :disabled="isDisabled"
           :title="t('labels.by_modified')"
@@ -457,14 +509,24 @@
           {{ t('labels.by_modified') }}
           <v-icon 
             :icon="sorting.modified ? 'mdi-sort-calendar-ascending' : 'mdi-sort-calendar-descending'"
-            :class="sorting.activeSort == 'modified' ? 'ps-1' : ''"
+            class="ms-1"
             v-if="sorting.activeSort == 'modified' ? true : false"
+          ></v-icon>
+          <v-icon
+            icon="mdi-sort-calendar-ascending"
+            class="sorticon ms-1"
+            v-if="sorting.activeSort == 'modified' ? false : true"
+          ></v-icon>
+          <v-icon 
+            icon="mdi-sort-calendar-descending"
+            class="sorticon"
+            v-if="sorting.activeSort == 'modified' ? false : true"
           ></v-icon>
         </v-btn>
       </span>
     </v-col>
     <v-col
-      class="py-0 my-0 ps-8 pe-4 text-right col-auto mh-0"
+      class="py-0 my-0 ps-3 pe-0 text-right col-auto mh-0"
     >
       <v-btn
         density="compact"
@@ -488,7 +550,7 @@
       <v-btn
         density="compact"
         @click="clearAll"
-        class="copy-btn ps-0"
+        class="copy-btn px-2"
         variant="plain"
         color="error"
         :ripple="false"
@@ -505,9 +567,9 @@
     align="start"
   >
     <v-col class="py-0 my-0 ps-1 overflow-x-auto" v-if="!showData || !numFiltered">
-      <pre>{{ t('text.nofiles') }}</pre>
+      <pre>{{ state.isUpdating? t('text.updating'):t('text.nofiles') }}</pre>
     </v-col>
-    <v-col :class="text.selectedText ? 'py-0 my-0 ps-1 overflow-x-hidden' : 'd-none'" v-if="showData">
+    <v-col :class="text.selectedText ? 'py-0 my-0 ps-1 overflow-x-auto' : 'd-none'" v-if="showData">
       <pre
         ref="textRef"
         @keydown="backupText"
@@ -545,34 +607,7 @@
         type="button"
         v-for="file in filteredFiles"
         :key="file"
-        class="v-btn--variant-plain d-block prebutton more"
-      >
-        <v-tooltip activator="parent" class="p-0 m-0 filetooltip" scroll-strategy="close" open-delay="500">
-          <v-card
-            class="m-0 p-0 v-card--variant-plain"
-            elevation="4"
-            color="cyan-darken-3"
-            variant="flat"
-          >
-            <v-card-item>
-              <div><strong>{{ t('labels.file_path') }}:</strong> {{file.path}}{{file.fullName}}</div>
-              <div><strong>{{ t('labels.file_created') }}:</strong> {{niceDate(file.created)}}</div>
-              <div><strong>{{ t('labels.file_modified') }}:</strong> {{niceDate(file.modified)}}</div>
-            </v-card-item>
-          </v-card>
-        </v-tooltip>
-        <v-icon icon="mdi-more" color="cyan-darken-3"></v-icon>
-      </button>
-    </v-col>
-    <v-col
-      :class="text.selectedText ? 'py-0 my-0 text-right col-auto rowable mh-0' : 'd-none'"
-      v-if="showData"
-    >
-      <button
-        type="button"
-        v-for="file in filteredFiles"
-        :key="file"
-        class="v-btn--variant-plain d-block prebutton del"
+        class="v-btn--variant-plain d-block prebutton del ps-1"
         v-on:click="delFile(file)"
         :title="t('titles.del')"
       >
@@ -663,6 +698,14 @@ pre {
   padding: 0em 0.25em 0em 0.25em !important;
 }
 
+.sorticon {
+  filter: opacity(50%);
+}
+.sorticon:last-child{
+  position: absolute!important;
+  right: 0px;
+}
+
 .mh-100 {
   min-height: 100%;
 }
@@ -678,7 +721,13 @@ pre.selectable {
 .fancyscroll {
   overflow-x: hidden !important;
 }
-
+.fancyscroll .v-slide-group__container,
+.fancyscroll .v-slide-group__container .v-slide-group__content{
+  position: relative!important;
+  display: block!important;
+  max-width: 100%!important;
+  width: 100%!important;
+}
 .fancyscroll .v-slide-group__next,
 .fancyscroll .v-slide-group__prev {
   min-width: 22.5px;
@@ -702,8 +751,8 @@ pre.selectable {
   border-bottom: none!important;
   border-color: rgba(0, 172, 193, 0.1)!important;
   background-color: rgba(0, 172, 193, 0.1)!important;
-  border-top-left-radius: 5px;
-  border-top-right-radius: 5px;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
   font-weight: 900!Important;
 }
 
@@ -740,38 +789,45 @@ import { listen } from '@tauri-apps/api/event'
 listen('tauri://file-drop', async(event) => {
   if(event.payload){
     let items = event.payload;
-    //console.log('Number of items dropped:'+ items.length);
+    // console.log('Items dropped:', items);
+    console.log('Number of items dropped:'+ items.length);
     if(items.length > 0){
       let dropped = true;
       let droppedFiles = []; 
       let droppedFolders = [];
+      let fileList = [];
       let numItems = 0;
       for (let i = 0; i < items.length; i++) {
-        await invoke('is_folder', { filePath: items[i] }).then((isFolder)=>{
+        await invoke('is_folder', { filePath: items[i] }).then(async(isFolder)=>{
+          rFiles.isReading = true;
           if(isFolder){
             numItems +=1
             droppedFolders.push(items[i]);
+            await readDir(items[i], { recursive: state.recursive }).then(async (files) => {
+              if(state.recursive){
+                files = await getRecursiveList(files);
+              }
+              fileList.push(await files.map(item => item.path.toString()));
+              rFiles.isReading = false;
+            })
           } else {
             numItems +=1
             droppedFiles.push(items[i]);
+            rFiles.isReading = false;
           }
         })
       }
 
-      if(items.length === (droppedFiles.length + droppedFolders.length)){
+      if(items.length === (droppedFiles.length + droppedFolders.length) && !rFiles.isReading){
         //console.debug('droppedFiles ' + droppedFiles)
         //console.debug('droppedFolders '  +  droppedFolders)
         await clearAll();
-
-        if(droppedFolders.length > 0){
-          //console.debug('Folders dropped to read: ' + droppedFolders.length)
-          droppedFolders.forEach(async(folder)=>{
-            await readFolder(folder, dropped);
-          })
-        }
-        if(droppedFiles.length > 0){
-          //console.debug('Files dropped to read: ' + droppedFiles.length)
-          readFiles(droppedFiles, dropped);
+        fileList.push(droppedFiles);
+        
+        if(fileList.length > 0){
+          fileList = fileList.flat();
+          console.debug('Files dropped to read: ' + fileList.length)
+          readFiles(fileList, dropped);
         }
       }
     }
@@ -788,6 +844,7 @@ const props = defineProps({
 const state = reactive({
   selectedFiles: [],
   previousFiles: [],
+  recursive: false,
   fileFilter: '',
   preTime: false,
   preNum: false,
@@ -823,6 +880,7 @@ const errorSystem = reactive({
 const rFiles = reactive({
   selectedFiles: [],
   previousFiles: [],
+  isReading: false,
   fileFilterRegex: '',
   loadingTimeout: ''
 })
@@ -1113,6 +1171,12 @@ const showData = computed(() => {
 
 // Equivalent to Ember actions:
 
+function setUpdating (){
+  if(filteredFiles.value.length > 750){
+    state.isUpdating = true
+  }
+}
+
 function filterDown() {
   resetChanges()
   state.isUpdating = true
@@ -1131,6 +1195,7 @@ function filterDown() {
 }
 
 function restoreNames() {
+  setUpdating ()
   const list = filteredFiles.value
   list.forEach((item) => {
     item.newName = item.name
@@ -1185,8 +1250,8 @@ function clearAll() {
   state.stopLoading = false
   state.stopRenaming = false
   state.isRenaming = false
-  state.isLoading = false
-  state.isUpdating = false
+  /* state.isLoading = false 
+  state.isUpdating = false */
 
   rFiles.selectedFiles = []
   rFiles.previousFiles = []
@@ -1233,7 +1298,7 @@ function toggleToLower() {
   let i = 0
   while (i < textLines.length) {
     let fullName = textLines[i]
-    let newExtension = fullName.split('.').slice(-1).toString()
+    let newExtension = fullName.split('.').pop().toString()
     let newName = fullName.replace('.' + newExtension, '').toLowerCase()
     if (!newExtension || !newName) {
       lowercased.push(fullName.toLowerCase())
@@ -1252,7 +1317,7 @@ function toggleToUpper() {
   let i = 0
   while (i < textLines.length) {
     let fullName = textLines[i]
-    let newExtension = fullName.split('.').slice(-1).toString()
+    let newExtension = fullName.split('.').pop().toString()
     let newName = fullName.replace('.' + newExtension, '').toUpperCase()
     if (!newExtension || !newName) {
       lowercased.push(fullName.toUpperCase())
@@ -1274,11 +1339,18 @@ function niceDate(date) {
 }
 
 function cancelLoad() {
-  state.stopLoading = true
+  clearTimeout(rFiles.loadingTimeout)
+  state.stopLoading = true;
+  state.isLoading = false;
 }
 function cancelRename() {
   state.stopRenaming = true
 }
+
+function toggleRecursive() {
+  state.recursive = !state.recursive
+}
+
 
 function toggleDestructive() {
   state.removeText = !state.removeText
@@ -1292,7 +1364,7 @@ function keepReplacedText() {
   if (latestReplaced.length === selectedFiles.length) {
     for (var i = 0; i < selectedFiles.length; i++) {
       let newFullName = latestReplaced[i]
-      let newExtension = newFullName.split('.').slice(-1).toString()
+      let newExtension = newFullName.split('.').pop().toString()
       let newName = newFullName.replace('.' + newExtension, '')
 
       selectedFiles[i].newFullName = newFullName
@@ -1363,6 +1435,10 @@ function getText() {
 }
 
 function openFolder() {
+  errorSystem.renameErrors = []
+  errorSystem.alertMsg = ''
+  errorSystem.alert = false
+
   dialog.open({ directory: true }).then((directory) => {
     state.isLoading = true
     //console.debug(directory);
@@ -1375,11 +1451,38 @@ function openFolder() {
   })
 }
 
+function getRecursiveList(objects) {
+    let flatArray = [];
+
+    // Recursive function to handle the flattening
+    function flatten(array) {
+        array.forEach(item => {
+            const { children, ...rest } = item;
+            flatArray.push(rest); // Push the current item without the children
+            if (children && children.length) {
+                flatten(children); // Recursively flatten the children
+            }
+        });
+    }
+
+    flatten(objects); // Kick off the recursion with the initial array
+    return flatArray;
+}
+
 async function readFolder(directory = '', dropped = false){
   state.isLoading = true
-  return await readDir(directory, { recursive: false }).then(async (files) => {
-    if (files.length > 0) {
+  rFiles.isReading = true
 
+  return await readDir(directory, { recursive: state.recursive }).then(async (files) => {
+    if(state.recursive){
+      files = await getRecursiveList(files);
+    }
+
+    rFiles.isReading = false;
+
+    files = await files.filter(item => !item.name.startsWith('.') && !item.name.startsWith('Thumbs.db') && !item.name.startsWith('desktop.ini'));
+
+    if (files.length > 0) {
       let prevText = ''
       if (filteredFiles.value.length > 0) {
         rFiles.previousFiles = toRaw(filteredFiles.value)
@@ -1391,7 +1494,6 @@ async function readFolder(directory = '', dropped = false){
         await clearAll()
       }
       let totalLenght = files.length
-      state.isLoading = true
       let filecounter = 0
       let folders = 0
       for (var i = 0; i < files.length; i++) {
@@ -1405,6 +1507,7 @@ async function readFolder(directory = '', dropped = false){
           break
         } else {
           let file = files[i]
+          state.isLoading = true
           let pathInfo = await invoke('get_path_info', { filePath: file.path })
           if (!pathInfo.is_folder) {
             let created = pathInfo.created.secs_since_epoch * 1000
@@ -1413,7 +1516,7 @@ async function readFolder(directory = '', dropped = false){
             let filepath = file.path.replace(fullfilename, '')
             let extension = ''
             if (fullfilename.includes('.')) {
-              extension = fullfilename.split('.').slice(-1).toString()
+              extension = fullfilename.split('.').pop().toString()
             }
             let filename = fullfilename.replace('.' + extension, '')
             let newId = 'file' + pathInfo.uniqueid + new Date().getTime();
@@ -1437,9 +1540,11 @@ async function readFolder(directory = '', dropped = false){
             filecounter += 1
           } else {
             folders += 1
+            // console.log(pathInfo);
           }
           if (filecounter == totalLenght - folders) {
-            setTimeout(() => {
+            rFiles.loadingTimeout = setTimeout(() => {
+              console.log('Stopped loading on folder read because finished.')
               progress.value = 0
               state.isLoading = false
             }, 1000)
@@ -1449,13 +1554,26 @@ async function readFolder(directory = '', dropped = false){
         }
       }
     } else {
-      state.isLoading = false
+      rFiles.loadingTimeout = setTimeout(() => {
+        state.isLoading = false
+        console.log('Stopped loading on folders because no files')
+      }, 1000)
     }
-  })
+  }).catch((error)=>{
+    console.log(error)
+    errorSystem.renameErrors.push(error);
+    errorSystem.alertMsg = error;
+    errorSystem.alert = true
+    state.isLoading = false;
+  });
 }
 
 
 function selectFiles() {
+  errorSystem.renameErrors = []
+  errorSystem.alertMsg = ''
+  errorSystem.alert = false
+
   dialog
     .open({
       directory: false,
@@ -1470,6 +1588,15 @@ function selectFiles() {
 }
 
 async function readFiles(files, dropped = false){
+  state.isLoading = true;
+  // console.log('Initial files: ', files);
+  files = await files.filter(item => { 
+    let filedata = item.split('\\')
+    let fullfilename = filedata.pop().toString()
+    if(!fullfilename.startsWith('.') && !fullfilename.startsWith('Thumbs.db') && !fullfilename.startsWith('desktop.ini')){
+      return item;
+    }
+  });
   if (files) {
     if (files.length > 0) {
       let prevText = ''
@@ -1498,6 +1625,7 @@ async function readFiles(files, dropped = false){
           break
         } else {
           let file = files[i]
+          state.isLoading = true
           let pathInfo = await invoke('get_path_info', { filePath: file })
           if (!pathInfo.is_folder) {
             let created = pathInfo.created.secs_since_epoch * 1000
@@ -1507,7 +1635,7 @@ async function readFiles(files, dropped = false){
             let filepath = file.replace(fullfilename, '')
             let extension = ''
             if (fullfilename.includes('.')) {
-              extension = fullfilename.split('.').slice(-1).toString()
+              extension = fullfilename.split('.').pop().toString()
             }
             let filename = fullfilename.replace('.' + extension, '')
             let newId = 'file' + pathInfo.uniqueid + new Date().getTime();
@@ -1534,15 +1662,25 @@ async function readFiles(files, dropped = false){
           }
 
           if (filecounter == totalLenght - folders) {
-            setTimeout(() => {
-              progress.value = 0
-              state.isLoading = false
-            }, 500)
+            rFiles.loadingTimeout = setTimeout(() => {
+              if(!rFiles.isReading){
+                progress.value = 0
+                state.isLoading = false
+                console.log('Stopped loading on files because finished.')
+              }
+            }, 1000)
           } else {
             progress.value = Math.ceil((filecounter * 100) / (totalLenght - folders))
           }
         }
       }
+    } else {
+      rFiles.loadingTimeout = setTimeout(() => {
+        if(!rFiles.isReading){
+          state.isLoading = false
+          console.log('Stopped loading on files because no files.')
+        }
+      }, 1000)
     }
   }
 }
@@ -1557,6 +1695,11 @@ async function saveFiles() {
 
   var selected = toRaw(filteredFiles.value)
   var modified = textRef.value.innerText.trim().split(/\n/)
+  for (var i = 0; i < Number(selected.length); i++) {
+    let fullPath = selected[i].path + modified[i];
+    modified[i] = fullPath;
+  }
+
   let haveDuplicates = modified.filter((item, index) => modified.indexOf(item) !== index)
   let tooLong = modified.length > selected.length
   let targetLength = Number(selected.length)
@@ -1573,7 +1716,7 @@ async function saveFiles() {
       }
       state.isRenaming = true
       let filecounter = 0
-      /*state.selectedFiles = []*/
+      /* state.selectedFiles = [] */
       state.prefix = ''
       state.suffix = ''
       state.findText = ''
@@ -1593,11 +1736,12 @@ async function saveFiles() {
           break
         } else {
           //if(selected[i].id == 'file'+i){
-          let newFullName = modified[i]
-          let newExtension = newFullName.split('.').slice(-1).toString()
+          let newPath = modified[i]
+          let newFullName = newPath.replace(selected[i].path, '')
+          let newExtension = newFullName.split('.').pop().toString()
           let newName = newFullName.replace('.' + newExtension, '')
           let initialPath = selected[i].path + selected[i].fullName
-          let newPath = selected[i].path + modified[i]
+          // let newPath = selected[i].path + modified[i]
           let updating = selected[i]
 
           updating.newFullName = newFullName
@@ -1698,7 +1842,7 @@ async function delFile(removed) {
       let extension = ''
       let name = modified ? modified : 'unnamed(' + i + ')'
       if (modified.includes('.')) {
-        extension = modified.split('.').slice(-1).toString()
+        extension = modified.split('.').pop().toString()
         name = modified.split('.')[0].toString()
       }
       selectedFiles[i].newFullName = name + '.' + extension
@@ -1710,20 +1854,6 @@ async function delFile(removed) {
     i = i + 1
   } while (i < selectedFiles.length)
 
-  selectedFiles = await selectedFiles.sort(function sortById(a, b) {
-    let aID = a.id
-    let bID = b.id
-
-    if (aID > bID) {
-      return 1
-    }
-    if (aID == bID) {
-      return 0
-    }
-    if (aID < bID) {
-      return -1
-    }
-  })
   state.selectedFiles = toRaw(await selectedFiles.filter((file) => file.id != removed.id))
 }
 </script>

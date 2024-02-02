@@ -5,6 +5,7 @@ const messages = {
     buttons: {
       files: 'Files',
       folder: 'Folder',
+      recursive: 'Recursive',
       rename: 'Rename',
       close: 'Close',
       cancel: 'Cancel',
@@ -21,6 +22,7 @@ const messages = {
       language: 'Change language',
       files: 'Select files',
       folder: 'Select folder',
+      recursive: 'Read folders recursively',
       restore: 'Restore names',
       rename: 'Rename files',
       tolower: 'To lower case',
@@ -90,6 +92,7 @@ const messages = {
         p7: 'Once you have finished proceed to click the Rename button.',
         p8: 'To restore the original names click on the restore button next to the folder and file selection buttons.'
       },
+      updating: 'Updating names...',
       loading: 'Loading files...',
       renaming: 'Renaming files...',
       nofiles: 'No files selected.'
@@ -99,6 +102,7 @@ const messages = {
     buttons: {
       files: 'Archivos',
       folder: 'Carpeta',
+      recursive: 'Recursivo',
       rename: 'Renombrar',
       close: 'Cerrar',
       cancel: 'Cancelar',
@@ -115,6 +119,7 @@ const messages = {
       language: 'Cambiar idioma',
       files: 'Seleccionar archivos',
       folder: 'Seleccionar carpeta',
+      recursive: 'Leer carpetas recursivamente',
       restore: 'Restaurar nombres',
       rename: 'Renombrar archivos',
       tolower: 'Convertir a minúsculas',
@@ -184,6 +189,7 @@ const messages = {
         p7: 'Una vez que haya terminado proceda a pulsar el botón Renombrar.',
         p8: 'Para restablecer los nombres originales proceda a pulsar el botón restaurar situado al lado de los botones de selección de carpeta y archivos.'
       },
+      updating: 'Actualizando nombres de archivo...',
       loading: 'Cargando archivos...',
       renaming: 'Renombrando archivos...',
       nofiles: 'No hay archivos seleccionados.'
