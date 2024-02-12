@@ -6,6 +6,7 @@
     :variant="btnVariant"
     :color="btnColor"
     :class="btnClass"
+    :density="btnDensity"
   >
     {{ btnText || 'Confirm?' }}
     <v-dialog v-model="dialog" activator="parent" width="auto">
@@ -57,6 +58,7 @@ const props = defineProps({
   btnTitle: String,
   btnAppendIcon: String,
   btnDisabled: Boolean,
+  btnDensity: String,
   btnVariant: String,
   btnColor: String,
   btnClass: String,

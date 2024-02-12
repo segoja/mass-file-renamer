@@ -14,7 +14,7 @@
             {{ t('buttons.folder') }}
           </v-btn>
         </v-col>
-        <v-col class="mh-100 col-auto pr-2 pl-0">
+        <v-col class="mh-100 col-auto pr-0 pl-0">
           <v-btn
             @click="toggleRecursive"
             variant="plain"
@@ -37,18 +37,6 @@
             :title="t('titles.files')"
           >
             {{ t('buttons.files') }}
-          </v-btn>
-        </v-col>
-        <v-col class="mh-100 col-auto pr-2">
-          <v-btn
-            @click="restoreNames"
-            color="cyan-darken-1"
-            :variant="isDark ? 'tonal' : 'elevated'"
-            :disabled="isDisabled"
-            class="w-100 mh-100"
-            :title="t('titles.restore')"
-          >
-            <v-icon size="large" icon="mdi-restore" />
           </v-btn>
         </v-col>
         <v-col class="mh-100">
@@ -449,20 +437,7 @@
               ></v-icon>
             </v-btn>
           </span>
-        </v-col>
-        <v-col class="col-auto">
-          <v-chip
-            class="my-0 ms-11 me-11"
-            label
-            :color="isDark ? 'cyan-darken-3' : 'cyan-darken-4'"
-            size="small"
-            variant="text"
-            :disabled="isDisabled"
-          >
-           {{ numFiltered }} {{t('labels.files')}}
-           <v-icon end size="x-small" class="mt-1" icon="mdi-file"></v-icon>
-          </v-chip>
-        </v-col>  
+        </v-col> 
       </v-row>
     </v-col>
     <v-col class="py-0 my-0 d-md-none d-lg-block">
@@ -530,6 +505,18 @@
     >
       <v-btn
         density="compact"
+        @click="restoreNames"
+        class="copy-btn px-2"
+        variant="plain"
+        :color="isDark ? 'cyan-darken-1' : 'cyan-darken-3'"
+        :ripple="false"
+        :disabled="isDisabled"
+        :title="t('titles.restore')"
+      >
+        <v-icon icon="mdi-restore"></v-icon>
+      </v-btn> 
+      <v-btn
+        density="compact"
         @click="copyToClipboard"
         class="copy-btn px-0 py-0"
         variant="plain"
@@ -550,7 +537,7 @@
       <v-btn
         density="compact"
         @click="clearAll"
-        class="copy-btn px-2"
+        class="copy-btn ps-2"
         variant="plain"
         color="error"
         :ripple="false"
@@ -562,14 +549,14 @@
     </v-col>
   </v-row>
   <v-row
-    class="h-100 overflow-y-auto mb-3 mt-0 mx-3 border-2 h-auto justify-center v-field-label files"
+    class="h-100 overflow-y-auto mb-0 mt-0 mx-3 border-2 h-auto justify-center v-field-label files"
     no-gutters
     align="start"
   >
     <v-col class="py-0 my-0 ps-1 overflow-x-auto" v-if="!showData || !numFiltered">
       <pre>{{ state.isUpdating? t('text.updating'):t('text.nofiles') }}</pre>
     </v-col>
-    <v-col :class="text.selectedText ? 'py-0 my-0 ps-1 overflow-x-auto' : 'd-none'" v-if="showData">
+    <v-col :class="text.selectedText ? 'py-0 my-0 ps-1 overflow-x-auto overflow-y-hidden mh-100' : 'd-none'" v-if="showData">
       <pre
         ref="textRef"
         @keydown="backupText"
@@ -581,7 +568,7 @@
       >
     </v-col>
     <v-col
-      :class="text.selectedText ? 'py-0 my-0 overflow-x-hidden d-md-none d-lg-block' : 'd-none'"
+      :class="text.selectedText ? 'py-0 my-0 overflow-x-hidden d-md-none d-lg-block mh-100' : 'd-none'"
       v-if="showData"
     >
       <pre
@@ -591,7 +578,7 @@
         >{{ text.initialText }}</pre
       >
     </v-col>
-    <v-col :class="text.selectedText ? 'py-0 my-0 ps-0 col-auto' : 'd-none'" v-if="showData">
+    <v-col :class="text.selectedText ? 'py-0 my-0 ps-0 col-auto mh-100' : 'd-none'" v-if="showData">
       <pre
         ref="dateRef"
         disabled
@@ -614,8 +601,16 @@
         <v-icon icon="mdi-close-box-outline" color="error"></v-icon>
       </button>
     </v-col>
-  </v-row> 
-
+  </v-row>
+  <div class="d-block w-100 px-5 pt-0 pb-0 mt-0 mb-0">
+    <small :class="isDark? 'text-teal-darken-3 d-block float-right':'text-teal-darken-1 d-block float-right'">
+      <small
+        class="d-block">
+        {{ numFiltered }} {{t('labels.files')}}
+        <v-icon end size="x-small" class="ms-0" icon="mdi-file"></v-icon>
+      </small>
+    </small>
+  </div>
   <v-row no-gutters class="maxh-25 mx-3 mb-3" v-if="errorSystem.alert">
     <v-col class="h-100 overflow-y-auto rounded">
       <v-alert closable v-model="errorSystem.alert" variant="tonal" type="error" title="Error">
@@ -789,8 +784,8 @@ import { listen } from '@tauri-apps/api/event'
 listen('tauri://file-drop', async(event) => {
   if(event.payload){
     let items = event.payload;
-    // console.log('Items dropped:', items);
-    console.log('Number of items dropped:'+ items.length);
+    // console.debug('Items dropped:', items);
+    console.debug('Number of items dropped:'+ items.length);
     if(items.length > 0){
       let dropped = true;
       let droppedFiles = []; 
@@ -985,11 +980,11 @@ watch(sorting, () => {
           }
         break;
       default:
-        console.log('No valid attribute to sort by.');
+        console.debug('No valid attribute to sort by.');
     }
     state.selectedFiles = list;
   } else {
-    console.log('Nothing to sort here');
+    console.debug('Nothing to sort here');
   }
 })
 
@@ -1439,33 +1434,35 @@ function openFolder() {
   errorSystem.alertMsg = ''
   errorSystem.alert = false
 
-  dialog.open({ directory: true }).then((directory) => {
-    state.isLoading = true
-    //console.debug(directory);
-    if (directory != null && directory) {
+  dialog.open({ directory: true }).then(async (directory) => {
+    console.debug(directory);
+    if (await directory != null && directory) {
+      state.isLoading = true
+      state.stopLoading = false
       let dropped = false;
       readFolder(directory, dropped)
     } else {
       state.isLoading = false
+      state.stopLoading = true
     }
   })
 }
 
 function getRecursiveList(objects) {
     let flatArray = [];
-
-    // Recursive function to handle the flattening
-    function flatten(array) {
-        array.forEach(item => {
-            const { children, ...rest } = item;
-            flatArray.push(rest); // Push the current item without the children
-            if (children && children.length) {
-                flatten(children); // Recursively flatten the children
-            }
-        });
+    if(!state.cancelLoad){
+      // Recursive function to handle the flattening
+      function flatten(array) {
+          array.forEach(item => {
+              const { children, ...rest } = item;
+              flatArray.push(rest); // Push the current item without the children
+              if (children && children.length) {
+                  flatten(children); // Recursively flatten the children
+              }
+          });
+      }
+      flatten(objects); // Kick off the recursion with the initial array
     }
-
-    flatten(objects); // Kick off the recursion with the initial array
     return flatArray;
 }
 
@@ -1475,14 +1472,17 @@ async function readFolder(directory = '', dropped = false){
 
   return await readDir(directory, { recursive: state.recursive }).then(async (files) => {
     if(state.recursive){
+      // console.debug('Getting recursive...');
       files = await getRecursiveList(files);
+      // console.debug('Got all recursive...')
     }
 
     rFiles.isReading = false;
 
     files = await files.filter(item => !item.name.startsWith('.') && !item.name.startsWith('Thumbs.db') && !item.name.startsWith('desktop.ini'));
+    // console.debug('Excluding system files...');
 
-    if (files.length > 0) {
+    if (files.length > 0 && !state.stopLoading) {
       let prevText = ''
       if (filteredFiles.value.length > 0) {
         rFiles.previousFiles = toRaw(filteredFiles.value)
@@ -1534,17 +1534,17 @@ async function readFolder(directory = '', dropped = false){
               newFullName: fullfilename,
               saved: false
             }
-
+            // console.debug('Added file...');
             await state.selectedFiles.push(newFile)
 
             filecounter += 1
           } else {
             folders += 1
-            // console.log(pathInfo);
+            // console.debug(pathInfo);
           }
           if (filecounter == totalLenght - folders) {
             rFiles.loadingTimeout = setTimeout(() => {
-              console.log('Stopped loading on folder read because finished.')
+              console.debug('Stopped loading on folder read because finished.')
               progress.value = 0
               state.isLoading = false
             }, 1000)
@@ -1556,11 +1556,11 @@ async function readFolder(directory = '', dropped = false){
     } else {
       rFiles.loadingTimeout = setTimeout(() => {
         state.isLoading = false
-        console.log('Stopped loading on folders because no files')
+        console.debug('Stopped loading on folders because no files')
       }, 1000)
     }
   }).catch((error)=>{
-    console.log(error)
+    console.debug(error)
     errorSystem.renameErrors.push(error);
     errorSystem.alertMsg = error;
     errorSystem.alert = true
@@ -1581,15 +1581,21 @@ function selectFiles() {
       title: 'Select files to rename' /*, filters: filter */
     })
     .then(async (files) => {
-      // console.debug(files);
-      let dropped = false;
-      readFiles(files, dropped);
+      if(files != null){
+        // console.debug(files);
+        let dropped = false;
+        state.stopLoading = false;
+        readFiles(files, dropped);
+      } else {
+        state.isLoading = false;
+        state.stopLoading = true;
+      }
     })
 }
 
 async function readFiles(files, dropped = false){
   state.isLoading = true;
-  // console.log('Initial files: ', files);
+  // console.debug('Initial files: ', files);
   files = await files.filter(item => { 
     let filedata = item.split('\\')
     let fullfilename = filedata.pop().toString()
@@ -1598,7 +1604,7 @@ async function readFiles(files, dropped = false){
     }
   });
   if (files) {
-    if (files.length > 0) {
+    if (files.length > 0 && !state.stopLoading) {
       let prevText = ''
       if (filteredFiles.value.length > 0) {
         rFiles.previousFiles = toRaw(filteredFiles.value)
@@ -1666,7 +1672,7 @@ async function readFiles(files, dropped = false){
               if(!rFiles.isReading){
                 progress.value = 0
                 state.isLoading = false
-                console.log('Stopped loading on files because finished.')
+                console.debug('Stopped loading on files because finished.')
               }
             }, 1000)
           } else {
@@ -1678,7 +1684,7 @@ async function readFiles(files, dropped = false){
       rFiles.loadingTimeout = setTimeout(() => {
         if(!rFiles.isReading){
           state.isLoading = false
-          console.log('Stopped loading on files because no files.')
+          console.debug('Stopped loading on files because no files.')
         }
       }, 1000)
     }

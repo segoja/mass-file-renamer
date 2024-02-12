@@ -5,7 +5,7 @@ const messages = {
     buttons: {
       files: 'Files',
       folder: 'Folder',
-      recursive: 'Recursive',
+      recursive: 'Include subfolders',
       rename: 'Rename',
       close: 'Close',
       cancel: 'Cancel',
@@ -22,7 +22,7 @@ const messages = {
       language: 'Change language',
       files: 'Select files',
       folder: 'Select folder',
-      recursive: 'Read folders recursively',
+      recursive: 'Include subfolders',
       restore: 'Restore names',
       rename: 'Rename files',
       tolower: 'To lower case',
@@ -60,14 +60,14 @@ const messages = {
       remove: 'Remove',
       files: 'files',
       file_path: 'Path:',
-      file_created: 'Creation date:',
-      file_modified: 'Modified date:',
+      file_created: 'Created:',
+      file_modified: 'Modified:',
       sort: 'Sort:',
       by_name: 'name',
       by_extension: 'extension',
       by_path: 'path',
-      by_created: 'creation date',
-      by_modified: 'modified date'
+      by_created: 'creation',
+      by_modified: 'modified'
     },
     text: {
       confirmtitle: 'Confirm action',
@@ -102,7 +102,7 @@ const messages = {
     buttons: {
       files: 'Archivos',
       folder: 'Carpeta',
-      recursive: 'Recursivo',
+      recursive: 'Incluir subdirectorios',
       rename: 'Renombrar',
       close: 'Cerrar',
       cancel: 'Cancelar',
@@ -119,7 +119,7 @@ const messages = {
       language: 'Cambiar idioma',
       files: 'Seleccionar archivos',
       folder: 'Seleccionar carpeta',
-      recursive: 'Leer carpetas recursivamente',
+      recursive: 'Incluir subdirectorios',
       restore: 'Restaurar nombres',
       rename: 'Renombrar archivos',
       tolower: 'Convertir a minúsculas',
@@ -157,14 +157,14 @@ const messages = {
       remove: 'Eliminar',
       files: 'archivos',
       file_path: 'Ruta',
-      file_created: 'Fecha de creación:',
-      file_modified: 'Fecha de modificación:',
+      file_created: 'creado:',
+      file_modified: 'modificado:',
       sort: 'Ordenar:',
       by_name: 'nombre',
       by_extension: 'extensión',
       by_path: 'ruta',
-      by_created: 'fecha de creación',
-      by_modified: 'fecha de modificación'
+      by_created: 'creado',
+      by_modified: 'modificado'
     },
     text: {
       confirmtitle: 'Confirmar acción',
