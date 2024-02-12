@@ -16,6 +16,7 @@ Rename your files as if you were editing a text file.
 * Uppercase/Lowercase
 * Create naming templates adding/removing elements like number, date, time, prefix and suffix.
 * Find/replace/remove text functionality with regex support.
+* Drag & drop support for files and/or folders.
 
 ## Requirements
 

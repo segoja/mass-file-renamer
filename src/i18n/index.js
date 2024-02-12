@@ -5,6 +5,7 @@ const messages = {
     buttons: {
       files: 'Files',
       folder: 'Folder',
+      recursive: 'Include subfolders',
       rename: 'Rename',
       close: 'Close',
       cancel: 'Cancel',
@@ -21,6 +22,7 @@ const messages = {
       language: 'Change language',
       files: 'Select files',
       folder: 'Select folder',
+      recursive: 'Include subfolders',
       restore: 'Restore names',
       rename: 'Rename files',
       tolower: 'To lower case',
@@ -44,7 +46,8 @@ const messages = {
       about: 'About/Help',
       mode: 'Light/Dark mode',
       wipe: 'Empty file list',
-      del: 'Exclude file'
+      del: 'Exclude file',
+      more: 'File info'
     },
     labels: {
       filter: 'Filter files',
@@ -55,7 +58,16 @@ const messages = {
       find: 'Find',
       replace: 'Replace',
       remove: 'Remove',
-      filename: 'File names'
+      files: 'files',
+      file_path: 'Path:',
+      file_created: 'Created:',
+      file_modified: 'Modified:',
+      sort: 'Sort:',
+      by_name: 'name',
+      by_extension: 'extension',
+      by_path: 'path',
+      by_created: 'creation',
+      by_modified: 'modified'
     },
     text: {
       confirmtitle: 'Confirm action',
@@ -71,7 +83,7 @@ const messages = {
       },
       helptitle: 'Help',
       helptext: {
-        p1: 'Select the files you want to rename with the file or folder selector.',
+        p1: 'Select the files you want to rename with the file or folder selector or dragging and dropping them to the Mass File Renamer window.',
         p2: 'Filter the files if needed and proceed to rename them.',
         p3: 'Rename files as if you were editing text in any normal text editor such as Notepad.',
         p4: 'The template system allows you to rename massive amounts of files using the same template/naming convention for all of them, so you can number them, include the date or time, add prefixes or suffixes, and so on.',
@@ -80,6 +92,7 @@ const messages = {
         p7: 'Once you have finished proceed to click the Rename button.',
         p8: 'To restore the original names click on the restore button next to the folder and file selection buttons.'
       },
+      updating: 'Updating names...',
       loading: 'Loading files...',
       renaming: 'Renaming files...',
       nofiles: 'No files selected.'
@@ -89,6 +102,7 @@ const messages = {
     buttons: {
       files: 'Archivos',
       folder: 'Carpeta',
+      recursive: 'Incluir subdirectorios',
       rename: 'Renombrar',
       close: 'Cerrar',
       cancel: 'Cancelar',
@@ -105,6 +119,7 @@ const messages = {
       language: 'Cambiar idioma',
       files: 'Seleccionar archivos',
       folder: 'Seleccionar carpeta',
+      recursive: 'Incluir subdirectorios',
       restore: 'Restaurar nombres',
       rename: 'Renombrar archivos',
       tolower: 'Convertir a minúsculas',
@@ -128,7 +143,8 @@ const messages = {
       about: 'Acerca de/Ayuda',
       mode: 'Modo claro/oscuro',
       wipe: 'Vaciar lista de archivos',
-      del: 'Excluir archivo'
+      del: 'Excluir archivo',
+      more: 'Información del archivo'
     },
     labels: {
       filter: 'Filtrar archivos',
@@ -139,7 +155,16 @@ const messages = {
       find: 'Buscar',
       replace: 'Reemplazar',
       remove: 'Eliminar',
-      filename: 'Nombres de archivo'
+      files: 'archivos',
+      file_path: 'Ruta',
+      file_created: 'creado:',
+      file_modified: 'modificado:',
+      sort: 'Ordenar:',
+      by_name: 'nombre',
+      by_extension: 'extensión',
+      by_path: 'ruta',
+      by_created: 'creado',
+      by_modified: 'modificado'
     },
     text: {
       confirmtitle: 'Confirmar acción',
@@ -155,7 +180,7 @@ const messages = {
       },
       helptitle: 'Ayuda',
       helptext: {
-        p1: 'Seleccione los archivos que desea renombrar con el selector de archivos o carpetas. ',
+        p1: 'Seleccione los archivos que desea renombrar con el selector de archivos o el de carpetas o bien arrastrando los archivos a la ventana de Mass File Renamer. ',
         p2: 'Filtre los archivos si lo necesita y proceda a renombrarlos.',
         p3: 'Renombre archivos como si estuviera editando texto en cualquier editor de texto normal como el bloc de notas.',
         p4: 'El sistema de plantillas le permite renombrar cantidades masivas de ficheros utilizando la misma plantilla/convención de nomenclatura para todos ellos, de forma que pueda numerarlos, incluir la fecha o la hora, añadir prefijos o sufijos, etc.',
@@ -164,6 +189,7 @@ const messages = {
         p7: 'Una vez que haya terminado proceda a pulsar el botón Renombrar.',
         p8: 'Para restablecer los nombres originales proceda a pulsar el botón restaurar situado al lado de los botones de selección de carpeta y archivos.'
       },
+      updating: 'Actualizando nombres de archivo...',
       loading: 'Cargando archivos...',
       renaming: 'Renombrando archivos...',
       nofiles: 'No hay archivos seleccionados.'
