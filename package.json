@@ -25,7 +25,7 @@
   "devDependencies": {
     "@mdi/font": "^7.2.96",
     "@rushstack/eslint-patch": "^1.2.0",
-    "@tauri-apps/cli": "^1.5.8",
+    "@tauri-apps/cli": ">=1.5.8",
     "@vitejs/plugin-vue": "^4.6.2",
     "@vue/eslint-config-prettier": "^7.1.0",
     "@vue/test-utils": "^2.3.2",
@@ -34,7 +34,7 @@
     "filename-reserved-regex": "^3.0.0",
     "jsdom": "^22.1.0",
     "prettier": "^2.8.8",
-    "vite": "^4.5.2",
+    "vite": ">=4.5.2",
     "vitest": "^0.31.4"
   }
 }
