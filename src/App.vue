@@ -24,7 +24,6 @@ import { storeToRefs } from 'pinia'
 const store = configStore()
 const { isDark } = storeToRefs(store)
 const { savedLocale } = storeToRefs(store)
-
 </script>
 
 <style>
