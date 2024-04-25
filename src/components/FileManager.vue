@@ -176,11 +176,71 @@
                       class="my-0 mx-0 mr-1 px-2 py-0 text-warning"
                       size="small"
                       @click="removeElement(index)"
+                      v-if="item !== 'number' ? true : false"
+                    >
+                      {{ t('titles.' + item) }}                      
+                    </v-chip>
+                    <v-chip
+                      label
+                      draggable
+                      class="my-0 mx-0 mr-1 px-2 py-0 text-warning"
+                      size="small"
+                      @click="removeElement(index)"
+                      v-if="item == 'number' ? true : false"
+                      close-icon="mdi-cog"
                     >
                       {{ t('titles.' + item) }}
+                      <template #close>
+                        <v-icon icon="mdi-cog" @click.stop="toggleNumberModal" :title="t('titles.startnumber')" />
+                      </template>
                     </v-chip>
                   </v-slide-group-item>
                 </v-slide-group>
+                <v-dialog
+                  v-model="state.startNumberModal"
+                  persistent
+                  transition="dialog-bottom-transition"
+                  class="w-100"
+                  v-if="state.startNumberModal"
+                >
+                  <v-row no-gutters class="mx-3 justify-center">
+                    <v-col cols="12" md="6">
+                      <v-card class="w-100">
+                        <v-card-title class="text-h5 text-center">{{ t('titles.startnumber') }}</v-card-title>
+                        <v-card-text>
+                          <v-text-field
+                            v-model="state.startNumber"
+                            :label="t('titles.startnumber')"
+                            density="compact"
+                            variant="solo"
+                            single-line
+                            hide-details
+                            clearable
+                            placeholder = "1"
+                            @click:clear="state.startNumber = 1"
+                            :disabled="isDisabled"
+                            @update:modelValue="setUpdating"
+                            @keypress="onlyNumbers(event)"
+                          />
+                        </v-card-text>
+                        <v-card-actions>
+                          <v-row dense no-gutters justify="center">
+                            <v-col class="col-auto">
+                              <v-btn
+                                color="warning"
+                                :variant="isDark ? 'tonal' : 'elevated'"
+                                @click="toggleNumberModal()"
+                                :title="t('titles.close')"
+                              >
+                                {{ t('buttons.close') }}
+                              </v-btn>
+                            </v-col>
+                          </v-row>
+                        </v-card-actions>
+                      </v-card>
+                    </v-col>
+                  </v-row>
+                </v-dialog>
               </v-col>
             </v-row>
           </v-chip-group>
@@ -864,6 +924,8 @@ const state = reactive({
   previousFiles: [],
   recursive: false,
   fileFilter: '',
+  startNumberModal: false,
+  startNumber: 1,
   preTime: false,
   preNum: false,
   prefix: '',
@@ -1044,6 +1106,16 @@ watch(state, () => {
   }
 })
 
+function onlyNumbers(evt) {
+  evt = (evt) ? evt : window.event;
+  let expect = evt.target.value.toString() + evt.key.toString();
+  if (!/^[-+]?[0-9]*\.?[0-9]*$/.test(expect)) {
+    evt.preventDefault();
+  } else {
+    return true;
+  }
+
+}
 function filterText(list) {
   let newText = ''
   if (list.length > 0) {
@@ -1078,7 +1150,10 @@ function filterText(list) {
 
     if (state.elements.length > 0 || state.prefix || state.suffix || state.findText) {
       let numDigits = 0
-      numDigits = list.length
+      numDigits = list.length;
+      if(!isNaN(state.startNumber)){
+        numDigits = list.length + Number(state.startNumber);
+      }
       numDigits = Math.floor(Math.log10(numDigits) + 1)
 
       let structure = ''
@@ -1086,10 +1161,9 @@ function filterText(list) {
         structure = '\\' + state.elements.join('\\')
       }
 
-      let listNr = 0
+      let listNr = !isNaN(state.startNumber) ? Number(state.startNumber) || 0 : 1;
       list.forEach((item) => {
-        listNr = String(Number(listNr) + 1)
-
+        listNr = String(Number(listNr));
         let finalExtension = item.newExtension
         let finalName = item.newName
 
@@ -1132,8 +1206,9 @@ function filterText(list) {
 
         finalName = finalName.replace(filenameReservedRegex(), '')
         finalName = finalName.replace(windowsReservedNameRegex(), '')
-
         textLines.push(finalName)
+
+        listNr = String(Number(listNr) + 1 );
       })
     } else {
       textLines = list.map((item) => item.newFullName)
@@ -1250,6 +1325,7 @@ function clearAll() {
   state.previousFiles = []
   state.fileFilter = ''
   errorSystem.renameErrors = []
+  state.startNumber = 1
   state.preTime = false
   state.preNum = false
   state.prefix = ''
@@ -1305,6 +1381,10 @@ function removeElement(index) {
   if (!isNaN(index)) {
     state.elements.splice(index, 1)
   }
+}
+
+function toggleNumberModal() {
+  state.startNumberModal = !state.startNumberModal;
 }
 
 function toggleToLower() {
