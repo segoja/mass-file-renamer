@@ -1,6 +1,6 @@
 {
   "name": "mass-file-renamer",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "private": true,
   "scripts": {
     "dev": "vite",
@@ -12,7 +12,7 @@
     "tauri": "tauri"
   },
   "dependencies": {
-    "@intlify/unplugin-vue-i18n": "^0.12.3",    
+    "@intlify/unplugin-vue-i18n": "^0.12.3",
     "@tauri-apps/api": "^1.5.2",
     "dayjs": "^1.11.8",
     "pinia": "^2.0.36",
@@ -34,7 +34,7 @@
     "filename-reserved-regex": "^3.0.0",
     "jsdom": "^22.1.0",
     "prettier": "^2.8.8",
-    "vite": ">=4.5.2",
+    "vite": "^5.2.10",
     "vitest": "^0.31.4"
   }
 }

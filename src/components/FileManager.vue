@@ -176,11 +176,79 @@
                       class="my-0 mx-0 mr-1 px-2 py-0 text-warning"
                       size="small"
                       @click="removeElement(index)"
+                      v-if="item !== 'number' ? true : false"
                     >
                       {{ t('titles.' + item) }}
                     </v-chip>
+                    <v-chip
+                      label
+                      draggable
+                      class="my-0 mx-0 mr-1 px-2 py-0 text-warning"
+                      size="small"
+                      @click="removeElement(index)"
+                      v-if="item == 'number' ? true : false"
+                      close-icon="mdi-cog"
+                    >
+                      {{ t('titles.' + item) }}
+                      <template #close>
+                        <v-icon
+                          icon="mdi-cog"
+                          @click.stop="toggleNumberModal"
+                          :title="t('titles.startnumber')"
+                        />
+                      </template>
+                    </v-chip>
                   </v-slide-group-item>
                 </v-slide-group>
+                <v-dialog
+                  v-model="state.startNumberModal"
+                  persistent
+                  transition="dialog-top-transition"
+                  class="w-100"
+                  v-if="state.startNumberModal"
+                >
+                  <v-row no-gutters class="mx-3 justify-center">
+                    <v-col cols="12" md="6">
+                      <v-card class="w-100" :color="isDark ? 'grey-darken-4' : 'grey-lighten-1'">
+                        <v-card-title class="text-h5 text-center">{{
+                          t('titles.startnumber')
+                        }}</v-card-title>
+                        <v-card-text>
+                          <v-text-field
+                            v-model="state.startNumber"
+                            :label="t('titles.startnumber')"
+                            density="compact"
+                            variant="solo"
+                            single-line
+                            hide-details
+                            clearable
+                            :bg-color="isDark ? 'grey-darken-3' : 'grey-lighten-3'"
+                            :disabled="isDisabled"
+                            maxlength="8"
+                            size="8"
+                            @click:clear="state.startNumber = 1"
+                            @update:modelValue="setUpdating"
+                            @keypress="onlyNumbers(event)"
+                          />
+                        </v-card-text>
+                        <v-card-actions>
+                          <v-row dense no-gutters justify="center">
+                            <v-col class="col-auto">
+                              <v-btn
+                                color="warning"
+                                :variant="isDark ? 'tonal' : 'elevated'"
+                                @click="toggleNumberModal()"
+                                :title="t('titles.close')"
+                              >
+                                {{ t('buttons.close') }}
+                              </v-btn>
+                            </v-col>
+                          </v-row>
+                        </v-card-actions>
+                      </v-card>
+                    </v-col>
+                  </v-row>
+                </v-dialog>
               </v-col>
             </v-row>
           </v-chip-group>
@@ -794,9 +862,9 @@ pre.selectable {
 </style>
 
 <script setup>
-import { dialog, invoke, path } from '@tauri-apps/api'
+import { dialog, invoke } from '@tauri-apps/api'
 import { readDir, renameFile } from '@tauri-apps/api/fs'
-import { ref, computed, reactive, watch, toRaw, createHydrationRenderer } from 'vue'
+import { ref, computed, reactive, watch, toRaw } from 'vue'
 import dayjs from 'dayjs'
 import ButtonConfirm from './ButtonConfirm.vue'
 import { useI18n } from 'vue-i18n'
@@ -814,12 +882,10 @@ listen('tauri://file-drop', async (event) => {
       let droppedFiles = []
       let droppedFolders = []
       let fileList = []
-      let numItems = 0
       for (let i = 0; i < items.length; i++) {
         await invoke('is_folder', { filePath: items[i] }).then(async (isFolder) => {
           rFiles.isReading = true
           if (isFolder) {
-            numItems += 1
             droppedFolders.push(items[i])
             await readDir(items[i], { recursive: state.recursive }).then(async (files) => {
               if (state.recursive) {
@@ -829,7 +895,6 @@ listen('tauri://file-drop', async (event) => {
               rFiles.isReading = false
             })
           } else {
-            numItems += 1
             droppedFiles.push(items[i])
             rFiles.isReading = false
           }
@@ -864,6 +929,8 @@ const state = reactive({
   previousFiles: [],
   recursive: false,
   fileFilter: '',
+  startNumberModal: false,
+  startNumber: 1,
   preTime: false,
   preNum: false,
   prefix: '',
@@ -1044,6 +1111,15 @@ watch(state, () => {
   }
 })
 
+function onlyNumbers(evt) {
+  evt = evt ? evt : window.event
+  let expect = evt.target.value.toString() + evt.key.toString()
+  if (!/^[-+]?[0-9]*\.?[0-9]*$/.test(expect)) {
+    evt.preventDefault()
+  } else {
+    return true
+  }
+}
 function filterText(list) {
   let newText = ''
   if (list.length > 0) {
@@ -1079,6 +1155,9 @@ function filterText(list) {
     if (state.elements.length > 0 || state.prefix || state.suffix || state.findText) {
       let numDigits = 0
       numDigits = list.length
+      if (!isNaN(state.startNumber)) {
+        numDigits = list.length + Number(state.startNumber)
+      }
       numDigits = Math.floor(Math.log10(numDigits) + 1)
 
       let structure = ''
@@ -1086,10 +1165,9 @@ function filterText(list) {
         structure = '\\' + state.elements.join('\\')
       }
 
-      let listNr = 0
+      let listNr = !isNaN(state.startNumber) ? Number(state.startNumber) || 0 : 1
       list.forEach((item) => {
-        listNr = String(Number(listNr) + 1)
-
+        listNr = String(Number(listNr))
         let finalExtension = item.newExtension
         let finalName = item.newName
 
@@ -1132,8 +1210,9 @@ function filterText(list) {
 
         finalName = finalName.replace(filenameReservedRegex(), '')
         finalName = finalName.replace(windowsReservedNameRegex(), '')
-
         textLines.push(finalName)
+
+        listNr = String(Number(listNr) + 1)
       })
     } else {
       textLines = list.map((item) => item.newFullName)
@@ -1250,6 +1329,7 @@ function clearAll() {
   state.previousFiles = []
   state.fileFilter = ''
   errorSystem.renameErrors = []
+  state.startNumber = 1
   state.preTime = false
   state.preNum = false
   state.prefix = ''
@@ -1305,6 +1385,10 @@ function removeElement(index) {
   if (!isNaN(index)) {
     state.elements.splice(index, 1)
   }
+}
+
+function toggleNumberModal() {
+  state.startNumberModal = !state.startNumberModal
 }
 
 function toggleToLower() {
@@ -1730,7 +1814,7 @@ async function saveFiles() {
 
   var selected = toRaw(filteredFiles.value)
   var modified = textRef.value.innerText.trim().split(/\n/)
-  for (var i = 0; i < Number(selected.length); i++) {
+  for (let i = 0; i < Number(selected.length); i++) {
     let fullPath = selected[i].path + modified[i]
     modified[i] = fullPath
   }
@@ -1759,7 +1843,7 @@ async function saveFiles() {
       state.elements = []
       state.removeText = false
 
-      for (var i = 0; i < targetLength; i++) {
+      for (let i = 0; i < targetLength; i++) {
         if (state.stopRenaming) {
           //clearAll()
           progress.value = 0

@@ -9,7 +9,7 @@
   },
   "package": {
     "productName": "Mass File Renamer",
-    "version": "0.6.0"
+    "version": "0.6.1"
   },
   "tauri": {
     "allowlist": {
