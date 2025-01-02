@@ -16,6 +16,28 @@ struct ListInfo {
     extension: Option<String>,
 }
 
+
+#[tauri::command]
+fn rename_file(initial: &str, newname: &str) -> Result<(), String> {
+    // Check if the origin file exists
+    let origin_path = Path::new(initial);
+    if !origin_path.exists() {
+        return Err(format!("Origin file does not exist: {}", initial));
+    }
+
+    // Check if the destination file already exists
+    let destination_path = Path::new(newname);
+    if destination_path.exists() {
+        return Err(format!("Destination path already exists: {}", newname));
+    }
+
+    // Perform the rename operation
+    match fs::rename(origin_path, destination_path) {
+        Ok(_) => Ok(()),
+        Err(err) => Err(format!("Failed to rename file: {}", err)),
+    }
+}
+
 #[tauri::command]
 fn read_folder(folder_path: String, recursive: bool) -> Result<Vec<ListInfo>, String> {
     let mut file_data = Vec::new();
@@ -43,7 +65,8 @@ fn read_folder(folder_path: String, recursive: bool) -> Result<Vec<ListInfo>, St
                 Ok(abs_path) => match abs_path.to_str() {
                     Some(path_str) => {
                         // Normalize the path by removing the extended-length prefix if present
-                        if path_str.starts_with(r"\\?\\") {
+                        if path_str.starts_with("\\\\?\\") {
+                            // Remove the extended-length prefix
                             path_str[4..].to_string() // Remove the `\\?\\` prefix
                         } else {
                             path_str.to_string()
@@ -162,6 +185,7 @@ fn main() {
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_fs::init())
         .invoke_handler(tauri::generate_handler![
+            rename_file,
             read_folder,
             modified_time,
             get_path_info,

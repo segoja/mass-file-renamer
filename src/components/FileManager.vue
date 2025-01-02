@@ -116,14 +116,13 @@
                 : 'v-field v-field--variant-solo d-block rounded py-0 my-0 px-1'
             "
             :disabled="isDisabled"
-            justify="space-around"
             selected-class="none"
           >
-            <v-chip variant="text" label class="v-label my-2 pr-0">
+            <v-chip variant="text" label class="v-label my-2 mx-0 pr-0">
               {{ t('labels.elements') }}
             </v-chip>
             <v-chip
-              class="my-2 mx-0 mr-1 py-0 px-2"
+              class="my-2 py-0 mx-0 ml-1 px-2"
               v-for="item in items"
               draggable
               label
@@ -139,15 +138,15 @@
           <v-btn
             label
             draggable
-            class="my-0 py-0 px-3 ml-2 mh-100"
+            class="mh-100 ml-2 px-0 template-clear px-2"
             @click="clearElements"
             :variant="isDark ? 'tonal' : 'elevated'"
             color="cyan-darken-1"
             :disabled="isDisabled ? true : !state.elements.length"
             :title="t('titles.clear')"
-            append-icon="mdi-delete-outline"
           >
             {{ state.elements.length }}
+            <v-icon icon="mdi-delete-outline" />
           </v-btn>
         </v-col>
       </v-row>
@@ -157,7 +156,7 @@
             :class="
               isDisabled
                 ? 'v-field v-field--variant-solo d-block rounded my-0 py-1 px-1 w-100 h-100 v-field--disabled'
-                : 'v-field v-field--variant-solo d-block rounded my-0 py-1 px-1 w-100 h-100'
+                : 'v-field v-field--variant-solo d-block rounded my-0 py-1 px-1 w-100 h-100 fancyscroll'
             "
             :disabled="isDisabled"
           >
@@ -167,8 +166,8 @@
                   {{ t('labels.template') }}
                 </v-chip>
               </v-col>
-              <v-col class="py-0 my-0" align="center">
-                <v-slide-group class="py-0 d-flex px-0" show-arrows mobile-breakpoint="xs">
+              <v-col class="py-0 my-0" align="start">
+                <v-slide-group class="py-0 d-flex px-0" show-arrows mobile-breakpoint="sm">
                   <v-slide-group-item v-for="(item, index) in state.elements" :key="item">
                     <v-chip
                       label
@@ -758,7 +757,9 @@ pre {
 .v-overlay-container .filetooltip .v-card--variant-flat {
   /*background-color: rgba(64,64,64, 0.75) !important; */
 }
-
+.template-clear {
+  min-width: auto !important;
+}
 .prebutton.del {
   margin-right: 0.1em;
 }
@@ -804,15 +805,15 @@ pre.selectable {
   pointer-events: stroke;
 }
 
-.fancyscroll {
-  overflow-x: hidden !important;
+.fancyscroll, .fancyscroll .v-col{
+  overflow-x: auto !important;
 }
-.fancyscroll .v-slide-group__container,
-.fancyscroll .v-slide-group__container .v-slide-group__content {
+.fancyscroll > .v-slide-group__container,
+.fancyscroll > .v-slide-group__container .v-slide-group__content {
   position: relative !important;
   display: block !important;
   max-width: 100% !important;
-  width: 100% !important;
+  width: auto !important;
 }
 .fancyscroll .v-slide-group__next,
 .fancyscroll .v-slide-group__prev {
@@ -863,7 +864,6 @@ pre.selectable {
 
 <script setup>
 import { invoke } from "@tauri-apps/api/core"
-import { rename  } from '@tauri-apps/plugin-fs'
 import { ref, computed, reactive, watch, toRaw } from 'vue'
 import dayjs from 'dayjs'
 import ButtonConfirm from './ButtonConfirm.vue'
@@ -1874,8 +1874,7 @@ async function saveFiles() {
           updating.newExtension = newExtension
 
           if (updating.newFullName != updating.fullName) {
-            await rename(initialPath, newPath).then(
-              (success) => {
+            await invoke('rename_file', { initial: initialPath, newname: newPath }).then(async (success) => {
                 console.debug(success)
                 updated = true
                 console.debug('Initial: ', initialPath)
