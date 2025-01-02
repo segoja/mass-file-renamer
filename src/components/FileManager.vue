@@ -862,8 +862,8 @@ pre.selectable {
 </style>
 
 <script setup>
-import { dialog, invoke } from '@tauri-apps/api'
-import { readDir, renameFile } from '@tauri-apps/api/fs'
+import { invoke } from "@tauri-apps/api/core"
+import { rename  } from '@tauri-apps/plugin-fs'
 import { ref, computed, reactive, watch, toRaw } from 'vue'
 import dayjs from 'dayjs'
 import ButtonConfirm from './ButtonConfirm.vue'
@@ -871,11 +871,12 @@ import { useI18n } from 'vue-i18n'
 import filenameReservedRegex, { windowsReservedNameRegex } from 'filename-reserved-regex'
 
 import { listen } from '@tauri-apps/api/event'
+import * as dialog from "@tauri-apps/plugin-dialog"
 
-listen('tauri://file-drop', async (event) => {
+listen('tauri://drag-drop', async (event) => {
   if (event.payload) {
-    let items = event.payload
-    // console.debug('Items dropped:', items);
+    let items = event?.payload?.paths
+    console.debug('Items dropped:', items);
     console.debug('Number of items dropped:' + items.length)
     if (items.length > 0) {
       let dropped = true
@@ -887,9 +888,9 @@ listen('tauri://file-drop', async (event) => {
           rFiles.isReading = true
           if (isFolder) {
             droppedFolders.push(items[i])
-            await readDir(items[i], { recursive: state.recursive }).then(async (files) => {
+            await invoke('read_folder', { folderPath: items[i], recursive: state.recursive }).then(async (files) => {
               if (state.recursive) {
-                files = await getRecursiveList(files)
+                files = getRecursiveList(files)
               }
               fileList.push(await files.map((item) => item.path.toString()))
               rFiles.isReading = false
@@ -904,7 +905,7 @@ listen('tauri://file-drop', async (event) => {
       if (items.length === droppedFiles.length + droppedFolders.length && !rFiles.isReading) {
         //console.debug('droppedFiles ' + droppedFiles)
         //console.debug('droppedFolders '  +  droppedFolders)
-        await clearAll()
+        clearAll()
         fileList.push(droppedFiles)
 
         if (fileList.length > 0) {
@@ -1537,9 +1538,9 @@ function openFolder() {
   errorSystem.alertMsg = ''
   errorSystem.alert = false
 
-  dialog.open({ directory: true }).then(async (directory) => {
-    console.debug(directory)
-    if ((await directory) != null && directory) {
+  dialog.open({ directory: true }).then((directory) => {
+    console.debug('Opened folder:',directory)
+    if ((directory) != null && directory) {
       state.isLoading = true
       state.stopLoading = false
       let dropped = false
@@ -1572,18 +1573,20 @@ function getRecursiveList(objects) {
 async function readFolder(directory = '', dropped = false) {
   state.isLoading = true
   rFiles.isReading = true
-
-  return await readDir(directory, { recursive: state.recursive })
-    .then(async (files) => {
+  console.debug('Reading opened folder...')
+  
+  return await invoke('read_folder', { folderPath: directory, recursive: state.recursive }).then(async (files) => {
       if (state.recursive) {
         // console.debug('Getting recursive...');
-        files = await getRecursiveList(files)
+        files = getRecursiveList(files)
         // console.debug('Got all recursive...')
       }
 
       rFiles.isReading = false
 
-      files = await files.filter(
+      // console.debug('Files list: ', files)
+
+      files = files.filter(
         (item) =>
           !item.name.startsWith('.') &&
           !item.name.startsWith('Thumbs.db') &&
@@ -1600,7 +1603,7 @@ async function readFolder(directory = '', dropped = false) {
           }
         }
         if (!dropped) {
-          await clearAll()
+          clearAll()
         }
         let totalLenght = files.length
         let filecounter = 0
@@ -1617,6 +1620,9 @@ async function readFolder(directory = '', dropped = false) {
           } else {
             let file = files[i]
             state.isLoading = true
+
+            
+            console.debug('File: ',file);
             let pathInfo = await invoke('get_path_info', { filePath: file.path })
             if (!pathInfo.is_folder) {
               let created = pathInfo.created.secs_since_epoch * 1000
@@ -1868,7 +1874,7 @@ async function saveFiles() {
           updating.newExtension = newExtension
 
           if (updating.newFullName != updating.fullName) {
-            await renameFile(initialPath, newPath).then(
+            await rename(initialPath, newPath).then(
               (success) => {
                 console.debug(success)
                 updated = true
