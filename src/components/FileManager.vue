@@ -105,15 +105,15 @@
       </v-row>
     </v-col>
   </v-row>
-  <v-row class="mx-2" dense>
-    <v-col cols="12" md="6">
-      <v-row dense justify="space-around" no-gutters>
-        <v-col class="mh-100 align-end">
+  <v-row class="mx-2" dense justify="space-around" align-self="center">
+    <v-col cols="12" md="6" >
+      <v-row dense>
+        <v-col class="mh-100" align-self="center">
           <v-chip-group
             :class="
               isDisabled
-                ? 'v-field v-field--variant-solo d-block rounded py-0 my-0 px-1 v-field--disabled'
-                : 'v-field v-field--variant-solo d-block rounded py-0 my-0 px-1'
+                ? 'v-field v-field--variant-solo d-block rounded py-0 my-0 px-1 v-field--disabled '
+                : 'v-field v-field--variant-solo d-block rounded py-0 my-0 px-1 d-flex'
             "
             :disabled="isDisabled"
             selected-class="none"
@@ -134,24 +134,23 @@
             </v-chip>
           </v-chip-group>
         </v-col>
-        <v-col class="col-auto mh-100">
+        <v-col class="mh-100" align-self="center" cols="auto">
           <v-btn
-            label
-            draggable
-            class="mh-100 ml-2 px-0 template-clear px-2"
-            @click="clearElements"
-            :variant="isDark ? 'tonal' : 'elevated'"
-            color="cyan-darken-1"
-            :disabled="isDisabled ? true : !state.elements.length"
-            :title="t('titles.clear')"
-          >
-            {{ state.elements.length }}
-            <v-icon icon="mdi-delete-outline" />
+              label
+              class="mx-0 ml-1 px-2"
+              @click="clearElements"
+              :color="isDisabled? 'cyan-darken-1' : 'cyan-darken-1'"
+              :disabled="isDisabled ? true : !state.elements.length"
+              :title="t('titles.clear')"
+              variant="tonal"
+            >
+              {{ state.elements.length }}
+              <v-icon icon="mdi-delete-outline" size="large" />
           </v-btn>
         </v-col>
       </v-row>
       <v-row dense>
-        <v-col cols="12">
+        <v-col cols="12"  align-self="left" >
           <v-chip-group
             :class="
               isDisabled
@@ -161,12 +160,12 @@
             :disabled="isDisabled"
           >
             <v-row no-gutters dense align="center" justify="start">
-              <v-col class="col-auto" cols="auto">
+              <v-col cols="auto">
                 <v-chip variant="text" label class="v-label my-1 pr-0" draggable>
                   {{ t('labels.template') }}
                 </v-chip>
               </v-col>
-              <v-col class="py-0 my-0" align="start">
+              <v-col class="py-0 my-0" align="left" >
                 <v-slide-group class="py-0 d-flex px-0" show-arrows mobile-breakpoint="sm">
                   <v-slide-group-item v-for="(item, index) in state.elements" :key="item">
                     <v-chip
@@ -753,9 +752,6 @@ pre {
 .v-overlay-container .filetooltip .v-overlay__content {
   background-color: transparent !important;
   border: 0px !important;
-}
-.v-overlay-container .filetooltip .v-card--variant-flat {
-  /*background-color: rgba(64,64,64, 0.75) !important; */
 }
 .template-clear {
   min-width: auto !important;

@@ -41,7 +41,7 @@
   },
   "productName": "Mass File Renamer",
   "mainBinaryName": "Mass File Renamer",
-  "version": "0.6.1",
+  "version": "0.6.6",
   "identifier": "com.Segoja.MFR",
   "plugins": {},
   "app": {

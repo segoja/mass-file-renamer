@@ -65,11 +65,14 @@ fn read_folder(folder_path: String, recursive: bool) -> Result<Vec<ListInfo>, St
                 Ok(abs_path) => match abs_path.to_str() {
                     Some(path_str) => {
                         // Normalize the path by removing the extended-length prefix if present
-                        if path_str.starts_with("\\\\?\\") {
+                        if path_str.starts_with("\\\\?\\UNC") {
                             // Remove the extended-length prefix
-                            path_str[4..].to_string() // Remove the `\\?\\` prefix
+                            path_str.replace("\\\\?\\UNC", "\\").to_string()
+                            // path_str.to_string() // Remove the `\\?\\` prefix
                         } else {
-                            path_str.to_string()
+                            // path_str[3..].to_string() // Return the path unchanged if no normalization is needed 
+                            // TODO: remove UNC prefix
+                            path_str[4..].to_string()
                         }
                     }
                     None => return Err("Failed to convert path to string".to_string()),
@@ -141,26 +144,34 @@ fn generate_file_hash<P: AsRef<Path>>(path: P) -> String {
 #[derive(Debug, Serialize)]
 struct FileInfo {
     is_folder: bool,
-    created: Option<SystemTime>,
-    modified: Option<SystemTime>,
+    created: Option<std::time::SystemTime>,
+    modified: Option<std::time::SystemTime>,
     uniqueid: String,
 }
 
 #[tauri::command]
-fn get_path_info(file_path: String) -> FileInfo {
+fn get_path_info(file_path: String) -> Result<FileInfo, String> {
     let path = Path::new(&file_path);
 
-    let meta = fs::metadata(file_path.clone()).ok();
-    let created = meta.clone().expect("REASON").created().ok();
-    let modified = meta.clone().expect("REASON").modified().ok();
+    // Attempt to get metadata for the file
+    let meta = match fs::metadata(&file_path) {
+        Ok(metadata) => metadata,
+        Err(err) => return Err(format!("Failed to retrieve metadata: {}", err.to_string())),
+    };
+
+    // Attempt to get creation and modification times
+    let created = meta.created().ok();
+    let modified = meta.modified().ok();
+
+    // Generate a unique ID for the file
     let id = generate_file_hash(&file_path);
 
-    FileInfo {
+    Ok(FileInfo {
         is_folder: path.is_dir(),
-        created: created,
-        modified: modified,
+        created,
+        modified,
         uniqueid: id,
-    }
+    })
 }
 
 #[tauri::command]
