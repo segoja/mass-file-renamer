@@ -31,13 +31,13 @@ const { savedLocale } = storeToRefs(store)
 html::-webkit-scrollbar {
   display: none;
 }
-body,
 html {
   overflow: hidden;
   height: 100%;
-  background-color: transparent;
 }
 body {
+  overflow: hidden;
+  height: 100%;
   border: 2px solid rgba(64, 64, 64, 0.5) !important;
 }
 
@@ -46,7 +46,7 @@ main {
 }
 
 main.light {
-  background-color: rgba(0, 0, 0, 0.1);
+  background-color: rgba(255, 255, 255, 0.9);
 }
 
 main .files {

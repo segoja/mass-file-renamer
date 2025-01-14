@@ -74,7 +74,7 @@ import { useI18n } from 'vue-i18n'
 import AboutModal from './AboutModal.vue'
 import LangSwitcher from './LangSwitcher.vue'
 import { useTheme } from 'vuetify'
-import { getCurrent } from '@tauri-apps/api/window'
+import { getCurrentWindow } from "@tauri-apps/api/window";
 import { configStore } from '@/stores/config'
 import { storeToRefs } from 'pinia'
 
@@ -97,12 +97,12 @@ function toggleLight() {
 }
 
 async function minimizeWindow() {
-  let currentWindow = getCurrent()
+  let currentWindow = getCurrentWindow()
   currentWindow.minimize()
 }
 
 async function maximizeWindow() {
-  let currentWindow = getCurrent()
+  let currentWindow = getCurrentWindow()
   let isMaxed = await currentWindow.isMaximized()
   if (isMaxed) {
     currentWindow.unmaximize()
@@ -112,7 +112,7 @@ async function maximizeWindow() {
 }
 
 async function closeWindow() {
-  let currentWindow = getCurrent()
+  let currentWindow = getCurrentWindow()
   currentWindow.close()
 }
 </script>

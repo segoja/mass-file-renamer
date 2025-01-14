@@ -105,25 +105,24 @@
       </v-row>
     </v-col>
   </v-row>
-  <v-row class="mx-2" dense>
-    <v-col cols="12" md="6">
-      <v-row dense justify="space-around" no-gutters>
-        <v-col class="mh-100 align-end">
+  <v-row class="mx-2" dense justify="space-around" align-self="center">
+    <v-col cols="12" md="6" >
+      <v-row dense>
+        <v-col class="mh-100" align-self="center">
           <v-chip-group
             :class="
               isDisabled
-                ? 'v-field v-field--variant-solo d-block rounded py-0 my-0 px-1 v-field--disabled'
-                : 'v-field v-field--variant-solo d-block rounded py-0 my-0 px-1'
+                ? 'v-field v-field--variant-solo d-block rounded py-0 my-0 px-1 v-field--disabled '
+                : 'v-field v-field--variant-solo d-block rounded py-0 my-0 px-1 d-flex'
             "
             :disabled="isDisabled"
-            justify="space-around"
             selected-class="none"
           >
-            <v-chip variant="text" label class="v-label my-2 pr-0">
+            <v-chip variant="text" label class="v-label my-2 mx-0 pr-0">
               {{ t('labels.elements') }}
             </v-chip>
             <v-chip
-              class="my-2 mx-0 mr-1 py-0 px-2"
+              class="my-2 py-0 mx-0 ml-1 px-2"
               v-for="item in items"
               draggable
               label
@@ -135,40 +134,39 @@
             </v-chip>
           </v-chip-group>
         </v-col>
-        <v-col class="col-auto mh-100">
+        <v-col class="mh-100" align-self="center" cols="auto">
           <v-btn
-            label
-            draggable
-            class="my-0 py-0 px-3 ml-2 mh-100"
-            @click="clearElements"
-            :variant="isDark ? 'tonal' : 'elevated'"
-            color="cyan-darken-1"
-            :disabled="isDisabled ? true : !state.elements.length"
-            :title="t('titles.clear')"
-            append-icon="mdi-delete-outline"
-          >
-            {{ state.elements.length }}
+              label
+              class="mx-0 ml-1 px-2"
+              @click="clearElements"
+              :color="isDisabled? 'cyan-darken-1' : 'cyan-darken-1'"
+              :disabled="isDisabled ? true : !state.elements.length"
+              :title="t('titles.clear')"
+              variant="tonal"
+            >
+              {{ state.elements.length }}
+              <v-icon icon="mdi-delete-outline" size="large" />
           </v-btn>
         </v-col>
       </v-row>
       <v-row dense>
-        <v-col cols="12">
+        <v-col cols="12"  align-self="left" >
           <v-chip-group
             :class="
               isDisabled
                 ? 'v-field v-field--variant-solo d-block rounded my-0 py-1 px-1 w-100 h-100 v-field--disabled'
-                : 'v-field v-field--variant-solo d-block rounded my-0 py-1 px-1 w-100 h-100'
+                : 'v-field v-field--variant-solo d-block rounded my-0 py-1 px-1 w-100 h-100 fancyscroll'
             "
             :disabled="isDisabled"
           >
             <v-row no-gutters dense align="center" justify="start">
-              <v-col class="col-auto" cols="auto">
+              <v-col cols="auto">
                 <v-chip variant="text" label class="v-label my-1 pr-0" draggable>
                   {{ t('labels.template') }}
                 </v-chip>
               </v-col>
-              <v-col class="py-0 my-0" align="center">
-                <v-slide-group class="py-0 d-flex px-0" show-arrows mobile-breakpoint="xs">
+              <v-col class="py-0 my-0" align="left" >
+                <v-slide-group class="py-0 d-flex px-0" show-arrows mobile-breakpoint="sm">
                   <v-slide-group-item v-for="(item, index) in state.elements" :key="item">
                     <v-chip
                       label
@@ -755,10 +753,9 @@ pre {
   background-color: transparent !important;
   border: 0px !important;
 }
-.v-overlay-container .filetooltip .v-card--variant-flat {
-  /*background-color: rgba(64,64,64, 0.75) !important; */
+.template-clear {
+  min-width: auto !important;
 }
-
 .prebutton.del {
   margin-right: 0.1em;
 }
@@ -804,15 +801,15 @@ pre.selectable {
   pointer-events: stroke;
 }
 
-.fancyscroll {
-  overflow-x: hidden !important;
+.fancyscroll, .fancyscroll .v-col{
+  overflow-x: auto !important;
 }
-.fancyscroll .v-slide-group__container,
-.fancyscroll .v-slide-group__container .v-slide-group__content {
+.fancyscroll > .v-slide-group__container,
+.fancyscroll > .v-slide-group__container .v-slide-group__content {
   position: relative !important;
   display: block !important;
   max-width: 100% !important;
-  width: 100% !important;
+  width: auto !important;
 }
 .fancyscroll .v-slide-group__next,
 .fancyscroll .v-slide-group__prev {
@@ -862,8 +859,7 @@ pre.selectable {
 </style>
 
 <script setup>
-import { dialog, invoke } from '@tauri-apps/api'
-import { readDir, renameFile } from '@tauri-apps/api/fs'
+import { invoke } from "@tauri-apps/api/core"
 import { ref, computed, reactive, watch, toRaw } from 'vue'
 import dayjs from 'dayjs'
 import ButtonConfirm from './ButtonConfirm.vue'
@@ -871,11 +867,12 @@ import { useI18n } from 'vue-i18n'
 import filenameReservedRegex, { windowsReservedNameRegex } from 'filename-reserved-regex'
 
 import { listen } from '@tauri-apps/api/event'
+import * as dialog from "@tauri-apps/plugin-dialog"
 
-listen('tauri://file-drop', async (event) => {
+listen('tauri://drag-drop', async (event) => {
   if (event.payload) {
-    let items = event.payload
-    // console.debug('Items dropped:', items);
+    let items = event?.payload?.paths
+    console.debug('Items dropped:', items);
     console.debug('Number of items dropped:' + items.length)
     if (items.length > 0) {
       let dropped = true
@@ -887,9 +884,9 @@ listen('tauri://file-drop', async (event) => {
           rFiles.isReading = true
           if (isFolder) {
             droppedFolders.push(items[i])
-            await readDir(items[i], { recursive: state.recursive }).then(async (files) => {
+            await invoke('read_folder', { folderPath: items[i], recursive: state.recursive }).then(async (files) => {
               if (state.recursive) {
-                files = await getRecursiveList(files)
+                files = getRecursiveList(files)
               }
               fileList.push(await files.map((item) => item.path.toString()))
               rFiles.isReading = false
@@ -904,7 +901,7 @@ listen('tauri://file-drop', async (event) => {
       if (items.length === droppedFiles.length + droppedFolders.length && !rFiles.isReading) {
         //console.debug('droppedFiles ' + droppedFiles)
         //console.debug('droppedFolders '  +  droppedFolders)
-        await clearAll()
+        clearAll()
         fileList.push(droppedFiles)
 
         if (fileList.length > 0) {
@@ -1537,9 +1534,9 @@ function openFolder() {
   errorSystem.alertMsg = ''
   errorSystem.alert = false
 
-  dialog.open({ directory: true }).then(async (directory) => {
-    console.debug(directory)
-    if ((await directory) != null && directory) {
+  dialog.open({ directory: true }).then((directory) => {
+    console.debug('Opened folder:',directory)
+    if ((directory) != null && directory) {
       state.isLoading = true
       state.stopLoading = false
       let dropped = false
@@ -1572,18 +1569,20 @@ function getRecursiveList(objects) {
 async function readFolder(directory = '', dropped = false) {
   state.isLoading = true
   rFiles.isReading = true
-
-  return await readDir(directory, { recursive: state.recursive })
-    .then(async (files) => {
+  console.debug('Reading opened folder...')
+  
+  return await invoke('read_folder', { folderPath: directory, recursive: state.recursive }).then(async (files) => {
       if (state.recursive) {
         // console.debug('Getting recursive...');
-        files = await getRecursiveList(files)
+        files = getRecursiveList(files)
         // console.debug('Got all recursive...')
       }
 
       rFiles.isReading = false
 
-      files = await files.filter(
+      // console.debug('Files list: ', files)
+
+      files = files.filter(
         (item) =>
           !item.name.startsWith('.') &&
           !item.name.startsWith('Thumbs.db') &&
@@ -1600,7 +1599,7 @@ async function readFolder(directory = '', dropped = false) {
           }
         }
         if (!dropped) {
-          await clearAll()
+          clearAll()
         }
         let totalLenght = files.length
         let filecounter = 0
@@ -1617,6 +1616,9 @@ async function readFolder(directory = '', dropped = false) {
           } else {
             let file = files[i]
             state.isLoading = true
+
+            
+            console.debug('File: ',file);
             let pathInfo = await invoke('get_path_info', { filePath: file.path })
             if (!pathInfo.is_folder) {
               let created = pathInfo.created.secs_since_epoch * 1000
@@ -1868,8 +1870,7 @@ async function saveFiles() {
           updating.newExtension = newExtension
 
           if (updating.newFullName != updating.fullName) {
-            await renameFile(initialPath, newPath).then(
-              (success) => {
+            await invoke('rename_file', { initial: initialPath, newname: newPath }).then(async (success) => {
                 console.debug(success)
                 updated = true
                 console.debug('Initial: ', initialPath)
