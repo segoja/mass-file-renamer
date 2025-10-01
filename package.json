@@ -12,32 +12,33 @@
     "tauri": "tauri"
   },
   "dependencies": {
-    "@intlify/unplugin-vue-i18n": "^0.12.3",
+    "@intlify/unplugin-vue-i18n": "^11.0.1",
     "@tauri-apps/api": "^2.1.1",
     "@tauri-apps/plugin-dialog": "^2.2.0",
     "@tauri-apps/plugin-fs": "^2.2.0",
     "@tauri-apps/plugin-shell": "^2.2.0",
+    "@vue/compiler-sfc": "^3.5.22",
     "dayjs": "^1.11.8",
-    "pinia": "^2.0.36",
-    "vue": "^3.3.2",
-    "vue-i18n": "^v9.3.0-beta.21",
+    "pinia": "^3.0.3",
+    "vue": "^3.5.22",
+    "vue-i18n": "^11.1.12",
     "vue-router": "^4.2.0",
     "vue-tauri-draggable": "^0.2.0",
-    "vuetify": "3.7.4"
+    "vuetify": "3.10.4"
   },
   "devDependencies": {
     "@mdi/font": "^7.2.96",
     "@rushstack/eslint-patch": "^1.2.0",
     "@tauri-apps/cli": "^2.1.0",
-    "@vitejs/plugin-vue": "^4.6.2",
-    "@vue/eslint-config-prettier": "^7.1.0",
+    "@vitejs/plugin-vue": "^6.0.1",
+    "@vue/eslint-config-prettier": "^10.2.0",
     "@vue/test-utils": "^2.3.2",
-    "eslint": "^8.39.0",
-    "eslint-plugin-vue": "^9.11.0",
-    "filename-reserved-regex": "^3.0.0",
-    "jsdom": "^22.1.0",
-    "prettier": "^2.8.8",
-    "vite": "^5.2.10",
-    "vitest": "^0.31.4"
+    "eslint": "^9.36.0",
+    "eslint-plugin-vue": "^10.5.0",
+    "filename-reserved-regex": "^4.0.0",
+    "jsdom": "^27.0.0",
+    "prettier": "^3.6.2",
+    "vite": "^7.1.7",
+    "vitest": "^3.2.4"
   }
 }
